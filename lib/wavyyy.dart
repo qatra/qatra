@@ -6,7 +6,7 @@ import 'package:wave/wave.dart';
 
 class Wavyyyy extends StatelessWidget  {
 
-  Wavyyyy(
+  const Wavyyyy(
       {this.leftIcon,
         this.onPressedLeft,
         this.rightIcon,
@@ -14,37 +14,19 @@ class Wavyyyy extends StatelessWidget  {
         this.title,
         this.backGroundColor,
         this.directionOfRightIcon});
-  var leftIcon;
-  var onPressedLeft;
-  var rightIcon;
-  var onPressedRight;
-  var title;
-  var backGroundColor;
-  var directionOfRightIcon;
+  final IconData? leftIcon;
+  final VoidCallback? onPressedLeft;
+  final IconData? rightIcon;
+  final VoidCallback? onPressedRight;
+  final String? title;
+  final Color? backGroundColor;
+  final TextDirection? directionOfRightIcon;
 
 
 
-  MaskFilter _blur;
-  final List<MaskFilter> _blurs = [
-    null,
-    MaskFilter.blur(BlurStyle.normal, 10.0),
-    MaskFilter.blur(BlurStyle.inner, 10.0),
-    MaskFilter.blur(BlurStyle.outer, 10.0),
-    MaskFilter.blur(BlurStyle.solid, 16.0),
-  ];
-  int _blurIndex = 0;
-  MaskFilter _nextBlur() {
-    if (_blurIndex == _blurs.length - 1) {
-      _blurIndex = 0;
-    } else {
-      _blurIndex = _blurIndex + 1;
-    }
-    _blur = _blurs[_blurIndex];
-    return _blurs[_blurIndex];
-  }
   @override
   Widget build(BuildContext context) {
-    _buildCard({Config config, Color backgroundColor = Colors.transparent}) {
+    Widget _buildCard({required Config config, Color backgroundColor = Colors.transparent}) {
       return RotatedBox(
         quarterTurns: 2,
         child: WaveWidget(
@@ -64,14 +46,13 @@ class Wavyyyy extends StatelessWidget  {
             _buildCard(
               config: CustomConfig(
                 gradients: [
-                  [Colors.red, Colors.red[100]],
-                  [Colors.red[300], Colors.red[500]],
-                  [Colors.red[700], Colors.red[800]],
-                  [Colors.red[900], Colors.red[900]]
+                  [Colors.red, Colors.red[100]!],
+                  [Colors.red[300]!, Colors.red[500]!],
+                  [Colors.red[700]!, Colors.red[800]!],
+                  [Colors.red[900]!, Colors.red[900]!]
                 ],
                 durations: [35000, 19440, 10800, 6000],
                 heightPercentages: [0.20, 0.23, 0.25, 0.30],
-                blur: _blur,
                 gradientBegin: Alignment.bottomLeft,
                 gradientEnd: Alignment.topRight,
               ),
@@ -109,7 +90,7 @@ class Wavyyyy extends StatelessWidget  {
               child: IconButton(
                 onPressed: onPressedRight,
                 icon: Directionality(
-                  textDirection: directionOfRightIcon,
+                  textDirection: directionOfRightIcon ?? TextDirection.ltr,
                   child: Icon(
                     rightIcon,
                     size: 25,

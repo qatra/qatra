@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:icandoit/wavyyy.dart';
-import '../appBar_widget.dart';
 import 'blazma_governrate_bank.dart';
 
 class BlazmaBank extends StatefulWidget {

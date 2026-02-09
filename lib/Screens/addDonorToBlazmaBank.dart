@@ -42,12 +42,12 @@ class AddDonerToBlazmaBank extends StatefulWidget {
 class _AddDonerToBlazmaBankState extends State<AddDonerToBlazmaBank> {
   GlobalKey<ScaffoldState> scafoldKey = new GlobalKey<ScaffoldState>();
 
-  final _fireStore = Firestore.instance;
-  User _user;
-  var name;
-  var fasila;
-  var city;
-  var phone;
+  final _fireStore = FirebaseFirestore.instance;
+  User? _user;
+  String? name;
+  String? fasila;
+  String? city;
+  String? phone;
   final _formKey = GlobalKey<FormState>();
   bool isLoading = false;
   var _currentFasilaSelected = 'حدد الفصيلة';
@@ -64,7 +64,7 @@ class _AddDonerToBlazmaBankState extends State<AddDonerToBlazmaBank> {
   ];
 
   showNotification(msg, _scafold) {
-    _scafold.currentState.showSnackBar(
+    _scafold.currentState?.showSnackBar(
       SnackBar(
         content: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -87,7 +87,7 @@ class _AddDonerToBlazmaBankState extends State<AddDonerToBlazmaBank> {
   }
 
   validation() {
-    _formKey.currentState.validate() ? updataDataOfUser() : print("not valid");
+    (_formKey.currentState?.validate() ?? false) ? updataDataOfUser() : print("not valid");
   }
 
   updataDataOfUser() async {
@@ -116,10 +116,10 @@ class _AddDonerToBlazmaBankState extends State<AddDonerToBlazmaBank> {
 
         await _fireStore
             .collection('blazmaBank')
-            .document(widget.city)
+            .doc(widget.city)
             .collection('doners')
-            .document(now.toString())
-            .setData(_user.toMap(_user));
+            .doc(now.toString())
+            .set(_user?.toMap(_user) ?? {});
 
         Navigator.pop(context);
 
@@ -202,39 +202,40 @@ class _AddDonerToBlazmaBankState extends State<AddDonerToBlazmaBank> {
                       children: <Widget>[
                         Container(
                           padding: const EdgeInsets.only(bottom: 10),
-                          child: DropdownButtonFormField<String>(
-                            validator: (value) => value == "حدد الفصيلة"
-                                ? 'برجاء اختيار الفصيلة'
-                                : null,
-                            elevation: 10,
-                            isDense: true,
-                            decoration: InputDecoration(
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(20.0)),
-                                prefixIcon: Icon(
-                                  Icons.local_hospital,
-                                  size: 22,
-                                )),
-                            items: _fasila.map((String dropDownStringItem) {
-                              return DropdownMenuItem<String>(
-                                value: dropDownStringItem,
-                                child: Center(
-                                  child: Text(
-                                    dropDownStringItem,
-                                    textDirection: TextDirection.ltr,
-                                    style: TextStyle(
-                                      fontFamily: 'Tajawal',
+                            child: DropdownButtonFormField<String>(
+                              validator: (value) => value == "حدد الفصيلة"
+                                  ? 'برجاء اختيار الفصيلة'
+                                  : null,
+                              elevation: 10,
+                              isDense: true,
+                              decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(20.0)),
+                                  prefixIcon: Icon(
+                                    Icons.local_hospital,
+                                    size: 22,
+                                  )),
+                              items: _fasila.map((String dropDownStringItem) {
+                                return DropdownMenuItem<String>(
+                                  value: dropDownStringItem,
+                                  child: Center(
+                                    child: Text(
+                                      dropDownStringItem,
+                                      textDirection: TextDirection.ltr,
+                                      style: TextStyle(
+                                        fontFamily: 'Tajawal',
+                                      ),
                                     ),
                                   ),
-                                ),
-                              );
-                            }).toList(),
-                            onChanged: (String newValueSelected) {
-                              // Your code to execute, when a menu item is selected from drop down
-                              _onDropDownItemSelected(newValueSelected);
-                            },
-                            value: _currentFasilaSelected,
-                          ),
+                                );
+                              }).toList(),
+                              onChanged: (String? newValueSelected) {
+                                if (newValueSelected != null) {
+                                  _onDropDownItemSelected(newValueSelected);
+                                }
+                              },
+                              initialValue: _currentFasilaSelected,
+                            ),
                         ),
                         SizedBox(
                           height: 4,
@@ -242,7 +243,7 @@ class _AddDonerToBlazmaBankState extends State<AddDonerToBlazmaBank> {
                         Container(
                           child: new TextFormField(
                             validator: (text) {
-                              if (text.isEmpty) {
+                              if (text == null || text.isEmpty) {
                                 return "برجاء كتابة الاسم";
                               }
                               if (text.length > 40) {
@@ -251,6 +252,7 @@ class _AddDonerToBlazmaBankState extends State<AddDonerToBlazmaBank> {
                               if (text.length < 2) {
                                 return "الاسم قصير جدا";
                               }
+                              return null;
                             },
                             textAlign: TextAlign.center,
                             controller: null,
@@ -277,6 +279,7 @@ class _AddDonerToBlazmaBankState extends State<AddDonerToBlazmaBank> {
                           padding: EdgeInsets.only(top: 10),
                           child: new TextFormField(
                             validator: (text) {
+                              if (text == null) return null;
                               if (text.contains(" ")) {
                                 return "لا يجب ان توجد مسافات في رقم التليفون";
                               }
@@ -286,6 +289,7 @@ class _AddDonerToBlazmaBankState extends State<AddDonerToBlazmaBank> {
                               if (text.length != 11) {
                                 return "رقم التليفون غير صحيح";
                               }
+                              return null;
                             },
                             textAlign: TextAlign.center,
                             keyboardType: TextInputType.number,
@@ -314,7 +318,7 @@ class _AddDonerToBlazmaBankState extends State<AddDonerToBlazmaBank> {
                             child: TextFormField(
                               controller: null,
                               validator: (text) {
-                                if (text.isEmpty) {
+                                if (text == null || text.isEmpty) {
                                   return "برجاء تحديد العنوان";
                                 }
                                 if (text.length > 60) {
@@ -323,6 +327,7 @@ class _AddDonerToBlazmaBankState extends State<AddDonerToBlazmaBank> {
                                 if (text.length < 2) {
                                   return "العنوان قصير جدا";
                                 }
+                                return null;
                               },
                               textAlign: TextAlign.center,
                               onChanged: (text) {
@@ -350,7 +355,7 @@ class _AddDonerToBlazmaBankState extends State<AddDonerToBlazmaBank> {
                           height: 47.0,
                           width: 47.0,
                         )
-                            : RaisedButton(
+                             : ElevatedButton(
                           child: Text(
                             'حفظ',
                             style: TextStyle(
@@ -362,9 +367,10 @@ class _AddDonerToBlazmaBankState extends State<AddDonerToBlazmaBank> {
                           onPressed: () {
                             validation();
                           },
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20)),
-                          color: Colors.green,
+                          style: ElevatedButton.styleFrom(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20)),
+                              backgroundColor: Colors.green),
                         ),
                       ],
                     ),

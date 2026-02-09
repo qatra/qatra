@@ -1,12 +1,12 @@
 class User {
-  String displayName;
-  String email;
-  String uid;
-  String phone;
-  String fasila;
-  String address;
-  String dateOfDonation;
-  String imageUrl;
+  String? displayName;
+  String? email;
+  String? uid;
+  String? phone;
+  String? fasila;
+  String? address;
+  String? dateOfDonation;
+  String? imageUrl;
   var date;
 
   User(

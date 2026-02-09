@@ -1,14 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:icandoit/Screens/profile_page.dart';
 import '../user_model.dart';
 import 'register_page.dart';
 import 'first_page.dart';
-import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'dart:io';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' as auth;
 
 class LoginPage extends StatefulWidget {
   @override
@@ -16,9 +15,9 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _fireStore = Firestore.instance;
-  String email;
-  String password;
+  final _fireStore = FirebaseFirestore.instance;
+  String? email;
+  String? password;
   bool _showPassword = false;
   bool showSpinner = false;
   final _loginFormKey = GlobalKey<FormState>();
@@ -27,20 +26,20 @@ class _LoginPageState extends State<LoginPage> {
   GlobalKey<ScaffoldState> _scafold = new GlobalKey<ScaffoldState>();
 
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final auth.FirebaseAuth _auth = auth.FirebaseAuth.instance;
 
   Future _signIn() async {
     try {
       GoogleSignIn googleSignIn = GoogleSignIn();
-      GoogleSignInAccount account = await googleSignIn.signIn();
-      if (account == null) return false;
-      AuthResult res = await _auth.signInWithCredential(
-          GoogleAuthProvider.getCredential(
+      GoogleSignInAccount? account = await googleSignIn.signIn();
+      if (account == null) return;
+      auth.UserCredential res = await _auth.signInWithCredential(
+          auth.GoogleAuthProvider.credential(
               idToken: (await account.authentication).idToken,
               accessToken: (await account.authentication).accessToken));
 
 
-      if (res.additionalUserInfo.isNewUser) {
+      if (res.additionalUserInfo!.isNewUser) {
         setState(() {
           showSpinner = true;
         });
@@ -49,11 +48,11 @@ class _LoginPageState extends State<LoginPage> {
 
           if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
             print("Connected to Mobile Network");
-            FirebaseUser firebaseUser = await _auth.currentUser();
+            auth.User? firebaseUser = _auth.currentUser;
 
             var now = new DateTime.now();
             var _user = User(
-                uid: firebaseUser.uid,
+                uid: firebaseUser!.uid,
                 email: firebaseUser.email,
                 displayName: "---",
                 phone: "---",
@@ -63,8 +62,8 @@ class _LoginPageState extends State<LoginPage> {
                 dateOfDonation: "---");
             await _fireStore
                 .collection('users')
-                .document(firebaseUser.uid)
-                .setData(_user.toMap(_user));
+                .doc(firebaseUser.uid)
+                .set(_user.toMap(_user));
 
             setState(() {
               showSpinner = false;
@@ -76,7 +75,7 @@ class _LoginPageState extends State<LoginPage> {
           setState(() {
             showSpinner = false;
           });
-          showNotification("حدث خطأ أثناء اتمام العملية ", _scafold);
+          showNotification("حدث خطأ أثناء اتمام العملية ", context);
         }
 
         Navigator.pushReplacement(
@@ -99,7 +98,7 @@ class _LoginPageState extends State<LoginPage> {
       }
     } catch (e) {
       print("${e.toString()}");
-      showNotification("${e.toString()}", _scafold);
+      showNotification("${e.toString()}", context);
     }
   }
 
@@ -153,6 +152,7 @@ class _LoginPageState extends State<LoginPage> {
                                       if (text.length < 2) {
                                         return "البريد الالكتروني قصير جدا";
                                       }
+                                      return null;
                                     },
                                     onChanged: (text) {
                                       setState(() {
@@ -188,6 +188,7 @@ class _LoginPageState extends State<LoginPage> {
                                       if (text.length <= 5) {
                                         return "كلمة المرور يجب ان لا تقل عن 6 حروف";
                                       }
+                                      return null;
                                     },
                                     onChanged: (text) {
                                       setState(() {
@@ -237,7 +238,7 @@ class _LoginPageState extends State<LoginPage> {
                                         child: SizedBox(
                                           width: 300,
                                           height: 37,
-                                          child: RaisedButton(
+                                          child: ElevatedButton(
                                             child: Text(
                                               'تسجيل الدخول',
                                               style: TextStyle(
@@ -247,15 +248,16 @@ class _LoginPageState extends State<LoginPage> {
                                               ),
                                             ),
                                             onPressed: () async {
-                                              _loginFormKey.currentState
+                                              _loginFormKey.currentState!
                                                       .validate()
                                                   ? signIn()
                                                   : print("not valid");
                                             },
-                                            shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(20)),
-                                            color: Colors.red[900],
+                                            style: ElevatedButton.styleFrom(
+                                                shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(20)),
+                                                backgroundColor: Colors.red[900]),
                                           ),
                                         ),
                                       ),
@@ -264,7 +266,7 @@ class _LoginPageState extends State<LoginPage> {
                                         child: SizedBox(
                                           width: 300,
                                           height: 37,
-                                          child: RaisedButton(
+                                          child: ElevatedButton(
                                             child: Text(
                                               'إنشاء حساب',
                                               style: TextStyle(
@@ -280,10 +282,11 @@ class _LoginPageState extends State<LoginPage> {
                                                       builder: (context) =>
                                                           new RegisterPage()));
                                             },
-                                            shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(20)),
-                                            color: Colors.green,
+                                            style: ElevatedButton.styleFrom(
+                                                shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(20)),
+                                                backgroundColor: Colors.green),
                                           ),
                                         ),
                                       ),
@@ -331,12 +334,6 @@ class _LoginPageState extends State<LoginPage> {
                                             ),
                                             onPressed: () async {
                                               _signIn();
-//                                              bool res = await _signIn();
-//                                              if (!res) {
-//                                                print("not sucess");
-//                                              } else {
-//                                               ;
-//                                              }
                                             },
                                             shape: RoundedRectangleBorder(
                                                 borderRadius:
@@ -352,7 +349,7 @@ class _LoginPageState extends State<LoginPage> {
                                         height: 3,
                                         color: Colors.grey,
                                       ),
-                                      new FlatButton(
+                                      new TextButton(
                                         child: new Text(
                                           'نسيت كلمة المرور ؟',
                                           style: TextStyle(
@@ -418,11 +415,11 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
             actions: <Widget>[
-              RaisedButton(
+              ElevatedButton(
                 child: Text(
                   'ارسال',
                   style: TextStyle(
-                      color: Colors.white,
+                      color: Colors.white, // check
                       fontWeight: FontWeight.bold,
                       fontFamily: 'Montserrat'),
                 ),
@@ -431,9 +428,10 @@ class _LoginPageState extends State<LoginPage> {
 
                   Navigator.pop(context);
                 },
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                color: Colors.green,
+                style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20)),
+                    backgroundColor: Colors.green),
               ),
             ],
           );
@@ -445,7 +443,7 @@ class _LoginPageState extends State<LoginPage> {
       await _auth.sendPasswordResetEmail(email: email);
       return null;
     } catch (e) {
-      showNotification("لا يوجد اتصال بالانترنت !", _scafold);
+      showNotification("لا يوجد اتصال بالانترنت !", context);
       return e;
     }
   }
@@ -463,13 +461,11 @@ class _LoginPageState extends State<LoginPage> {
         try {
           final user = await _auth.signInWithEmailAndPassword(
               email: email, password: password);
-          if (user != null) {
-            Navigator.pushReplacement(
-                context,
-                new MaterialPageRoute(
-                    builder: (BuildContext context) => FirstPage()));
-          }
-          setState(() {
+          Navigator.pushReplacement(
+              context,
+              new MaterialPageRoute(
+                  builder: (BuildContext context) => FirstPage()));
+                  setState(() {
             showSpinner = false;
           });
         } catch (e) {
@@ -514,7 +510,7 @@ class _LoginPageState extends State<LoginPage> {
             }
           }
 
-          showNotification(errorSigningIn, _scafold);
+          showNotification(errorSigningIn, context);
 
           print(e);
         }
@@ -525,13 +521,13 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         showSpinner = false;
       });
-      showNotification("لا يوجد اتصال بالانترنت !", _scafold);
+      showNotification("لا يوجد اتصال بالانترنت !", context);
     }
   }
 }
 
-showNotification(msg, _scafold) {
-  _scafold.currentState.showSnackBar(
+showNotification(msg, context) {
+  ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
       content: Padding(
         padding: const EdgeInsets.all(8.0),

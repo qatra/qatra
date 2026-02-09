@@ -11,7 +11,7 @@ import 'user_profile_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 
-final _fireStore = Firestore.instance;
+final _fireStore = FirebaseFirestore.instance;
 
 class BlazmaGovernrateBank extends StatefulWidget {
   final String city;
@@ -38,8 +38,8 @@ class _BlazmaGovernrateBankState extends State<BlazmaGovernrateBank> {
   Stream search;
 
   final _auth = FirebaseAuth.instance;
-  User _user;
-  FirebaseUser loggedInUser;
+  User? _user;
+  User? loggedInUser;
 
   var __fasila = [
     ' - عرض كل الفصائل -  ',
@@ -64,7 +64,7 @@ class _BlazmaGovernrateBankState extends State<BlazmaGovernrateBank> {
   inetialSearch() {
     Stream _search = _fireStore
         .collection("blazmaBank")
-        .document(widget.city)
+        .doc(widget.city)
         .collection('doners')
         .orderBy('date', descending: true)
         .snapshots();
@@ -73,7 +73,7 @@ class _BlazmaGovernrateBankState extends State<BlazmaGovernrateBank> {
       setState(() {
         _search = _fireStore
             .collection("blazmaBank")
-            .document(widget.city)
+            .doc(widget.city)
             .collection('doners')
             .orderBy('date', descending: true)
             .where('fasila', isEqualTo: __currentFasilaSelected)
@@ -110,63 +110,63 @@ class _BlazmaGovernrateBankState extends State<BlazmaGovernrateBank> {
       final result = await InternetAddress.lookup('google.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         print("Connected to Mobile Network");
-        FirebaseUser firebaseUser = await _auth.currentUser();
-        uploadUserToGovernrateBank() async {
+        User? firebaseUser = _auth.currentUser;
+        if (firebaseUser != null) {
+          uploadUserToGovernrateBank() async {
+            await _fireStore
+                .collection('users')
+                .doc(firebaseUser.uid)
+                .update({'blazmaBank': widget.city});
+          }
+        
+          uploadUserToGovernrateBank();
+
           await _fireStore
-              .collection('users')
-              .document(firebaseUser.uid)
-              .updateData({'blazmaBank': widget.city});
+              .collection('blazmaBank')
+              .doc(widget.city)
+              .collection('doners')
+              .doc(firebaseUser.uid)
+              .set(_user?.toMap(_user) ?? {});
+
+          _saveCheckIfAccAddedToBank();
+          showNotification("تم اضافة حسابك بنجاح", context);
         }
-
-        ;
-
-        uploadUserToGovernrateBank();
-
-        await _fireStore
-            .collection('blazmaBank')
-            .document(widget.city)
-            .collection('doners')
-            .document(firebaseUser.uid)
-            .setData(_user.toMap(_user));
-
-        _saveCheckIfAccAddedToBank();
-        showNotification("تم اضافة حسابك بنجاح", _scafold);
       }
     } on SocketException catch (_) {
       String invalid = "Unable to connect. Please Check Internet Connection";
       print(invalid);
 
-      showNotification("لا يوجد اتصال بالانترنت", _scafold);
+      showNotification("لا يوجد اتصال بالانترنت", context);
     }
     _readCheckIfAccAddedToBank();
   }
 
-  Future<User> retrieveUserDetails(FirebaseUser user) async {
+  Future<User?> retrieveUserDetails(User firebaseUser) async {
     DocumentSnapshot _documentSnapshot =
-    await _fireStore.collection('users').document(user.uid).get();
-    print(user.uid);
-    if (_documentSnapshot.data != null) {
-      print('there is data ');
-      return User.fromMap(_documentSnapshot.data);
-    } else {
-      return null;
+    await _fireStore.collection('users').doc(firebaseUser.uid).get();
+    print(firebaseUser.uid);
+    print('there is data ');
+    return User.fromMap(_documentSnapshot.data() as Map<String, dynamic>);
     }
-  }
 
-  Future<FirebaseUser> getCurrentUser() async {
-    return loggedInUser = await _auth.currentUser();
+  Future<User?> getCurrentUser() async {
+    return loggedInUser = _auth.currentUser as User?;
   }
 
   makeUserObject() async {
-    FirebaseUser _currentUser = await getCurrentUser();
+    User? _currentUser = await getCurrentUser();
 
-    var userdata = await retrieveUserDetails(_currentUser);
-    var now = new DateTime.now();
-    setState(() {
-      _user = userdata;
-      _user.date = now;
-    });
-    addMyAccToBank();
+    if (_currentUser != null) {
+      var userdata = await retrieveUserDetails(_currentUser);
+      var now = new DateTime.now();
+      setState(() {
+        _user = userdata;
+        if (_user != null) {
+          _user!.date = now;
+        }
+      });
+      addMyAccToBank();
+    }
   }
 
   creatAlertDialog(BuildContext context, city) {
@@ -195,10 +195,12 @@ class _BlazmaGovernrateBankState extends State<BlazmaGovernrateBank> {
                 children: <Widget>[
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: RaisedButton(
-                      color: Colors.red[700],
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20)),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red[700],
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20)),
+                      ),
                       onPressed: () {
                         Navigator.pop(context);
                       },
@@ -213,10 +215,12 @@ class _BlazmaGovernrateBankState extends State<BlazmaGovernrateBank> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: RaisedButton(
-                      color: Colors.green[700],
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20)),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green[700],
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20)),
+                      ),
                       onPressed: () {
                         makeUserObject();
                         Navigator.pop(context);
@@ -298,7 +302,7 @@ class _BlazmaGovernrateBankState extends State<BlazmaGovernrateBank> {
                       addedToBank == 0
                           ? Padding(
                         padding: const EdgeInsets.only(left: 5),
-                            child: FlatButton(
+                            child: ElevatedButton(
                         child: Container(
                           width: 135,
                           child: Center(
@@ -320,15 +324,16 @@ class _BlazmaGovernrateBankState extends State<BlazmaGovernrateBank> {
                         onPressed: () {
                             creatAlertDialog(context, widget.city);
                         },
-                        shape: RoundedRectangleBorder(
+                        style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20)),
-                        color: Colors.red,
+                          backgroundColor: Colors.red,),
                       ),
                           )
                           : SizedBox(
                         width: 0,
                       ),
-                      FlatButton(
+                      ElevatedButton(
                         child: Container(
                           width: 135,
                           child: Center(
@@ -355,9 +360,11 @@ class _BlazmaGovernrateBankState extends State<BlazmaGovernrateBank> {
                                   builder: (context) =>
                                       AddDonerToBlazmaBank(widget.city, _scafold)));
                         },
-                        shape: RoundedRectangleBorder(
+                        style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20)),
-                        color: Colors.green,
+                          backgroundColor: Colors.green,
+                        ),
                       ),
                     ],
                   ),
@@ -396,7 +403,7 @@ class _BlazmaGovernrateBankState extends State<BlazmaGovernrateBank> {
                         _onDropDownItemSelected(newValueSelected);
                         setTheSearch();
                       },
-                      value: __currentFasilaSelected,
+                      initialValue: __currentFasilaSelected,
                     ),
                   ),
                 ],
@@ -420,16 +427,17 @@ class _BlazmaGovernrateBankState extends State<BlazmaGovernrateBank> {
                         ],
                       );
                     }
-                    final usersData = snapshot.data.documents;
+                    final usersData = snapshot.data!.docs;
                     List<Doner> messageBubbles = [];
                     for (var user in usersData) {
-                      final displayName = user.data["displayName"];
-                      final address = user.data["address"];
-                      final fasila = user.data["fasila"];
-                      final phone = user.data["phone"];
-                      final email = user.data["email"];
-                      final imageUrl = user.data["imageUrl"];
-                      final dateOfDonation = user.data["dateOfDonation"];
+                      final data = user.data() as Map<String, dynamic>;
+                      final displayName = data["displayName"];
+                      final address = data["address"];
+                      final fasila = data["fasila"];
+                      final phone = data["phone"];
+                      final email = data["email"];
+                      final imageUrl = data["imageUrl"];
+                      final dateOfDonation = data["dateOfDonation"];
 
                       final messageBubble = Doner(
                         fasila: fasila,
@@ -476,26 +484,25 @@ class Doner extends StatefulWidget {
         this.imageUrl,
         this.dateOfDonation});
 
-  final String fasila;
-  final String address;
-  final String displayName;
-  final String phone;
-  final String email;
-  final String imageUrl;
-  final String dateOfDonation;
+  final String? fasila;
+  final String? address;
+  final String? displayName;
+  final String? phone;
+  final String? email;
+  final String? imageUrl;
+  final String? dateOfDonation;
 
   @override
   _DonerState createState() => _DonerState();
 }
 
 class _DonerState extends State<Doner> {
-  User _user;
+  User? _user;
 
   makeMapForUserInfo() {
     Map<String, dynamic> userMap = {
       'displayName': widget.displayName,
       'email': widget.email,
-//    'uid': user.uid,
       'phone': widget.phone,
       'fasila': widget.fasila,
       'address': widget.address,
@@ -573,8 +580,8 @@ class _DonerState extends State<Doner> {
   }
 }
 
-showNotification(msg, _scafold) {
-  _scafold.currentState.showSnackBar(
+showNotification(msg, context) {
+  ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
       content: Padding(
         padding: const EdgeInsets.all(8.0),

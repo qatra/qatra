@@ -20,7 +20,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:io';
 import 'package:social_share_plugin/social_share_plugin.dart';
 import 'package:flutter_share_me/flutter_share_me.dart';
-import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 import 'package:icandoit/appBar_widget.dart';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
@@ -29,19 +28,20 @@ import 'package:share_extend/share_extend.dart';
 
 final GlobalKey<ScaffoldState> _key = GlobalKey<ScaffoldState>();
 
-final _fireStore = Firestore.instance;
+final _fireStore = FirebaseFirestore.instance;
 final _auth = FirebaseAuth.instance;
-FirebaseUser _loggedInUser;
+User? _loggedInUser;
 
-Future<FirebaseUser> getCurrentUser() async {
+Future<User?> getCurrentUser() async {
   try {
-    final user = await _auth.currentUser();
+    final user = _auth.currentUser;
     if (user != null) {
       _loggedInUser = user;
     }
   } catch (e) {
     print(e);
   }
+  return null;
 }
 
 class FirstPage extends StatefulWidget {
@@ -117,7 +117,6 @@ class _FirstPageState extends State<FirstPage>
 
   @override
   Widget build(BuildContext context) {
-    FlutterStatusbarcolor.setStatusBarColor(Colors.red[900]);
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -126,7 +125,7 @@ class _FirstPageState extends State<FirstPage>
         textDirection: TextDirection.rtl,
         child: Scaffold(
             key: _key,
-            resizeToAvoidBottomPadding: false,
+            resizeToAvoidBottomInset: false,
 //            appBar: Wavyyyy(),
             floatingActionButton: Padding(
                 padding: const EdgeInsets.only(right: 20, top: 20),
@@ -460,7 +459,7 @@ class _FirstPageState extends State<FirstPage>
                           _onDropDownItemSelected(newValueSelected);
                           setTheSearch();
                         },
-                        value: _currentFasilaSelected,
+                        initialValue: _currentFasilaSelected,
                       ),
                     ),
                     StreamBuilder<QuerySnapshot>(
@@ -476,23 +475,23 @@ class _FirstPageState extends State<FirstPage>
                             ),
                           );
                         }
-                        final posts = snapshot.data.documents;
+                        final posts = snapshot.data!.docs;
                         List<PostBubble> postBubbles = [];
                         for (var post in posts) {
-                          final date = post.data["date"].toDate();
+                          final date = post.get("date").toDate();
                           final dateThatSignsThePost =
-                              post.data["dateThatSignsThePost"];
-                          final name = post.data["name"];
-                          final fasila = post.data["fasila"];
-                          final akias = post.data["akias"];
-                          final government = post.data["government"];
-                          final city = post.data["city"];
-                          final hospital = post.data["hospital"];
-                          final hospitalAddress = post.data["hospitalAddress"];
-                          final phone = post.data["phone"];
-                          final note = post.data["note"];
-                          final postSender = post.data["postSender"];
-                          final postColor = post.data["postColor"];
+                              post.get("dateThatSignsThePost");
+                          final name = post.get("name");
+                          final fasila = post.get("fasila");
+                          final akias = post.get("akias");
+                          final government = post.get("government");
+                          final city = post.get("city");
+                          final hospital = post.get("hospital");
+                          final hospitalAddress = post.get("hospitalAddress");
+                          final phone = post.get("phone");
+                          final note = post.get("note");
+                          final postSender = post.get("postSender");
+                          final postColor = post.get("postColor");
 
                           final postBubble = PostBubble(
                             name: name,
@@ -587,21 +586,21 @@ class _PostBubbleState extends State<PostBubble> {
   updatePostStateEnd() async {
     await _fireStore
         .collection('post')
-        .document(widget.dateThatSignsThePost)
-        .updateData({'postColor': false});
+        .doc(widget.dateThatSignsThePost)
+        .update({'postColor': false});
   }
 
   updatePostStateContinue() async {
     await _fireStore
         .collection('post')
-        .document(widget.dateThatSignsThePost)
-        .updateData({'postColor': true});
+        .doc(widget.dateThatSignsThePost)
+        .update({'postColor': true});
   }
 
   deletePost() async {
     await _fireStore
         .collection('post')
-        .document(widget.dateThatSignsThePost)
+        .doc(widget.dateThatSignsThePost)
         .delete();
   }
 
@@ -645,34 +644,35 @@ class _PostBubbleState extends State<PostBubble> {
                   actions: <Widget>[
                     Stack(
                       children: <Widget>[
-                        RaisedButton(
-                          child: Center(
-                            child: Row(
-                              children: <Widget>[
-                                Icon(
-                                  Icons.share,
-                                  size: 20,
-                                ),
-                                SizedBox(
-                                  width: 4,
-                                ),
-                                Text(
-                                  'ساعد',
-                                  style: TextStyle(
-                                      fontFamily: 'Tajawal',
-                                      color: Colors.white,
-                                      fontSize: 20),
-                                ),
-                              ],
+                          ElevatedButton(
+                            child: Center(
+                              child: Row(
+                                children: <Widget>[
+                                  Icon(
+                                    Icons.share,
+                                    size: 20,
+                                  ),
+                                  SizedBox(
+                                    width: 4,
+                                  ),
+                                  Text(
+                                    'ساعد',
+                                    style: TextStyle(
+                                        fontFamily: 'Tajawal',
+                                        color: Colors.white,
+                                        fontSize: 20),
+                                  ),
+                                ],
+                              ),
                             ),
+                            onPressed: () async {
+                              ShareExtend.share(filePath, "image");
+                            },
+                            style: ElevatedButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20)),
+                                backgroundColor: Colors.red[900]),
                           ),
-                          onPressed: () async {
-                            ShareExtend.share(filePath, "image");
-                          },
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20)),
-                          color: Colors.red[900],
-                        ),
                       ],
                     ),
                   ],

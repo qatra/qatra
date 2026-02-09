@@ -1,10 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:icandoit/wavyyy.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../appBar_widget.dart';
 
 class AboutTheApp extends StatefulWidget {
   @override

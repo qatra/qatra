@@ -1,8 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:icandoit/wavyyy.dart';
 
-import '../appBar_widget.dart';
 
 class DonationArticle extends StatefulWidget {
   @override

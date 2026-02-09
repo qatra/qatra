@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:icandoit/wavyyy.dart';
-import '../appBar_widget.dart';
 import '../user_model.dart';
-import 'package:flutter/cupertino.dart';
 
 import 'dart:io';
 
@@ -42,12 +40,12 @@ class AddDonerToBank extends StatefulWidget {
 class _AddDonerToBankState extends State<AddDonerToBank> {
   GlobalKey<ScaffoldState> scafoldKey = new GlobalKey<ScaffoldState>();
 
-  final _fireStore = Firestore.instance;
-  User _user;
-  var name;
-  var fasila;
-  var city;
-  var phone;
+  final _fireStore = FirebaseFirestore.instance;
+  User? _user;
+  String? name;
+  String? fasila;
+  String? city;
+  String? phone;
   final _formKey = GlobalKey<FormState>();
   bool isLoading = false;
   var _currentFasilaSelected = 'حدد الفصيلة';
@@ -63,8 +61,8 @@ class _AddDonerToBankState extends State<AddDonerToBank> {
     "O-"
   ];
 
-  showNotification(msg, _scafold) {
-    _scafold.currentState.showSnackBar(
+  showNotification(msg, context) {
+    ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -87,7 +85,7 @@ class _AddDonerToBankState extends State<AddDonerToBank> {
   }
 
   validation() {
-    _formKey.currentState.validate() ? addDonorToGovernrateBank() : print("not valid");
+    (_formKey.currentState?.validate() ?? false) ? addDonorToGovernrateBank() : print("not valid");
   }
 
   addDonorToGovernrateBank() async {
@@ -112,18 +110,18 @@ class _AddDonerToBankState extends State<AddDonerToBank> {
     try {
       final result = await InternetAddress.lookup('google.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-        print("Connected to Mobile Network");
+          print("Connected to Mobile Network");
 
         await _fireStore
             .collection('bank')
-            .document(widget.city)
+            .doc(widget.city)
             .collection('doners')
-            .document(now.toString())
-            .setData(_user.toMap(_user));
+            .doc(now.toString())
+            .set(_user.toMap(_user));
 
         Navigator.pop(context);
 
-        showNotification("تم اضافة متبرع بنجاح", widget._scafold);
+        showNotification("تم اضافة متبرع بنجاح", context); // Pass context instead of widget._scafold
 
         setState(() {
           isLoading = false;
@@ -132,7 +130,7 @@ class _AddDonerToBankState extends State<AddDonerToBank> {
     } on SocketException catch (_) {
       print("Unable to connect. Please Check Internet Connection");
 
-      showNotification("لا يوجد اتصال بالانترنت", scafoldKey);
+      showNotification("لا يوجد اتصال بالانترنت", context);
 
       setState(() {
         isLoading = false;
@@ -230,11 +228,12 @@ class _AddDonerToBankState extends State<AddDonerToBank> {
                                 ),
                               );
                             }).toList(),
-                            onChanged: (String newValueSelected) {
-                              // Your code to execute, when a menu item is selected from drop down
-                              _onDropDownItemSelected(newValueSelected);
+                            onChanged: (String? newValueSelected) {
+                              if (newValueSelected != null) {
+                                _onDropDownItemSelected(newValueSelected);
+                              }
                             },
-                            value: _currentFasilaSelected,
+                            initialValue: _currentFasilaSelected,
                           ),
                         ),
                         SizedBox(
@@ -243,7 +242,7 @@ class _AddDonerToBankState extends State<AddDonerToBank> {
                         Container(
                           child: new TextFormField(
                             validator: (text) {
-                              if (text.isEmpty) {
+                              if (text == null || text.isEmpty) {
                                 return "برجاء كتابة الاسم";
                               }
                               if (text.length > 40) {
@@ -252,6 +251,7 @@ class _AddDonerToBankState extends State<AddDonerToBank> {
                               if (text.length < 2) {
                                 return "الاسم قصير جدا";
                               }
+                              return null;
                             },
                             textAlign: TextAlign.center,
                             controller: null,
@@ -278,6 +278,7 @@ class _AddDonerToBankState extends State<AddDonerToBank> {
                           padding: EdgeInsets.only(top: 10),
                           child: new TextFormField(
                             validator: (text) {
+                              if (text == null) return null;
                               if (text.contains(" ")) {
                                 return "لا يجب ان توجد مسافات في رقم التليفون";
                               }
@@ -287,6 +288,7 @@ class _AddDonerToBankState extends State<AddDonerToBank> {
                               if (text.length != 11) {
                                 return "رقم التليفون غير صحيح";
                               }
+                              return null;
                             },
                             textAlign: TextAlign.center,
                             keyboardType: TextInputType.number,
@@ -315,7 +317,7 @@ class _AddDonerToBankState extends State<AddDonerToBank> {
                             child: TextFormField(
                               controller: null,
                               validator: (text) {
-                                if (text.isEmpty) {
+                                if (text == null || text.isEmpty) {
                                   return "برجاء تحديد العنوان";
                                 }
                                 if (text.length > 60) {
@@ -324,6 +326,7 @@ class _AddDonerToBankState extends State<AddDonerToBank> {
                                 if (text.length < 2) {
                                   return "العنوان قصير جدا";
                                 }
+                                return null;
                               },
                               textAlign: TextAlign.center,
                               onChanged: (text) {
@@ -351,7 +354,7 @@ class _AddDonerToBankState extends State<AddDonerToBank> {
                                 height: 47.0,
                                 width: 47.0,
                               )
-                            : RaisedButton(
+                            : ElevatedButton(
                                 child: Text(
                                   'حفظ',
                                   style: TextStyle(
@@ -363,9 +366,10 @@ class _AddDonerToBankState extends State<AddDonerToBank> {
                                 onPressed: () {
                                   validation();
                                 },
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20)),
-                                color: Colors.green,
+                                style: ElevatedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(20)),
+                                    backgroundColor: Colors.green),
                               ),
                       ],
                     ),

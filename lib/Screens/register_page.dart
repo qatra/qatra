@@ -1,19 +1,18 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 import 'first_page.dart';
-import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../user_model.dart';
-import 'add_doner_to_bank.dart';
 
 import 'dart:io';
 import 'package:location/location.dart' as lo;
 
-GlobalKey<ScaffoldState> _scafold = new GlobalKey<ScaffoldState>();
 
-final _fireStore = Firestore.instance;
-final _auth = FirebaseAuth.instance;
+final _fireStore = FirebaseFirestore.instance;
+final _auth = auth.FirebaseAuth.instance;
 User _user;
 
 class RegisterPage extends StatefulWidget {
@@ -30,12 +29,12 @@ class _RegisterPageState extends State<RegisterPage> {
 
   bool _locationLoading = false;
 
-  String name;
-  String email;
-  String password;
-  String confirmPassword;
-  String phoneNumber;
-  String address;
+  String? name;
+  String? email;
+  String? password;
+  String? confirmPassword;
+  String? phoneNumber;
+  String? address;
 
   var _fasila = [
     'حدد فصيلتك',
@@ -105,7 +104,6 @@ class _RegisterPageState extends State<RegisterPage> {
         home: Directionality(
           textDirection: TextDirection.rtl,
           child: Scaffold(
-            key: _scafold,
               backgroundColor: Colors.white,
               body: ModalProgressHUD(
                 inAsyncCall: showSpinner,
@@ -133,7 +131,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                     Container(
                                       child: new TextFormField(
                                         validator: (text) {
-                                          if (text.isEmpty) {
+                                          if (text == null || text.isEmpty) {
                                             return "برجاء كتابة الاسم";
                                           }
                                           if (text.length > 40) {
@@ -146,6 +144,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                           if (text.length < 2) {
                                             return "الاسم قصير جدا";
                                           }
+                                          return null;
                                         },
                                         textAlign: TextAlign.center,
                                         controller: _nameController,
@@ -171,7 +170,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                       padding: EdgeInsets.only(top: 17),
                                       child: new TextFormField(
                                         validator: (text) {
-                                          if (text.isEmpty) {
+                                          if (text == null || text.isEmpty) {
                                             return "برجاء كتابة البريد الالكتروني";
                                           }
                                           if (text.length > 50) {
@@ -189,6 +188,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                           if (text.length < 2) {
                                             return "البريد الالكتروني قصير جدا";
                                           }
+                                          return null;
                                         },
                                         keyboardType:
                                             TextInputType.emailAddress,
@@ -215,7 +215,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                       padding: EdgeInsets.only(top: 17),
                                       child: new TextFormField(
                                         validator: (text) {
-                                          if (text.isEmpty) {
+                                          if (text == null || text.isEmpty) {
                                             return "برجاء كتابة كلمة المرور";
                                           }
                                           if (text.contains(" ")) {
@@ -225,6 +225,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                           if (text.length <= 5) {
                                             return "كلمة المرور يجب ان لا تقل عن 6 حروف";
                                           }
+                                          return null;
                                         },
                                         textAlign: TextAlign.center,
                                         controller: _passwordController,
@@ -257,12 +258,13 @@ class _RegisterPageState extends State<RegisterPage> {
                                       padding: EdgeInsets.only(top: 17),
                                       child: new TextFormField(
                                         validator: (text) {
-                                          if (text.isEmpty) {
+                                          if (text == null || text.isEmpty) {
                                             return "برجاء كتابة تاكيد كلمة المرور";
                                           }
                                           if (text != password) {
                                             return "كلمة المرور و تأكيد كلمة المرور غير متطابقان";
                                           }
+                                          return null;
                                         },
                                         textAlign: TextAlign.center,
                                         controller: _confirmController,
@@ -288,6 +290,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                       padding: EdgeInsets.only(top: 17),
                                       child: new TextFormField(
                                         validator: (text) {
+                                          if (text == null) return null;
                                           if (text.contains(" ")) {
                                             return "لا يجب ان توجد مسافات في رقم التليفون";
                                           }
@@ -297,6 +300,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                           if (text.length != 11) {
                                             return "رقم التليفون غير صحيح";
                                           }
+                                          return null;
                                         },
                                         textAlign: TextAlign.center,
                                         keyboardType: TextInputType.number,
@@ -353,12 +357,14 @@ class _RegisterPageState extends State<RegisterPage> {
                                             ),
                                           );
                                         }).toList(),
-                                        onChanged: (String newValueSelected) {
+                                        onChanged: (String? newValueSelected) {
                                           // Your code to execute, when a menu item is selected from drop down
-                                          _onDropDownItemSelected(
-                                              newValueSelected);
+                                          if (newValueSelected != null) {
+                                            _onDropDownItemSelected(
+                                                newValueSelected);
+                                          }
                                         },
-                                        value: _currentFasilaSelected,
+                                        initialValue: _currentFasilaSelected,
                                       ),
                                     ),
                                     Container(
@@ -366,7 +372,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                         child: TextFormField(
                                           controller: _addressController,
                                           validator: (text) {
-                                            if (text.isEmpty) {
+                                            if (text == null || text.isEmpty) {
                                               return "برجاء تحديد العنوان";
                                             }
                                             if (text.length > 60) {
@@ -375,6 +381,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                             if (text.length < 2) {
                                               return "العنوان قصير جدا";
                                             }
+                                            return null;
                                           },
                                           textAlign: TextAlign.center,
                                           onChanged: (text) {
@@ -431,7 +438,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                       child: SizedBox(
                                         width: 300,
                                         height: 37,
-                                        child: RaisedButton(
+                                        child: ElevatedButton(
                                           child: new Text(
                                             'إنشاء حساب',
                                             style: TextStyle(
@@ -441,18 +448,19 @@ class _RegisterPageState extends State<RegisterPage> {
                                             ),
                                           ),
                                           onPressed: () async {
-                                            _formKey.currentState.validate()
+                                            _formKey.currentState!.validate()
                                                 ? creatUser()
                                                 : print("not valid");
                                           },
-                                          shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(20)),
-                                          color: Colors.red[900],
+                                          style: ElevatedButton.styleFrom(
+                                              shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(20)),
+                                              backgroundColor: Colors.red[900]),
                                         ),
                                       ),
                                     ),
-                                    new FlatButton(
+                                    new TextButton(
                                       child: new Text(
                                         'لديك حساب ؟ سجل دخولك من هنا .',
                                         style: TextStyle(
@@ -503,11 +511,10 @@ class _RegisterPageState extends State<RegisterPage> {
       _locationLoading = true;
     });
 
-    final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
-    Position position = await Geolocator()
-        .getCurrentPosition(desiredAccuracy: LocationAccuracy.lowest);
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.lowest);
 
-    List<Placemark> p = await geolocator.placemarkFromCoordinates(
+    List<Placemark> p = await placemarkFromCoordinates(
         position.latitude, position.longitude);
     Placemark place = p[0];
     print("${place.locality}, ${place.administrativeArea}, ${place.country}");
@@ -536,7 +543,7 @@ class _RegisterPageState extends State<RegisterPage> {
     setState(() {
       showSpinner = true;
     });
-    FirebaseUser firebaseUser;
+    auth.User? firebaseUser;
 
     try {
       final result = await InternetAddress.lookup('google.com');
@@ -547,11 +554,11 @@ class _RegisterPageState extends State<RegisterPage> {
           final newUser = await _auth.createUserWithEmailAndPassword(
               email: email, password: password);
 
-          firebaseUser = await _auth.currentUser();
+          firebaseUser = _auth.currentUser;
 
           var now = new DateTime.now();
           _user = User(
-              uid: firebaseUser.uid,
+              uid: firebaseUser!.uid,
               email: firebaseUser.email,
               displayName: name,
               phone: phoneNumber,
@@ -561,68 +568,71 @@ class _RegisterPageState extends State<RegisterPage> {
               dateOfDonation: "----");
           await _fireStore
               .collection('users')
-              .document(firebaseUser.uid)
-              .setData(_user.toMap(_user));
+              .doc(firebaseUser.uid)
+              .set(_user.toMap(_user));
 
-          if (newUser != null) {
-            setState(() {
-              showSpinner = false;
-            });
-            Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(
-                    builder: (BuildContext context) => FirstPage()),
-                (Route<dynamic> route) => route is FirstPage);
-          } else {
-            var error = "حدث خطأ اثناء العملية !";
-            creatAlertDialog(context, error);
-          }
-        } catch (e) {
+          setState(() {
+            showSpinner = false;
+          });
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                  builder: (BuildContext context) => FirstPage()),
+              (Route<dynamic> route) => route is FirstPage);
+                } catch (e) {
           setState(() {
             showSpinner = false;
           });
           var errorSigningIn;
           if (Platform.isAndroid) {
-            switch (e.message) {
-              case 'There is no user record corresponding to this identifier. The user may have been deleted.':
-                errorSigningIn =
-                    "لا يوجد مستخدم بهذه المعلومات , قد يكون هناك خطأ في البريد الالكتروني او كلمة المرور .";
-                break;
-              case 'The password is invalid or the user does not have a password.':
-                errorSigningIn = "كلمة مرور خاطئة .";
-                break;
-              case 'A network error (such as timeout, interrupted connection or unreachable host) has occurred.':
-                errorSigningIn =
-                    "خطأ في الاتصال بشبكة الانترنت , تحقق من اتصالك و حاول مرة اخري .";
-                break;
-              // ...
-              default:
-                print('Case ${e.message} is not yet implemented');
-                errorSigningIn =
-                '${e.message}';
+            if (e is auth.FirebaseAuthException) {
+              switch (e.message) {
+                case 'There is no user record corresponding to this identifier. The user may have been deleted.':
+                  errorSigningIn =
+                      "لا يوجد مستخدم بهذه المعلومات , قد يكون هناك خطأ في البريد الالكتروني او كلمة المرور .";
+                  break;
+                case 'The password is invalid or the user does not have a password.':
+                  errorSigningIn = "كلمة مرور خاطئة .";
+                  break;
+                case 'A network error (such as timeout, interrupted connection or unreachable host) has occurred.':
+                  errorSigningIn =
+                      "خطأ في الاتصال بشبكة الانترنت , تحقق من اتصالك و حاول مرة اخري .";
+                  break;
+                // ...
+                default:
+                  print('Case ${e.message} is not yet implemented');
+                  errorSigningIn =
+                  '${e.message}';
+              }
+            } else {
+                errorSigningIn = e.toString();
             }
           } else if (Platform.isIOS) {
-            switch (e.code) {
-              case 'Error 17011':
-                errorSigningIn =
-                    "لا يوجد مستخدم بهذه المعلومات , قد يكون هناك خطأ في البريد الالكتروني او كلمة المرور .";
-                break;
-              case 'Error 17009':
-                errorSigningIn = "كلمة مرور خاطئة .";
-                break;
-              case 'Error 17020':
-                errorSigningIn =
-                    "خطأ في الاتصال بشبكة الانترنت , تحقق من اتصالك و حاول مرة اخري .";
-                break;
-              // ...
-              default:
-                print('Case ${e.message} is not yet implemented');
-                errorSigningIn =
-                '${e.message}';
+            if (e is auth.FirebaseAuthException) {
+                 switch (e.code) {
+                   case 'user-not-found':
+                     errorSigningIn =
+                         "لا يوجد مستخدم بهذه المعلومات , قد يكون هناك خطأ في البريد الالكتروني او كلمة المرور .";
+                     break;
+                   case 'wrong-password':
+                     errorSigningIn = "كلمة مرور خاطئة .";
+                     break;
+                   case 'network-request-failed':
+                     errorSigningIn =
+                         "خطأ في الاتصال بشبكة الانترنت , تحقق من اتصالك و حاول مرة اخري .";
+                     break;
+                   // ...
+                   default:
+                     print('Case ${e.message} is not yet implemented');
+                     errorSigningIn =
+                     '${e.message}';
+                 }
+            } else {
+                 errorSigningIn = e.toString();
             }
           }
 
-          showNotification(errorSigningIn, _scafold);
+          showNotification(errorSigningIn, context);
 
           print(e);
         }
@@ -636,7 +646,7 @@ class _RegisterPageState extends State<RegisterPage> {
       setState(() {
         showSpinner = false;
       });
-      showNotification(invalid, _scafold);
+      showNotification(invalid, context);
 
     }
   }
@@ -647,8 +657,8 @@ class _RegisterPageState extends State<RegisterPage> {
     });
   }
 }
-showNotification(msg, _scafold) {
-  _scafold.currentState.showSnackBar(
+showNotification(msg, context) {
+  ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
       content: Padding(
         padding: const EdgeInsets.all(8.0),

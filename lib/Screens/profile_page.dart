@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:icandoit/wavyyy.dart';
 import 'package:image_picker/image_picker.dart';
@@ -19,10 +19,10 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  User user;
-  final _auth = FirebaseAuth.instance;
-  final _fireStore = Firestore.instance;
-  FirebaseUser loggedInUser;
+  User? user;
+  final _auth = auth.FirebaseAuth.instance;
+  final _fireStore = FirebaseFirestore.instance;
+  auth.User? loggedInUser;
 
   var dateOfDonation = "---";
   var newPhone = "---";
@@ -41,47 +41,49 @@ class _ProfilePageState extends State<ProfilePage> {
   GlobalKey<ScaffoldState> _scafold = new GlobalKey<ScaffoldState>();
 
   makeUserObject() async {
-    FirebaseUser _currentUser = await getCurrentUser();
-    var userdata = await retrieveUserDetails(_currentUser);
-    setState(() {
-      user = userdata;
-    });
-  }
-
-  Future<FirebaseUser> getCurrentUser() async {
-    return loggedInUser = await _auth.currentUser();
-  }
-
-  Future<User> retrieveUserDetails(FirebaseUser user) async {
-    DocumentSnapshot _documentSnapshot =
-        await _fireStore.collection('users').document(user.uid).get();
-    if (_documentSnapshot.data != null) {
-      print('there is data ');
-
+    auth.User? _currentUser = await getCurrentUser();
+    if (_currentUser != null) {
+      var userdata = await retrieveUserDetails(_currentUser);
       setState(() {
-        dateOfDonation = _documentSnapshot.data["dateOfDonation"];
-        newAddress = _documentSnapshot.data["address"];
-        newFasila = _documentSnapshot.data["fasila"];
-        newPhone = _documentSnapshot.data["phone"];
-        newName = _documentSnapshot.data["displayName"];
-        imageUrl = _documentSnapshot.data["imageUrl"];
+        user = userdata;
       });
-
-      return User.fromMap(_documentSnapshot.data);
-    } else {
-      return null;
     }
   }
 
-  File _image;
+  Future<auth.User?> getCurrentUser() async {
+    loggedInUser = _auth.currentUser;
+    return loggedInUser;
+  }
+
+  Future<User> retrieveUserDetails(auth.User user) async {
+    DocumentSnapshot _documentSnapshot =
+        await _fireStore.collection('users').doc(user.uid).get();
+    print('there is data ');
+
+    setState(() {
+      dateOfDonation = _documentSnapshot.get("dateOfDonation");
+      newAddress = _documentSnapshot.get("address");
+      newFasila = _documentSnapshot.get("fasila");
+      newPhone = _documentSnapshot.get("phone");
+      newName = _documentSnapshot.get("displayName");
+      imageUrl = _documentSnapshot.get("imageUrl");
+    });
+
+    return User.fromMap(_documentSnapshot.data() as Map<String, dynamic>);
+    }
+
+  File? _image;
   var imageUrl;
   Future getImage() async {
-    var image = await ImagePicker.pickImage(source: ImageSource.gallery);
-    setState(() {
-      _image = image;
-    });
-    print("bbbbbbbbbbbbbbbbbbbbbbbbbbb");
-    uploadPic(context);
+    final ImagePicker _picker = ImagePicker();
+    var image = await _picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      setState(() {
+        _image = File(image.path);
+      });
+      print("bbbbbbbbbbbbbbbbbbbbbbbbbbb");
+      uploadPic(context);
+    }
   }
 
   var loading = false;
@@ -91,20 +93,20 @@ class _ProfilePageState extends State<ProfilePage> {
       loading = true;
     });
 
-    String fileName = path.basename(_image.path);
+    String fileName = path.basename(_image!.path);
 
-    StorageReference fireBaseStorageRefrence =
+    Reference fireBaseStorageRefrence =
         FirebaseStorage.instance.ref().child(fileName);
 
-    StorageUploadTask uploadTask = fireBaseStorageRefrence.putFile(_image);
+    UploadTask uploadTask = fireBaseStorageRefrence.putFile(_image!);
 
-    var dowurl = await (await uploadTask.onComplete).ref.getDownloadURL();
+    var dowurl = await (await uploadTask.whenComplete(() {})).ref.getDownloadURL();
 
     setState(() {
       imageUrl = dowurl.toString();
     });
 
-    await _fireStore.collection('users').document(loggedInUser.uid).updateData({
+    await _fireStore.collection('users').doc(loggedInUser!.uid).update({
       "imageUrl": imageUrl,
 //      'displayName': name,
     });
@@ -124,28 +126,11 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   imageConditions() {
-    if (_image != null) {
-      return Image.file(
-        _image,
-        fit: BoxFit.cover,
-      );
-    } else if (imageUrl != null) {
-      return CachedNetworkImage(
-        imageUrl: "$imageUrl",
-        placeholder: (context, url) => new Container(
-          child: CircularProgressIndicator(),
-            decoration: BoxDecoration(
-                image: DecorationImage(
-                    image: AssetImage("assets/abcd.jpg"), fit: BoxFit.cover))),
-        errorWidget: (context, url, error) => new Icon(Icons.error),
-      );
-    } else {
-      return Image.asset(
-        "assets/abcd.jpg",
-        fit: BoxFit.cover,
-      );
+    return Image.file(
+      _image,
+      fit: BoxFit.cover,
+    );
     }
-  }
 
   @override
   void initState() {
@@ -797,7 +782,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       }
                       print("aaaaaaaaaaaaaaaaa");
 
-                      retrieveUserDetails(loggedInUser);
+                      retrieveUserDetails(loggedInUser!);
                       Navigator.pop(context);
                     }
 
@@ -830,6 +815,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     if (text.trim() == "") {
                       return "لا يجب ان يكون الاسم كله مسافات";
                     }
+                    return null;
                   },
                   textAlign: TextAlign.center,
                   onChanged: (text) {
@@ -951,6 +937,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     } else if (text.length != 11) {
                       return "الرقم خاطيء";
                     }
+                    return null;
                   },
                   keyboardType: TextInputType.number,
                   textAlign: TextAlign.center,
@@ -981,25 +968,23 @@ class _ProfilePageState extends State<ProfilePage> {
     DocumentSnapshot _documentSnapshot =
         await _fireStore.collection('users').document(user.uid).get();
 
-    if (_documentSnapshot.data != null) {
-      print('there is data ');
+    print('there is data ');
 
-      setState(() {
-        _governerate = _documentSnapshot.data["governrateBank"];
-      });
+    setState(() {
+      _governerate = _documentSnapshot.data["governrateBank"];
+    });
 
-      print("$_governerate");
+    print("$_governerate");
 
-      if (_governerate != null) {
-        await _fireStore
-            .collection('bank')
-            .document(_governerate)
-            .collection('doners')
-            .document(firebaseUser.uid)
-            .updateData({'phone': _newPhone});
-      }
+    if (_governerate != null) {
+      await _fireStore
+          .collection('bank')
+          .document(_governerate)
+          .collection('doners')
+          .document(firebaseUser.uid)
+          .updateData({'phone': _newPhone});
     }
-
+  
     await _fireStore
         .collection('users')
         .document(firebaseUser.uid)
@@ -1072,6 +1057,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     if (text.isEmpty) {
                       return "برجاء كتابة العنوان";
                     }
+                    return null;
                   },
                   textAlign: TextAlign.center,
                   onChanged: (text) {
@@ -1179,7 +1165,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           2020,
                         ),
                         lastDate: DateTime(2101));
-                    if (picked != null && picked != selectedDate)
+                    if (picked != selectedDate)
                       setState(() {
                         selectedDate = picked;
                       });
@@ -1201,34 +1187,32 @@ class _ProfilePageState extends State<ProfilePage> {
     DocumentSnapshot _documentSnapshot =
         await _fireStore.collection('users').document(user.uid).get();
 
-    if (_documentSnapshot.data != null) {
-      print('there is data ');
+    print('there is data ');
 
-      setState(() {
-        _governerate = _documentSnapshot.data["governrateBank"];
-        blazmaBank = _documentSnapshot.data["blazmaBank"];
-      });
+    setState(() {
+      _governerate = _documentSnapshot.data["governrateBank"];
+      blazmaBank = _documentSnapshot.data["blazmaBank"];
+    });
 
-      print("$_governerate");
+    print("$_governerate");
 
-      if (_governerate != null) {
-        await _fireStore
-            .collection('bank')
-            .document(_governerate)
-            .collection('doners')
-            .document(firebaseUser.uid)
-            .updateData({'dateOfDonation': myFormat.format(selectedDate)});
-      }
-      if (_governerate != null) {
-        await _fireStore
-            .collection('blazmaBank')
-            .document(blazmaBank)
-            .collection('doners')
-            .document(firebaseUser.uid)
-            .updateData({'dateOfDonation': myFormat.format(selectedDate)});
-      }
+    if (_governerate != null) {
+      await _fireStore
+          .collection('bank')
+          .document(_governerate)
+          .collection('doners')
+          .document(firebaseUser.uid)
+          .updateData({'dateOfDonation': myFormat.format(selectedDate)});
     }
-
+    if (_governerate != null) {
+      await _fireStore
+          .collection('blazmaBank')
+          .document(blazmaBank)
+          .collection('doners')
+          .document(firebaseUser.uid)
+          .updateData({'dateOfDonation': myFormat.format(selectedDate)});
+    }
+  
     await _fireStore
         .collection('users')
         .document(firebaseUser.uid)

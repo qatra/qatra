@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'Screens/splash.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -16,7 +15,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   @override
   void initState() {
 //    configureNotifications();
@@ -36,17 +35,13 @@ class _MyAppState extends State<MyApp> {
   }
 
   void configureNotifications() {
-
-    _firebaseMessaging.configure(
-        onMessage: (message)async{
-          //if the user opening the app
-          print("massssssageee --- : $message");
-        }
-    );
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      print("massssssageee --- : ${message.data}");
+    });
   }
 
   void getDeviceToken() async {
-    String devicetoken = await _firebaseMessaging.getToken();
+    String? devicetoken = await _firebaseMessaging.getToken();
     print("device Token : $devicetoken");
   }
 

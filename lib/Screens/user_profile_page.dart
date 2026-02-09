@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:icandoit/wavyyy.dart';
-import '../appBar_widget.dart';
 import '../user_model.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -17,19 +16,17 @@ class UserProfile extends StatefulWidget {
 class _UserProfileState extends State<UserProfile> {
 
   imageConditions() {
-   if (widget.user.imageUrl != null) {
-      return CachedNetworkImage(
-        imageUrl: "${widget.user.imageUrl}",
-        placeholder: (context, url) => new Container(
-            child: CircularProgressIndicator(),
-            decoration: BoxDecoration(
-                image: DecorationImage(
-                    image: AssetImage("assets/abcd.jpg"), fit: BoxFit.cover))),
-        errorWidget: (context, url, error) => new Icon(Icons.error),
-      );
+    return CachedNetworkImage(
+      imageUrl: "${widget.user.imageUrl}",
+      placeholder: (context, url) => new Container(
+          child: CircularProgressIndicator(),
+          decoration: BoxDecoration(
+              image: DecorationImage(
+                  image: AssetImage("assets/abcd.jpg"), fit: BoxFit.cover))),
+      errorWidget: (context, url, error) => new Icon(Icons.error),
+    );
 
-    }
-
+  
       return Image.asset(
         "assets/abcd.jpg",
         fit: BoxFit.cover,
@@ -105,16 +102,7 @@ class _UserProfileState extends State<UserProfile> {
                           Padding(
                             padding: EdgeInsets.all(4),
                           ),
-                          widget.user == null
-                              ? Text(
-                                  "---",
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 20),
-                                  textAlign: TextAlign.center,
-                                )
-                              : Center(
+                          Center(
                                   child: Text(
                                     widget.user.displayName,
                                     style: TextStyle(
@@ -196,11 +184,7 @@ class _UserInfoState extends State<UserInfo> {
                             style: TextStyle(
                               fontFamily: 'Tajawal',
                             )),
-                        subtitle: widget.user == null
-                            ? Text(
-                                "---",
-                              )
-                            : Row(
+                        subtitle: Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: <Widget>[
                                   Text(widget.user.fasila,
@@ -219,11 +203,7 @@ class _UserInfoState extends State<UserInfo> {
                             style: TextStyle(
                               fontFamily: 'Tajawal',
                             )),
-                        subtitle: widget.user == null
-                            ? Text(
-                                "---",
-                              )
-                            : SelectableText(widget.user.phone, onTap: () {
+                        subtitle: SelectableText(widget.user.phone, onTap: () {
                                 call();
                               },
                                 style: TextStyle(
@@ -237,11 +217,7 @@ class _UserInfoState extends State<UserInfo> {
                             style: TextStyle(
                               fontFamily: 'Tajawal',
                             )),
-                        subtitle: widget.user == null
-                            ? Text(
-                                "---",
-                              )
-                            : Text(widget.user.address,
+                        subtitle: Text(widget.user.address,
                                 style: TextStyle(
                                     fontFamily: 'Tajawal',
                                     color: Colors.red[900],
@@ -254,11 +230,7 @@ class _UserInfoState extends State<UserInfo> {
                             style: TextStyle(
                               fontFamily: 'Tajawal',
                             )),
-                        subtitle: widget.user == null
-                            ? Text(
-                                "---",
-                              )
-                            : Text(widget.user.email,
+                        subtitle: Text(widget.user.email,
                                 style: TextStyle(
                                     color: Colors.red[900],
                                     fontWeight: FontWeight.bold, fontSize: 18)),
@@ -269,9 +241,7 @@ class _UserInfoState extends State<UserInfo> {
                               style: TextStyle(
                                 fontFamily: 'Tajawal',
                               )),
-                          subtitle: widget.user == null
-                              ? Text("---")
-                              : Text(widget.user.dateOfDonation,
+                          subtitle: Text(widget.user.dateOfDonation,
                                   style: TextStyle(
                                       color: Colors.red[900],
                                       fontWeight: FontWeight.bold,

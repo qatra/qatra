@@ -7,6 +7,7 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:location/location.dart' as lo;
+import 'package:geocoding/geocoding.dart';
 
 GlobalKey<ScaffoldState> _scafold = new GlobalKey<ScaffoldState>();
 
@@ -26,17 +27,17 @@ class _TalabTabaro3State extends State<TalabTabaro3> {
   var city;
   var government;
 
-  String name;
-  String akias;
-  String hospital;
-  String hospitalAddress;
-  String phone;
-  String note;
+  String? name;
+  String? akias;
+  String? hospital;
+  String? hospitalAddress;
+  String? phone;
+  String? note;
 
   TextEditingController textFieldController = new TextEditingController();
   final TextEditingController _akias = TextEditingController();
 
-  final _fireStore = Firestore.instance;
+  final _fireStore = FirebaseFirestore.instance;
 
   bool locationLoading = false;
   bool _isLoading = false;
@@ -56,17 +57,19 @@ class _TalabTabaro3State extends State<TalabTabaro3> {
 
   final _formTlabKey = GlobalKey<FormState>();
 
-  FirebaseUser loggedInUser;
-  Future<FirebaseUser> getCurrentUser() async {
+  User? loggedInUser;
+  Future<User?> getCurrentUser() async {
     try {
-      final user = await _auth.currentUser();
+      final user = _auth.currentUser;
       if (user != null) {
         setState(() {
           loggedInUser = user;
         });
       }
+      return user;
     } catch (e) {
       print(e);
+      return null;
     }
   }
 
@@ -193,16 +196,17 @@ class _TalabTabaro3State extends State<TalabTabaro3> {
                                 // Your code to execute, when a menu item is selected from drop down
                                 _onDropDownItemSelected(newValueSelected);
                               },
-                              value: fasila,
+                              initialValue: fasila,
                             ),
                           ),
                           new Container(
                             padding: EdgeInsets.only(top: 17),
                             child: new TextFormField(
                               validator: (text) {
-                                if (text.isEmpty) {
+                                if (text == null || text.isEmpty) {
                                   return "ادخل اسم الحالة";
                                 }
+                                return null;
                               },
                               textAlign: TextAlign.center,
                               controller: textFieldController,
@@ -230,9 +234,10 @@ class _TalabTabaro3State extends State<TalabTabaro3> {
                             padding: EdgeInsets.only(top: 17),
                             child: new TextFormField(
                               validator: (text) {
-                                if (text.isEmpty) {
+                                if (text == null || text.isEmpty) {
                                   akias = "---";
                                 }
+                                return null;
                               },
                               textAlign: TextAlign.center,
                               keyboardType: TextInputType.number,
@@ -308,11 +313,12 @@ class _TalabTabaro3State extends State<TalabTabaro3> {
                                   padding: EdgeInsets.only(top: 14),
                                   child: new TextFormField(
                                     validator: (text) {
-                                      if (text.isEmpty) {
+                                      if (text == null || text.isEmpty) {
                                         return "ادخل اسم المحافظة";
                                       }if (text.trim() == "") {
                                         return "ادخل اسم المحافظة";
                                       }
+                                      return null;
                                     },
                                     textAlign: TextAlign.center,
                                     controller: _governmentController,
@@ -340,11 +346,12 @@ class _TalabTabaro3State extends State<TalabTabaro3> {
                                   padding: EdgeInsets.only(top: 17),
                                   child: new TextFormField(
                                     validator: (text) {
-                                      if (text.isEmpty) {
+                                      if (text == null || text.isEmpty) {
                                         return "ادخل اسم المدينة";
                                       }if (text.trim() == "") {
                                         return "ادخل اسم المدينة";
                                       }
+                                      return null;
                                     },
                                     textAlign: TextAlign.center,
                                     controller: _madinaController,
@@ -382,9 +389,10 @@ class _TalabTabaro3State extends State<TalabTabaro3> {
                             padding: EdgeInsets.only(top: 17),
                             child: new TextFormField(
                               validator: (text) {
-                                if (text.isEmpty) {
+                                if (text == null || text.isEmpty) {
                                   return "ادخل اسم مكان التبرع";
                                 }
+                                return null;
                               },
                               textAlign: TextAlign.center,
                               controller: null,
@@ -412,9 +420,10 @@ class _TalabTabaro3State extends State<TalabTabaro3> {
                             padding: EdgeInsets.only(top: 17),
                             child: new TextFormField(
                               validator: (text) {
-                                if (text.isEmpty) {
+                                if (text == null || text.isEmpty) {
                                   hospitalAddress = "---";
                                 }
+                                return null;
                               },
                               textAlign: TextAlign.center,
                               controller: null,
@@ -442,12 +451,13 @@ class _TalabTabaro3State extends State<TalabTabaro3> {
                             padding: EdgeInsets.only(top: 17),
                             child: new TextFormField(
                               validator: (text) {
-                                if (text.isEmpty) {
+                                if (text == null || text.isEmpty) {
                                   return "ادخل رقم تليفون المرافق";
                                 }
                                 if (text.length != 11) {
                                   return "هذا الرقم غير صحيح";
                                 }
+                                return null;
                               },
                               keyboardType: TextInputType.numberWithOptions(),
                               textAlign: TextAlign.center,
@@ -476,9 +486,10 @@ class _TalabTabaro3State extends State<TalabTabaro3> {
                             padding: EdgeInsets.only(top: 17),
                             child: new TextFormField(
                               validator: (text) {
-                                if (text.isEmpty) {
+                                if (text == null || text.isEmpty) {
                                   note = "---";
                                 }
+                                return null;
                               },
                               textAlign: TextAlign.center,
                               keyboardType: TextInputType.multiline,
@@ -514,7 +525,7 @@ class _TalabTabaro3State extends State<TalabTabaro3> {
                             height: 47.0,
                             width: 47.0,
                           )
-                              : RaisedButton(
+                              : ElevatedButton(
                             child: Text(
                               "ارسال طلب التبرع",
                               style: TextStyle(
@@ -526,9 +537,10 @@ class _TalabTabaro3State extends State<TalabTabaro3> {
                             onPressed:  () {
                                     validation();
                                   },
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20)),
-                            color: Colors.red[900],
+                            style: ElevatedButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20)),
+                                backgroundColor: Colors.red[900]),
                           ),
                           SizedBox(
                             height: 10,
@@ -577,27 +589,33 @@ class _TalabTabaro3State extends State<TalabTabaro3> {
       locationLoading = true;
     });
 
-    final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
-    Position position = await Geolocator()
-        .getCurrentPosition(desiredAccuracy: LocationAccuracy.lowest);
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.lowest);
 
-    List<Placemark> p = await geolocator.placemarkFromCoordinates(
-        position.latitude, position.longitude);
-    Placemark place = p[0];
-    print("${place.locality}, ${place.administrativeArea}, ${place.country}");
+      List<Placemark> p = await placemarkFromCoordinates(
+          position.latitude, position.longitude);
+      Placemark place = p[0];
+      print("${place.locality}, ${place.administrativeArea}, ${place.country}");
 
-    _madinaController.text = place.locality;
-    _governmentController.text = place.administrativeArea;
+      _madinaController.text = place.locality ?? "";
+      _governmentController.text = place.administrativeArea ?? "";
 
-    setState(() {
-      city = _madinaController.text ;
-      government = _governmentController.text ;
-      locationLoading = false;
-    });
+      setState(() {
+        city = _madinaController.text ;
+        government = _governmentController.text ;
+        locationLoading = false;
+      });
+    } catch (e) {
+      print(e);
+      setState(() {
+        locationLoading = false;
+      });
+    }
   }
 
   validation() {
-    _formTlabKey.currentState.validate() ? addPost() : print("not valid");
+    (_formTlabKey.currentState?.validate() ?? false) ? addPost() : print("not valid");
   }
 
   addPost() async {
@@ -627,21 +645,21 @@ class _TalabTabaro3State extends State<TalabTabaro3> {
           'note': note,
           'date': now,
           'dateThatSignsThePost': now.toString(),
-          'postSender': loggedInUser.email,
+          'postSender': loggedInUser?.email,
           'postColor': postColor
         };
 
         await _fireStore
             .collection("post")
-            .document(now.toString())
-            .setData(postMap());
+            .doc(now.toString())
+            .set(postMap());
 
 
         setState(() {
           _isLoading = false;
         });
 
-        showNotification("تم اضافة طلب التبرع بنجاح", _scafold );
+        showNotification("تم اضافة طلب التبرع بنجاح", context );
         Navigator.pop(context);
 
 
@@ -655,13 +673,13 @@ class _TalabTabaro3State extends State<TalabTabaro3> {
       });
 
       print(invalid);
-      showNotification("لا يوجد اتصال بالانترنت !", _scafold);
+      showNotification("لا يوجد اتصال بالانترنت !", context);
     }
   }
 }
 
-showNotification(msg, _scafold) {
-  _scafold.currentState.showSnackBar(
+showNotification(msg, context) {
+  ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
       content: Padding(
         padding: const EdgeInsets.all(8.0),
