@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:icandoit/wavyyy.dart';
 import 'governrate_bank.dart';
 
 class BloodBank extends StatefulWidget {
@@ -8,97 +7,85 @@ class BloodBank extends StatefulWidget {
 }
 
 class _BloodBankState extends State<BloodBank> {
-  TextEditingController _search=new TextEditingController();
-
-  var _cities = [
+  TextEditingController _search = new TextEditingController();
+  List _cities = [
+    "الدقهلية",
     "القاهرة",
     "الجيزة",
-    "الشرقية",
-    "الدقهلية",
-    "البحيرة",
-    "المنيا",
     "القليوبية",
-    "الاسكندرية",
-    "الغربية",
-    "سوهاج",
-    "اسيوط",
-    "المنوفية",
-    "كفر الشيخ",
-    "الفيوم",
-    "قنا",
-    "بني سويف",
-    "اسوان",
-    "دمياط",
-    "الاسماعيلية",
-    "الاقصر",
-    "بور سعيد",
-    "السويس",
-    "مطروح",
-    "شمال سيناء",
-    "الوادي الجديد",
-    "البحر الاحمر",
-    "جنوب سيناء",
-  ];
-
-  var _searchShops = [
-    "القاهرة",
-    "الجيزة",
-    "الشرقية",
-    "الدقهلية",
+    "الأسكندرية",
     "البحيرة",
-    "المنيا",
-    "القليوبية",
-    "الاسكندرية",
-    "الغربية",
-    "سوهاج",
-    "اسيوط",
-    "المنوفية",
-    "كفر الشيخ",
-    "الفيوم",
-    "قنا",
-    "بني سويف",
-    "اسوان",
-    "دمياط",
-    "الاسماعيلية",
-    "الاقصر",
-    "بور سعيد",
-    "السويس",
     "مطروح",
+    "دمياط",
+    "كفر الشيخ",
+    "الغربية",
+    "المنوفية",
+    "الشرقية",
+    "بورسعيد",
+    "الإسماعيلية",
+    "السويس",
     "شمال سيناء",
-    "الوادي الجديد",
-    "البحر الاحمر",
     "جنوب سيناء",
+    "بني سويف",
+    "الفيوم",
+    "المنيا",
+    "أسيوط",
+    "الوادي الجديد",
+    "سوهاج",
+    "قنا",
+    "الأقصر",
+    "أسوان",
+    "البحر الأحمر",
   ];
+  List _searchList = [];
 
-  _setSearchFilter(val){
-    _cities=_searchShops.where((x)=>x.toString().contains("$val")).toList();
+  @override
+  void initState() {
+    super.initState();
+    _searchList = _cities;
+  }
+
+  _setSearchFilter(String val) {
+    if (val.isEmpty) {
+      setState(() {
+        _searchList = _cities;
+      });
+      return;
+    }
+    List temp = [];
+    _cities.forEach((city) {
+      if (city.contains(val)) {
+        temp.add(city);
+      }
+    });
     setState(() {
-
+      _searchList = temp;
     });
   }
 
-  Widget governrateCard(String city) {
+  Widget governrateCard(id) {
     return Card(
-      elevation: 5,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      color: null,
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      margin: EdgeInsets.symmetric(horizontal: 40, vertical: 10),
       child: Container(
+        color: Colors.grey[200],
         child: ListTile(
           onTap: () {
             Navigator.push(
                 context,
-                new MaterialPageRoute(
-                    builder: (context) => new GovernrateBank(
-                          city: city,
+                MaterialPageRoute(
+                    builder: (context) => GovernrateBank(
+                          city: id,
                         )));
           },
           title: Center(
             child: Text(
-              city,
+              id,
               style: TextStyle(
-                  fontFamily: 'Tajawal',
+                  fontFamily: "Tajawal",
                   fontWeight: FontWeight.bold,
-                  fontSize: 18),
+                  fontSize: 20),
             ),
           ),
         ),
@@ -113,88 +100,60 @@ class _BloodBankState extends State<BloodBank> {
       home: Directionality(
         textDirection: TextDirection.rtl,
         child: Scaffold(
-          floatingActionButton: Padding(
-              padding: const EdgeInsets.only(right: 20, top: 20),
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.pop(context);
-                },
-                child: Align(
-                  alignment: Alignment.bottomRight,
-                  child: Stack(
-                    children: <Widget>[
-                      Image.asset(
-                        "assets/drop.png",
-                        width: 75,
-                        height: 80,
-                      ),
-                      Positioned(
-                        bottom: 18,
-                        right: 24,
-                        child: Icon(
-                          Icons.arrow_back,
-                          color: Colors.white,
-                          size: 28,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              )),
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 0,
+            title: Text(
+              "بنك الدم",
+              style: TextStyle(fontFamily: "Tajawal", color: Colors.red[900]),
+            ),
+            centerTitle: true,
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back, color: Colors.red[900]),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
           body: Stack(
             children: <Widget>[
-              Container(
-                  height: 120,
-                  child: Wavyyyy(
-                    title: "بنك الدم",
-                    backGroundColor: Colors.white,
-                    leftIcon: null,
-                    onPressedLeft: null,
-                    directionOfRightIcon: TextDirection.rtl,
-                    onPressedRight: () {
-                    },
-
-                  )),
               Padding(
-                padding: const EdgeInsets.only(top: 110),
+                padding: const EdgeInsets.only(top: 20),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     Container(
                       height: 50,
-                      width: MediaQuery.of(context).size.width-100,
+                      width: MediaQuery.of(context).size.width - 100,
                       child: TextFormField(
                         controller: _search,
-                        onChanged: (val)=>_setSearchFilter(val),
+                        onChanged: (val) => _setSearchFilter(val),
                         decoration: InputDecoration(
                             labelText: 'ابحث',
                             labelStyle: TextStyle(
                               fontFamily: 'Tajawal',
                             ),
                             border: OutlineInputBorder(
-                              borderRadius:
-                              BorderRadius.circular(20.0),
+                                borderRadius: BorderRadius.circular(20.0)),
+                            suffixIcon: InkWell(
+                              onTap: () {
+                                setState(() {
+                                  _search.text = "";
+                                });
+                                _setSearchFilter("");
+                              },
+                              child: Icon(Icons.cancel,
+                                  size: 25, color: Colors.black87),
                             ),
-                            suffixIcon:  InkWell(
-                                onTap: (){
-                                  setState(() {
-                                    _search.text="";
-                                  });
-                                  _setSearchFilter("");
-                                },
-                                child: Icon(Icons.cancel,size: 25,color: Colors.black87,),),
                             prefixIcon: Icon(Icons.search)),
-
                       ),
                     ),
                   ],
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(top: 140),
+                padding: const EdgeInsets.only(top: 100),
                 child: ListView(
-                  children: List.generate(_cities.length, (index){
-                    return governrateCard(_cities[index]);
+                  children: List.generate(_searchList.length, (index) {
+                    return governrateCard(_searchList[index]);
                   }),
                 ),
               ),

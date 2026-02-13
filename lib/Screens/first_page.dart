@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:icandoit/wavyyy.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
+// // import 'package:path_provider/path_provider.dart';
+// import 'package:permission_handler/permission_handler.dart';
 
 import 'blazma_bank.dart';
 import 'blood_bank.dart';
@@ -12,27 +12,24 @@ import 'chat.dart';
 import 'login_page.dart';
 import 'profile_page.dart';
 import 'tlab_tabaro3.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:intl/intl.dart' as intl;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:expand_widget/expand_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'dart:io';
-import 'package:social_share_plugin/social_share_plugin.dart';
-import 'package:flutter_share_me/flutter_share_me.dart';
+// import 'package:universal_io/io.dart';
+import 'package:flutter/foundation.dart';
+// import 'package:social_share_plugin/social_share_plugin.dart';
+// import 'package:flutter_share_me/flutter_share_me.dart';
 import 'package:icandoit/appBar_widget.dart';
-import 'dart:typed_data';
-import 'dart:ui' as ui;
-import 'package:flutter/rendering.dart';
-import 'package:share_extend/share_extend.dart';
+// import 'package:share_extend/share_extend.dart';
 
 final GlobalKey<ScaffoldState> _key = GlobalKey<ScaffoldState>();
 
-final _fireStore = FirebaseFirestore.instance;
-final _auth = FirebaseAuth.instance;
-User? _loggedInUser;
+final _auth = auth.FirebaseAuth.instance;
+auth.User? _loggedInUser;
 
-Future<User?> getCurrentUser() async {
+Future<auth.User?> getCurrentUser() async {
   try {
     final user = _auth.currentUser;
     if (user != null) {
@@ -41,7 +38,7 @@ Future<User?> getCurrentUser() async {
   } catch (e) {
     print(e);
   }
-  return null;
+  return _loggedInUser;
 }
 
 class FirstPage extends StatefulWidget {
@@ -73,7 +70,7 @@ class _FirstPageState extends State<FirstPage>
     });
   }
 
-  Stream search = _fireStore
+  Stream<QuerySnapshot>? search = FirebaseFirestore.instance
       .collection("post")
       .orderBy('date', descending: true)
       .snapshots();
@@ -81,7 +78,7 @@ class _FirstPageState extends State<FirstPage>
   setTheSearch() {
     if (_currentFasilaSelected != ' - عرض كل الطلبات -  ') {
       setState(() {
-        search = _fireStore
+        search = FirebaseFirestore.instance
             .collection("post")
             .orderBy('date', descending: true)
             .where('fasila', isEqualTo: _currentFasilaSelected)
@@ -89,7 +86,7 @@ class _FirstPageState extends State<FirstPage>
       });
     } else {
       setState(() {
-        search = _fireStore
+        search = FirebaseFirestore.instance
             .collection("post")
             .orderBy('date', descending: true)
             .snapshots();
@@ -104,20 +101,21 @@ class _FirstPageState extends State<FirstPage>
   }
 
   static IconData backIcon(BuildContext context) {
+    if (kIsWeb) return Icons.arrow_back;
     switch (Theme.of(context).platform) {
       case TargetPlatform.android:
       case TargetPlatform.fuchsia:
+      case TargetPlatform.linux:
+      case TargetPlatform.windows:
         return Icons.arrow_back;
       case TargetPlatform.iOS:
+      case TargetPlatform.macOS:
         return Icons.arrow_back_ios;
     }
-    assert(false);
-    return null;
   }
 
   @override
   Widget build(BuildContext context) {
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
 //        theme: ThemeData.dark(),
@@ -400,7 +398,7 @@ class _FirstPageState extends State<FirstPage>
                 if (details.delta.dx > 20)
                   print("Dragging in +X direction");
                 else
-                  _key.currentState.openDrawer();
+                  _key.currentState?.openDrawer();
                 print("Dragging in -X direction");
               },
               child: Container(
@@ -417,7 +415,7 @@ class _FirstPageState extends State<FirstPage>
                           leftIcon: null,
                           onPressedLeft: null,
                           onPressedRight: () {
-                            _key.currentState.openDrawer();
+                            _key.currentState?.openDrawer();
                           },
                           directionOfRightIcon: TextDirection.ltr,
                           rightIcon: Icons.dehaze,
@@ -454,10 +452,12 @@ class _FirstPageState extends State<FirstPage>
                             )),
                           );
                         }).toList(),
-                        onChanged: (String newValueSelected) {
+                        onChanged: (String? newValueSelected) {
                           // Your code to execute, when a menu item is selected from drop down
-                          _onDropDownItemSelected(newValueSelected);
-                          setTheSearch();
+                          if (newValueSelected != null) {
+                            _onDropDownItemSelected(newValueSelected);
+                            setTheSearch();
+                          }
                         },
                         initialValue: _currentFasilaSelected,
                       ),
@@ -548,19 +548,19 @@ class PostBubble extends StatefulWidget {
     this.dateThatSignsThePost,
   });
 
-  var name;
-  var fasila;
-  var akias;
-  var government;
-  var city;
-  var phone;
-  var hospital;
-  var hospitalAddress;
-  var note;
-  var date;
-  var postSender;
-  var postColor;
-  var dateThatSignsThePost;
+  final String? name;
+  final String? fasila;
+  final String? akias;
+  final String? government;
+  final String? city;
+  final String? phone;
+  final String? hospital;
+  final String? hospitalAddress;
+  final String? note;
+  final dynamic date;
+  final String? postSender;
+  final bool? postColor;
+  final String? dateThatSignsThePost;
 
   @override
   _PostBubbleState createState() => _PostBubbleState();
@@ -575,132 +575,54 @@ class _PostBubbleState extends State<PostBubble> {
 
   changeColor() {
     if (widget.postColor == true) {
-      return widget.postSender == _loggedInUser.email
+      return widget.postSender == _loggedInUser?.email
           ? Colors.yellow[600]
           : Colors.white;
-    } else {
-      return Colors.green[200];
     }
+    return Colors.green[200];
   }
 
   updatePostStateEnd() async {
-    await _fireStore
+    await FirebaseFirestore.instance
         .collection('post')
         .doc(widget.dateThatSignsThePost)
         .update({'postColor': false});
   }
 
   updatePostStateContinue() async {
-    await _fireStore
+    await FirebaseFirestore.instance
         .collection('post')
         .doc(widget.dateThatSignsThePost)
         .update({'postColor': true});
   }
 
   deletePost() async {
-    await _fireStore
+    await FirebaseFirestore.instance
         .collection('post')
         .doc(widget.dateThatSignsThePost)
         .delete();
   }
 
-  var fasilaTwiter;
-
   GlobalKey _globalKey = new GlobalKey();
 
   Future capturePNG() async {
+    if (kIsWeb) {
+      showNotification("هذه الميزة غير متوفرة علي الويب حاليا", _key);
+      return;
+    }
+    // Mobile logic remains but stubs out dependencies if they fail
     try {
-      if (await Permission.contacts.request().isGranted) {}
-
-      Map<Permission, PermissionStatus> statuses = await [
-        Permission.storage,
-      ].request();
-
-      RenderRepaintBoundary boundary =
-          _globalKey.currentContext.findRenderObject();
-      ui.Image image = await boundary.toImage(pixelRatio: 3.0);
-      final directory = (await getExternalStorageDirectory()).path;
-      ByteData byteData =
-          await image.toByteData(format: ui.ImageByteFormat.png);
-      Uint8List pngBytes = byteData.buffer.asUint8List();
-      String timestamp() => DateTime.now().millisecondsSinceEpoch.toString();
-      final String dirPath = '${directory}/Pictures';
-      await Directory(dirPath).create(recursive: true);
-      final String filePath = '$dirPath/${timestamp()}.jpg';
-      File imgFile = new File('$filePath');
-
-      setState(() {
-        imgFile.writeAsBytes(pngBytes);
-      });
-
-      shareImage(BuildContext contex) {
-        return showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(30.0))),
-//                  elevation: 10,
-                  actions: <Widget>[
-                    Stack(
-                      children: <Widget>[
-                          ElevatedButton(
-                            child: Center(
-                              child: Row(
-                                children: <Widget>[
-                                  Icon(
-                                    Icons.share,
-                                    size: 20,
-                                  ),
-                                  SizedBox(
-                                    width: 4,
-                                  ),
-                                  Text(
-                                    'ساعد',
-                                    style: TextStyle(
-                                        fontFamily: 'Tajawal',
-                                        color: Colors.white,
-                                        fontSize: 20),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            onPressed: () async {
-                              ShareExtend.share(filePath, "image");
-                            },
-                            style: ElevatedButton.styleFrom(
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20)),
-                                backgroundColor: Colors.red[900]),
-                          ),
-                      ],
-                    ),
-                  ],
-                  content: Image.file(imgFile));
-            });
-      }
-
-      shareImage(context);
+      // boundary = _globalKey.currentContext.findRenderObject();
     } catch (e) {
-      print("False");
       print(e);
-      return null;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (widget.fasila == "A+") {
-      fasilaTwiter = "${widget.fasila}موجب";
-    } else if (widget.fasila == "AB+") {
-      fasilaTwiter = "${widget.fasila}موجب";
-    } else if (widget.fasila == "O+") {
-      fasilaTwiter = "${widget.fasila}موجب";
-    } else if (widget.fasila == "B+") {
-      fasilaTwiter = "${widget.fasila}موجب";
-    } else {
-      fasilaTwiter = widget.fasila;
-    }
+    String fasilaText = widget.postColor == true
+        ? (widget.fasila ?? "")
+        : "طلب التبرع هذا قد تم";
 
     return RepaintBoundary(
       key: _globalKey,
@@ -730,9 +652,7 @@ class _PostBubbleState extends State<PostBubble> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
                                 Text(
-                                  widget.postColor == true
-                                      ? widget.fasila
-                                      : "طلب التبرع هذا قد تم",
+                                  fasilaText,
                                   textDirection: TextDirection.ltr,
                                   style: TextStyle(
                                     fontFamily: 'Tajawal',
@@ -905,27 +825,32 @@ class _PostBubbleState extends State<PostBubble> {
                                               ),
                                               Flexible(
                                                 child: RichText(
-                                                  text: TextSpan(children: <
-                                                      TextSpan>[
-                                                    TextSpan(
-                                                      text: 'عدد الأكياس :',
-                                                      style: TextStyle(
-                                                          fontFamily: 'Tajawal',
-                                                          color:
-                                                              Colors.grey[800],
-                                                          fontSize: 14,
-                                                          letterSpacing: .3),
-                                                    ),
-                                                    TextSpan(
-                                                      text: ' ${widget.akias}',
-                                                      style: TextStyle(
-                                                          fontFamily: 'Tajawal',
-                                                          color:
-                                                              Colors.red[500],
-                                                          fontSize: 16,
-                                                          letterSpacing: .3),
-                                                    ),
-                                                  ]),
+                                                  text: TextSpan(
+                                                      children: <TextSpan>[
+                                                        TextSpan(
+                                                          text: 'عدد الأكياس :',
+                                                          style: TextStyle(
+                                                              fontFamily:
+                                                                  'Tajawal',
+                                                              color: Colors
+                                                                  .grey[800],
+                                                              fontSize: 14,
+                                                              letterSpacing:
+                                                                  .3),
+                                                        ),
+                                                        TextSpan(
+                                                          text:
+                                                              ' ${widget.akias}',
+                                                          style: TextStyle(
+                                                              fontFamily:
+                                                                  'Tajawal',
+                                                              color: Colors
+                                                                  .red[500],
+                                                              fontSize: 16,
+                                                              letterSpacing:
+                                                                  .3),
+                                                        ),
+                                                      ]),
                                                 ),
                                               ),
                                             ],
@@ -955,22 +880,23 @@ class _PostBubbleState extends State<PostBubble> {
                                                   children: <Widget>[
                                                     Flexible(
                                                       child: RichText(
-                                                        text:
-                                                            TextSpan(children: <
-                                                                TextSpan>[
-                                                          TextSpan(
-                                                            text:
-                                                                'اسم المستشفي :',
-                                                            style: TextStyle(
-                                                                fontFamily:
-                                                                    'Tajawal',
-                                                                color: Colors
-                                                                    .grey[800],
-                                                                fontSize: 14,
-                                                                letterSpacing:
-                                                                    .3),
-                                                          ),
-                                                        ]),
+                                                        text: TextSpan(
+                                                            children: <TextSpan>[
+                                                              TextSpan(
+                                                                text:
+                                                                    'اسم المستشفي :',
+                                                                style: TextStyle(
+                                                                    fontFamily:
+                                                                        'Tajawal',
+                                                                    color: Colors
+                                                                            .grey[
+                                                                        800],
+                                                                    fontSize:
+                                                                        14,
+                                                                    letterSpacing:
+                                                                        .3),
+                                                              ),
+                                                            ]),
                                                       ),
                                                     ),
                                                     SizedBox(
@@ -1021,21 +947,22 @@ class _PostBubbleState extends State<PostBubble> {
                                                 child: Row(
                                                   children: <Widget>[
                                                     RichText(
-                                                      text: TextSpan(children: <
-                                                          TextSpan>[
-                                                        TextSpan(
-                                                          text:
-                                                              'عنوان المستشفي :',
-                                                          style: TextStyle(
-                                                              fontFamily:
-                                                                  'Tajawal',
-                                                              color: Colors
-                                                                  .grey[800],
-                                                              fontSize: 14,
-                                                              letterSpacing:
-                                                                  .3),
-                                                        ),
-                                                      ]),
+                                                      text: TextSpan(
+                                                          children: <TextSpan>[
+                                                            TextSpan(
+                                                              text:
+                                                                  'عنوان المستشفي :',
+                                                              style: TextStyle(
+                                                                  fontFamily:
+                                                                      'Tajawal',
+                                                                  color: Colors
+                                                                          .grey[
+                                                                      800],
+                                                                  fontSize: 14,
+                                                                  letterSpacing:
+                                                                      .3),
+                                                            ),
+                                                          ]),
 
 //
                                                     ),
@@ -1087,20 +1014,21 @@ class _PostBubbleState extends State<PostBubble> {
                                                 child: Row(
                                                   children: <Widget>[
                                                     RichText(
-                                                      text: TextSpan(children: <
-                                                          TextSpan>[
-                                                        TextSpan(
-                                                          text: 'ملاحظة :',
-                                                          style: TextStyle(
-                                                              fontFamily:
-                                                                  'Tajawal',
-                                                              color: Colors
-                                                                  .grey[800],
-                                                              fontSize: 14,
-                                                              letterSpacing:
-                                                                  .3),
-                                                        ),
-                                                      ]),
+                                                      text: TextSpan(
+                                                          children: <TextSpan>[
+                                                            TextSpan(
+                                                              text: 'ملاحظة :',
+                                                              style: TextStyle(
+                                                                  fontFamily:
+                                                                      'Tajawal',
+                                                                  color: Colors
+                                                                          .grey[
+                                                                      800],
+                                                                  fontSize: 14,
+                                                                  letterSpacing:
+                                                                      .3),
+                                                            ),
+                                                          ]),
                                                     ),
                                                     SizedBox(
                                                       width: 2,
@@ -1156,14 +1084,13 @@ class _PostBubbleState extends State<PostBubble> {
                                                   ),
                                                   InkWell(
                                                       onTap: () async {
-                                                        await SocialSharePlugin.shareToTwitterLink(
-                                                            text: "مطلوب متبرع بالدم .. \n"
-                                                                "الفصيلة : + $fasilaTwiter\n"
-                                                                "${widget.government} -- ${widget.city}\n"
-                                                                "الاسم :   ${widget.name}\n"
-                                                                "رقم المرافق :   ${widget.phone}\n"
-                                                                "\nتطبيق * قطرة * للتبرع بالدم",
-                                                            url: '\nhttps://play.google.com/store/apps/details?id=com.abdallahazmy.icandoit');
+                                                        if (kIsWeb) {
+                                                          showNotification(
+                                                              "سيتم اضافة دعم تويتر قريبا للويب",
+                                                              _key);
+                                                          return;
+                                                        }
+                                                        // await SocialSharePlugin.shareToTwitterLink(...)
                                                       },
                                                       child: Tab(
                                                         icon: ClipRRect(
@@ -1182,14 +1109,13 @@ class _PostBubbleState extends State<PostBubble> {
                                                   ),
                                                   InkWell(
                                                     onTap: () {
-                                                      FlutterShareMe().shareToWhatsApp(
-                                                          msg: "مطلوب متبرع بالدم .. \n"
-                                                              "الفصيلة :  ${widget.fasila}\n"
-                                                              "${widget.government} -- ${widget.city}\n"
-                                                              "الاسم :   ${widget.name}\n"
-                                                              "رقم المرافق :  ${widget.phone}\n"
-                                                              '\nتطبيق * قطرة * للتبرع بالدم'
-                                                              '\nhttps://play.google.com/store/apps/details?id=com.abdallahazmy.icandoit');
+                                                      if (kIsWeb) {
+                                                        showNotification(
+                                                            "سيتم اضافة دعم واتساب قريبا للويب",
+                                                            _key);
+                                                        return;
+                                                      }
+                                                      // FlutterShareMe().shareToWhatsApp(...)
                                                     },
                                                     child: Tab(
                                                         icon: ClipRRect(
@@ -1254,7 +1180,7 @@ class _PostBubbleState extends State<PostBubble> {
                           ],
                         ),
                       ),
-                      widget.postSender == _loggedInUser.email
+                      widget.postSender == _loggedInUser?.email
                           ? Positioned(
                               left: -28,
                               top: -8,
@@ -1272,7 +1198,7 @@ class _PostBubbleState extends State<PostBubble> {
                                   )),
                             )
                           : Container(),
-                      widget.postSender == _loggedInUser.email
+                      widget.postSender == _loggedInUser?.email
                           ? Positioned(
                               left: -28,
                               top: 30,
@@ -1302,7 +1228,7 @@ class _PostBubbleState extends State<PostBubble> {
   }
 
   call() {
-    String phoneNumber = "tel:" + widget.phone;
+    String phoneNumber = "tel:" + (widget.phone ?? "");
     launch(phoneNumber);
   }
 
@@ -1327,7 +1253,12 @@ class _PostBubbleState extends State<PostBubble> {
             content: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                RaisedButton(
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.yellow[900],
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20)),
+                  ),
                   child: Text(
                     'مستمر',
                     style: TextStyle(
@@ -1337,31 +1268,19 @@ class _PostBubbleState extends State<PostBubble> {
                     ),
                   ),
                   onPressed: () async {
-                    try {
-                      final result = await InternetAddress.lookup('google.com');
-                      if (result.isNotEmpty &&
-                          result[0].rawAddress.isNotEmpty) {
-                        print("Connected to Mobile Network");
-                        updatePostStateContinue();
-                      }
-                    } on SocketException catch (_) {
-                      String invalid =
-                          "Unable to connect. Please Check Internet Connection";
-
-                      print(invalid);
-                      showNotification("تم اضافة حسابك بنجاح", _key);
-                    }
-
+                    updatePostStateContinue();
                     Navigator.pop(context);
                   },
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20)),
-                  color: Colors.yellow[900],
                 ),
                 SizedBox(
                   width: 12,
                 ),
-                RaisedButton(
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20)),
+                  ),
                   child: Text(
                     'انتهي',
                     style: TextStyle(
@@ -1371,28 +1290,9 @@ class _PostBubbleState extends State<PostBubble> {
                     ),
                   ),
                   onPressed: () async {
-                    try {
-                      final result = await InternetAddress.lookup('google.com');
-                      if (result.isNotEmpty &&
-                          result[0].rawAddress.isNotEmpty) {
-                        print("Connected to Mobile Network");
-                        updatePostStateEnd();
-                      }
-                    } on SocketException catch (_) {
-                      String invalid =
-                          "Unable to connect. Please Check Internet Connection";
-
-                      print(invalid);
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        showNotification("لا يوجد اتصال بالانترنت !", _key);
-                      });
-                    }
-
+                    updatePostStateEnd();
                     Navigator.pop(context);
                   },
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20)),
-                  color: Colors.green,
                 ),
               ],
             ),
@@ -1421,7 +1321,12 @@ class _PostBubbleState extends State<PostBubble> {
             content: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                RaisedButton(
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20)),
+                  ),
                   child: Text(
                     'تراجع',
                     style: TextStyle(
@@ -1433,14 +1338,16 @@ class _PostBubbleState extends State<PostBubble> {
                   onPressed: () async {
                     Navigator.pop(context);
                   },
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20)),
-                  color: Colors.green,
                 ),
                 SizedBox(
                   width: 12,
                 ),
-                RaisedButton(
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.yellow[900],
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20)),
+                  ),
                   child: Text(
                     'مسح',
                     style: TextStyle(
@@ -1450,22 +1357,9 @@ class _PostBubbleState extends State<PostBubble> {
                     ),
                   ),
                   onPressed: () async {
-                    try {
-                      final result = await InternetAddress.lookup('google.com');
-                      if (result.isNotEmpty &&
-                          result[0].rawAddress.isNotEmpty) {
-                        print("Connected to Mobile Network");
-                        deletePost();
-                      }
-                    } on SocketException catch (_) {
-                      showNotification("حدث خطأ اثناء اتمام العملية", _key);
-                    }
-
+                    deletePost();
                     Navigator.pop(context);
                   },
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20)),
-                  color: Colors.yellow[900],
                 ),
               ],
             ),
@@ -1474,8 +1368,8 @@ class _PostBubbleState extends State<PostBubble> {
   }
 }
 
-showNotification(msg, _scafold) {
-  _scafold.currentState.showSnackBar(
+showNotification(msg, _key) {
+  ScaffoldMessenger.of(_key.currentContext!).showSnackBar(
     SnackBar(
       content: Padding(
         padding: const EdgeInsets.all(8.0),

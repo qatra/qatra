@@ -5,7 +5,8 @@ import '../appBar_widget.dart';
 import '../user_model.dart';
 import 'package:flutter/cupertino.dart';
 
-import 'dart:io';
+import 'package:universal_io/io.dart';
+import 'package:flutter/foundation.dart';
 
 creatAlertDialog(BuildContext context, text) {
   return showDialog(
@@ -13,7 +14,7 @@ creatAlertDialog(BuildContext context, text) {
       builder: (context) {
         return AlertDialog(
           shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           title: Text(
             "Warning",
             style: TextStyle(color: Colors.red[900], fontSize: 24),
@@ -87,7 +88,9 @@ class _AddDonerToBlazmaBankState extends State<AddDonerToBlazmaBank> {
   }
 
   validation() {
-    (_formKey.currentState?.validate() ?? false) ? updataDataOfUser() : print("not valid");
+    (_formKey.currentState?.validate() ?? false)
+        ? updataDataOfUser()
+        : print("not valid");
   }
 
   updataDataOfUser() async {
@@ -110,25 +113,27 @@ class _AddDonerToBlazmaBankState extends State<AddDonerToBlazmaBank> {
     });
 
     try {
-      final result = await InternetAddress.lookup('google.com');
-      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-        print("Connected to Mobile Network");
-
-        await _fireStore
-            .collection('blazmaBank')
-            .doc(widget.city)
-            .collection('doners')
-            .doc(now.toString())
-            .set(_user?.toMap(_user) ?? {});
-
-        Navigator.pop(context);
-
-        showNotification("تم اضافة متبرع بنجاح", widget._scafold);
-
-        setState(() {
-          isLoading = false;
-        });
+      if (!kIsWeb) {
+        final result = await InternetAddress.lookup('google.com');
+        if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+          print("Connected to Mobile Network");
+        }
       }
+
+      await _fireStore
+          .collection('blazmaBank')
+          .doc(widget.city)
+          .collection('doners')
+          .doc(now.toString())
+          .set(_user!.toMap());
+
+      Navigator.pop(context);
+
+      showNotification("تم اضافة متبرع بنجاح", widget._scafold);
+
+      setState(() {
+        isLoading = false;
+      });
     } on SocketException catch (_) {
       print("Unable to connect. Please Check Internet Connection");
 
@@ -202,40 +207,40 @@ class _AddDonerToBlazmaBankState extends State<AddDonerToBlazmaBank> {
                       children: <Widget>[
                         Container(
                           padding: const EdgeInsets.only(bottom: 10),
-                            child: DropdownButtonFormField<String>(
-                              validator: (value) => value == "حدد الفصيلة"
-                                  ? 'برجاء اختيار الفصيلة'
-                                  : null,
-                              elevation: 10,
-                              isDense: true,
-                              decoration: InputDecoration(
-                                  border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(20.0)),
-                                  prefixIcon: Icon(
-                                    Icons.local_hospital,
-                                    size: 22,
-                                  )),
-                              items: _fasila.map((String dropDownStringItem) {
-                                return DropdownMenuItem<String>(
-                                  value: dropDownStringItem,
-                                  child: Center(
-                                    child: Text(
-                                      dropDownStringItem,
-                                      textDirection: TextDirection.ltr,
-                                      style: TextStyle(
-                                        fontFamily: 'Tajawal',
-                                      ),
+                          child: DropdownButtonFormField<String>(
+                            validator: (value) => value == "حدد الفصيلة"
+                                ? 'برجاء اختيار الفصيلة'
+                                : null,
+                            elevation: 10,
+                            isDense: true,
+                            decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(20.0)),
+                                prefixIcon: Icon(
+                                  Icons.local_hospital,
+                                  size: 22,
+                                )),
+                            items: _fasila.map((String dropDownStringItem) {
+                              return DropdownMenuItem<String>(
+                                value: dropDownStringItem,
+                                child: Center(
+                                  child: Text(
+                                    dropDownStringItem,
+                                    textDirection: TextDirection.ltr,
+                                    style: TextStyle(
+                                      fontFamily: 'Tajawal',
                                     ),
                                   ),
-                                );
-                              }).toList(),
-                              onChanged: (String? newValueSelected) {
-                                if (newValueSelected != null) {
-                                  _onDropDownItemSelected(newValueSelected);
-                                }
-                              },
-                              initialValue: _currentFasilaSelected,
-                            ),
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (String? newValueSelected) {
+                              if (newValueSelected != null) {
+                                _onDropDownItemSelected(newValueSelected);
+                              }
+                            },
+                            initialValue: _currentFasilaSelected,
+                          ),
                         ),
                         SizedBox(
                           height: 4,
@@ -351,27 +356,28 @@ class _AddDonerToBlazmaBankState extends State<AddDonerToBlazmaBank> {
                         ),
                         isLoading
                             ? Image.asset(
-                          "assets/loading.gif",
-                          height: 47.0,
-                          width: 47.0,
-                        )
-                             : ElevatedButton(
-                          child: Text(
-                            'حفظ',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'Tajawal',
-                                fontSize: 20),
-                          ),
-                          onPressed: () {
-                            validation();
-                          },
-                          style: ElevatedButton.styleFrom(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20)),
-                              backgroundColor: Colors.green),
-                        ),
+                                "assets/loading.gif",
+                                height: 47.0,
+                                width: 47.0,
+                              )
+                            : ElevatedButton(
+                                child: Text(
+                                  'حفظ',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'Tajawal',
+                                      fontSize: 20),
+                                ),
+                                onPressed: () {
+                                  validation();
+                                },
+                                style: ElevatedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(20)),
+                                    backgroundColor: Colors.green),
+                              ),
                       ],
                     ),
                   ),

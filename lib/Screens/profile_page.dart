@@ -9,7 +9,8 @@ import 'package:image_picker/image_picker.dart';
 
 import '../appBar_widget.dart';
 import '../user_model.dart';
-import 'dart:io';
+import 'package:flutter/foundation.dart';
+import 'package:universal_io/io.dart';
 import 'package:path/path.dart' as path;
 import 'package:intl/intl.dart' as intl;
 
@@ -70,16 +71,16 @@ class _ProfilePageState extends State<ProfilePage> {
     });
 
     return User.fromMap(_documentSnapshot.data() as Map<String, dynamic>);
-    }
+  }
 
-  File? _image;
+  XFile? _imageFile;
   var imageUrl;
   Future getImage() async {
     final ImagePicker _picker = ImagePicker();
     var image = await _picker.pickImage(source: ImageSource.gallery);
     if (image != null) {
       setState(() {
-        _image = File(image.path);
+        _imageFile = image;
       });
       print("bbbbbbbbbbbbbbbbbbbbbbbbbbb");
       uploadPic(context);
@@ -93,14 +94,21 @@ class _ProfilePageState extends State<ProfilePage> {
       loading = true;
     });
 
-    String fileName = path.basename(_image!.path);
+    String fileName = path.basename(_imageFile!.path);
 
     Reference fireBaseStorageRefrence =
         FirebaseStorage.instance.ref().child(fileName);
 
-    UploadTask uploadTask = fireBaseStorageRefrence.putFile(_image!);
+    UploadTask uploadTask;
+    if (kIsWeb) {
+      uploadTask =
+          fireBaseStorageRefrence.putData(await _imageFile!.readAsBytes());
+    } else {
+      uploadTask = fireBaseStorageRefrence.putFile(File(_imageFile!.path));
+    }
 
-    var dowurl = await (await uploadTask.whenComplete(() {})).ref.getDownloadURL();
+    var dowurl =
+        await (await uploadTask.whenComplete(() {})).ref.getDownloadURL();
 
     setState(() {
       imageUrl = dowurl.toString();
@@ -126,11 +134,19 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   imageConditions() {
-    return Image.file(
-      _image,
-      fit: BoxFit.cover,
-    );
+    if (_imageFile == null) return Container();
+    if (kIsWeb) {
+      return Image.network(
+        _imageFile!.path,
+        fit: BoxFit.cover,
+      );
+    } else {
+      return Image.file(
+        File(_imageFile!.path),
+        fit: BoxFit.cover,
+      );
     }
+  }
 
   @override
   void initState() {
@@ -145,7 +161,6 @@ class _ProfilePageState extends State<ProfilePage> {
       textDirection: TextDirection.rtl,
       child: Scaffold(
           key: _scafold,
-
           floatingActionButton: Padding(
               padding: const EdgeInsets.only(right: 20, top: 20),
               child: GestureDetector(
@@ -177,10 +192,8 @@ class _ProfilePageState extends State<ProfilePage> {
           body: SafeArea(
             child: ListView(
               children: <Widget>[
-
                 Stack(
                   children: <Widget>[
-
                     Container(
                       width: double.infinity,
                       height: 350,
@@ -330,7 +343,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                                             CupertinoActionSheet(
                                                               title: Text(
                                                                 "اختر فصيلة دمك",
-                                                                style: TextStyle(
+                                                                style:
+                                                                    TextStyle(
                                                                   fontFamily:
                                                                       'Tajawal',
                                                                   fontSize: 22,
@@ -343,10 +357,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                                                   mainAxisAlignment:
                                                                       MainAxisAlignment
                                                                           .center,
-                                                                  children: <
-                                                                      Widget>[
+                                                                  children: <Widget>[
                                                                     CupertinoActionSheetAction(
-                                                                      child: Text(
+                                                                      child:
+                                                                          Text(
                                                                         "AB+",
                                                                         style: TextStyle(
                                                                             color:
@@ -362,10 +376,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
                                                                         upFasila();
 
-                                                                        Navigator.of(
-                                                                                context)
-                                                                            .pop(
-                                                                                "Cancel");
+                                                                        Navigator.of(context)
+                                                                            .pop("Cancel");
                                                                       },
                                                                       isDefaultAction:
                                                                           true,
@@ -374,7 +386,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                                                       width: 54,
                                                                     ),
                                                                     CupertinoActionSheetAction(
-                                                                      child: Text(
+                                                                      child:
+                                                                          Text(
                                                                         "AB-",
                                                                         style: TextStyle(
                                                                             color:
@@ -389,10 +402,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                                                         });
 
                                                                         upFasila();
-                                                                        Navigator.of(
-                                                                                context)
-                                                                            .pop(
-                                                                                "Cancel");
+                                                                        Navigator.of(context)
+                                                                            .pop("Cancel");
                                                                       },
                                                                       isDefaultAction:
                                                                           true,
@@ -403,10 +414,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                                                   mainAxisAlignment:
                                                                       MainAxisAlignment
                                                                           .center,
-                                                                  children: <
-                                                                      Widget>[
+                                                                  children: <Widget>[
                                                                     CupertinoActionSheetAction(
-                                                                      child: Text(
+                                                                      child:
+                                                                          Text(
                                                                         "A+",
                                                                         style: TextStyle(
                                                                             color:
@@ -422,10 +433,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
                                                                         upFasila();
 
-                                                                        Navigator.of(
-                                                                                context)
-                                                                            .pop(
-                                                                                "Cancel");
+                                                                        Navigator.of(context)
+                                                                            .pop("Cancel");
                                                                       },
                                                                       isDefaultAction:
                                                                           true,
@@ -434,7 +443,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                                                       width: 65,
                                                                     ),
                                                                     CupertinoActionSheetAction(
-                                                                      child: Text(
+                                                                      child:
+                                                                          Text(
                                                                         "A-",
                                                                         style: TextStyle(
                                                                             color:
@@ -449,10 +459,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                                                         });
 
                                                                         upFasila();
-                                                                        Navigator.of(
-                                                                                context)
-                                                                            .pop(
-                                                                                "Cancel");
+                                                                        Navigator.of(context)
+                                                                            .pop("Cancel");
                                                                       },
                                                                       isDefaultAction:
                                                                           true,
@@ -463,10 +471,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                                                   mainAxisAlignment:
                                                                       MainAxisAlignment
                                                                           .center,
-                                                                  children: <
-                                                                      Widget>[
+                                                                  children: <Widget>[
                                                                     CupertinoActionSheetAction(
-                                                                      child: Text(
+                                                                      child:
+                                                                          Text(
                                                                         "B+",
                                                                         style: TextStyle(
                                                                             color:
@@ -482,10 +490,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
                                                                         upFasila();
 
-                                                                        Navigator.of(
-                                                                                context)
-                                                                            .pop(
-                                                                                "Cancel");
+                                                                        Navigator.of(context)
+                                                                            .pop("Cancel");
                                                                       },
                                                                       isDefaultAction:
                                                                           true,
@@ -494,7 +500,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                                                       width: 65,
                                                                     ),
                                                                     CupertinoActionSheetAction(
-                                                                      child: Text(
+                                                                      child:
+                                                                          Text(
                                                                         "B-",
                                                                         style: TextStyle(
                                                                             color:
@@ -509,10 +516,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                                                         });
 
                                                                         upFasila();
-                                                                        Navigator.of(
-                                                                                context)
-                                                                            .pop(
-                                                                                "Cancel");
+                                                                        Navigator.of(context)
+                                                                            .pop("Cancel");
                                                                       },
                                                                       isDefaultAction:
                                                                           true,
@@ -523,10 +528,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                                                   mainAxisAlignment:
                                                                       MainAxisAlignment
                                                                           .center,
-                                                                  children: <
-                                                                      Widget>[
+                                                                  children: <Widget>[
                                                                     CupertinoActionSheetAction(
-                                                                      child: Text(
+                                                                      child:
+                                                                          Text(
                                                                         "O+",
                                                                         style: TextStyle(
                                                                             color:
@@ -542,10 +547,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
                                                                         upFasila();
 
-                                                                        Navigator.of(
-                                                                                context)
-                                                                            .pop(
-                                                                                "Cancel");
+                                                                        Navigator.of(context)
+                                                                            .pop("Cancel");
                                                                       },
                                                                       isDefaultAction:
                                                                           true,
@@ -554,7 +557,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                                                       width: 65,
                                                                     ),
                                                                     CupertinoActionSheetAction(
-                                                                      child: Text(
+                                                                      child:
+                                                                          Text(
                                                                         "O-",
                                                                         style: TextStyle(
                                                                             color:
@@ -569,10 +573,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                                                         });
 
                                                                         upFasila();
-                                                                        Navigator.of(
-                                                                                context)
-                                                                            .pop(
-                                                                                "Cancel");
+                                                                        Navigator.of(context)
+                                                                            .pop("Cancel");
                                                                       },
                                                                       isDefaultAction:
                                                                           true,
@@ -588,7 +590,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                                                       TextStyle(
                                                                     fontFamily:
                                                                         'Tajawal',
-                                                                    fontSize: 19,
+                                                                    fontSize:
+                                                                        19,
                                                                     color: Colors
                                                                         .blue,
                                                                   ),
@@ -627,7 +630,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                                       textDirection:
                                                           TextDirection.ltr,
                                                       style: TextStyle(
-                                                          color: Colors.red[900],
+                                                          color:
+                                                              Colors.red[900],
                                                           fontWeight:
                                                               FontWeight.bold,
                                                           fontSize: 18)),
@@ -657,7 +661,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                               subtitle: Text(newPhone,
                                                   style: TextStyle(
                                                       color: Colors.red[900],
-                                                      fontWeight: FontWeight.bold,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                       fontSize: 18)),
                                             ),
                                             ListTile(
@@ -682,7 +687,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                               subtitle: Text(newAddress,
                                                   style: TextStyle(
                                                       color: Colors.red[900],
-                                                      fontWeight: FontWeight.bold,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                       fontSize: 18)),
                                             ),
                                             ListTile(
@@ -693,7 +699,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                                     )),
                                                 trailing: InkWell(
                                                     onTap: () {
-                                                      editDateOfDonation(context);
+                                                      editDateOfDonation(
+                                                          context);
                                                     },
                                                     child: Container(
                                                       height: 50,
@@ -720,9 +727,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                                   ? Text(
                                                       "---",
                                                     )
-                                                  : Text(user.email,
+                                                  : Text(user?.email ?? "---",
                                                       style: TextStyle(
-                                                          color: Colors.red[900],
+                                                          color:
+                                                              Colors.red[900],
                                                           fontWeight:
                                                               FontWeight.bold,
                                                           fontSize: 18)),
@@ -756,7 +764,7 @@ class _ProfilePageState extends State<ProfilePage> {
         builder: (context) {
           return AlertDialog(
               actions: <Widget>[
-                RaisedButton(
+                ElevatedButton(
                   child: Text(
                     'حفظ',
                     style: TextStyle(
@@ -765,17 +773,27 @@ class _ProfilePageState extends State<ProfilePage> {
                       fontFamily: 'Tajawal',
                     ),
                   ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red[900],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
                   onPressed: () {
                     print("bbbbbbbbbbbbbbbbbbbbbbbb");
                     upName() async {
                       print("in the fn");
                       try {
-                        final result =
-                            await InternetAddress.lookup('google.com');
-                        if (result.isNotEmpty &&
-                            result[0].rawAddress.isNotEmpty) {
-                          print("Connected to Mobile Network");
+                        if (kIsWeb) {
                           uploadName();
+                        } else {
+                          final result =
+                              await InternetAddress.lookup('google.com');
+                          if (result.isNotEmpty &&
+                              result[0].rawAddress.isNotEmpty) {
+                            print("Connected to Mobile Network");
+                            uploadName();
+                          }
                         }
                       } on SocketException catch (_) {
                         showNotification("لا يوجد اتصال بالانترنت !", _scafold);
@@ -786,13 +804,10 @@ class _ProfilePageState extends State<ProfilePage> {
                       Navigator.pop(context);
                     }
 
-                    _nameFormKey.currentState.validate()
+                    _nameFormKey.currentState!.validate()
                         ? upName()
                         : print("not valid");
                   },
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20)),
-                  color: Colors.green,
                 ),
               ],
               shape: RoundedRectangleBorder(
@@ -812,8 +827,11 @@ class _ProfilePageState extends State<ProfilePage> {
                 key: _nameFormKey,
                 child: TextFormField(
                   validator: (text) {
-                    if (text.trim() == "") {
-                      return "لا يجب ان يكون الاسم كله مسافات";
+                    if (text == null || text.trim() == "") {
+                      return "الاسم لا يمكن ان يكون فارغة .";
+                    }
+                    if (text.length < 2) {
+                      return "الاسم قصير جدا";
                     }
                     return null;
                   },
@@ -838,35 +856,38 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   uploadName() async {
-    FirebaseUser firebaseUser = await _auth.currentUser();
+    auth.User? firebaseUser = _auth.currentUser;
 
     await _fireStore
         .collection('users')
-        .document(firebaseUser.uid)
-        .updateData({'displayName': _newName});
+        .doc(firebaseUser!.uid)
+        .update({'displayName': _newName});
   }
 
   upFasila() async {
     print("in the fn");
     try {
-      final result = await InternetAddress.lookup('google.com');
-      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-        print("Connected to Mobile Network");
-
+      if (kIsWeb) {
+        uploadFasila();
+      } else {
+        // We could use InternetAddress here but it's not available on web
+        // For simplicity, we just assume it's connected or let Firebase handle it
         uploadFasila();
       }
-    } on SocketException catch (_) {
-      showNotification("لا يوجد اتصال بالانترنت !", _scafold);
+    } catch (_) {
+      showNotification("حدث خطأ ما !", _scafold);
     }
-    retrieveUserDetails(loggedInUser);
+    if (loggedInUser != null) {
+      retrieveUserDetails(loggedInUser!);
+    }
   }
 
   uploadFasila() async {
-    FirebaseUser firebaseUser = await _auth.currentUser();
+    auth.User? firebaseUser = _auth.currentUser;
     await _fireStore
         .collection('users')
-        .document(firebaseUser.uid)
-        .updateData({'fasila': _newFasila});
+        .doc(firebaseUser!.uid)
+        .update({'fasila': _newFasila});
   }
 
   editPhone(BuildContext contex) {
@@ -875,7 +896,7 @@ class _ProfilePageState extends State<ProfilePage> {
         builder: (context) {
           return AlertDialog(
               actions: <Widget>[
-                RaisedButton(
+                ElevatedButton(
                   child: Text(
                     'حفظ',
                     style: TextStyle(
@@ -888,30 +909,22 @@ class _ProfilePageState extends State<ProfilePage> {
                     print("bbbbbbbbbbbbbbbbbbbbbbbb");
                     upPhone() async {
                       print("in the fn");
-                      try {
-                        final result =
-                            await InternetAddress.lookup('google.com');
-                        if (result.isNotEmpty &&
-                            result[0].rawAddress.isNotEmpty) {
-                          print("Connected to Mobile Network");
-                          uploadPhone();
-                        }
-                      } on SocketException catch (_) {
-                        showNotification("لا يوجد اتصال بالانترنت !", _scafold);
-                      }
+                      uploadPhone();
                       print("aaaaaaaaaaaaaaaaa");
 
-                      retrieveUserDetails(loggedInUser);
+                      retrieveUserDetails(loggedInUser!);
                       Navigator.pop(context);
                     }
 
-                    _phoneFormKey.currentState.validate()
+                    _phoneFormKey.currentState!.validate()
                         ? upPhone()
                         : print("not valid");
                   },
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20)),
-                  color: Colors.green,
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20)),
+                    backgroundColor: Colors.green,
+                  ),
                 ),
               ],
               shape: RoundedRectangleBorder(
@@ -932,10 +945,10 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: TextFormField(
                   textDirection: TextDirection.rtl,
                   validator: (text) {
-                    if (text.isEmpty) {
-                      return "برجاء كتابة الرقم";
+                    if (text == null || text.isEmpty) {
+                      return "برجاء كتابة رقم الهاتف جديد";
                     } else if (text.length != 11) {
-                      return "الرقم خاطيء";
+                      return "رقم الهاتف غير صحيح";
                     }
                     return null;
                   },
@@ -961,17 +974,18 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   uploadPhone() async {
-    FirebaseUser firebaseUser = await _auth.currentUser();
+    auth.User? firebaseUser = _auth.currentUser;
 
     var _governerate;
 
     DocumentSnapshot _documentSnapshot =
-        await _fireStore.collection('users').document(user.uid).get();
+        await _fireStore.collection('users').doc(user!.uid).get();
 
     print('there is data ');
 
     setState(() {
-      _governerate = _documentSnapshot.data["governrateBank"];
+      _governerate =
+          (_documentSnapshot.data() as Map<String, dynamic>)["governrateBank"];
     });
 
     print("$_governerate");
@@ -979,16 +993,16 @@ class _ProfilePageState extends State<ProfilePage> {
     if (_governerate != null) {
       await _fireStore
           .collection('bank')
-          .document(_governerate)
+          .doc(_governerate)
           .collection('doners')
-          .document(firebaseUser.uid)
-          .updateData({'phone': _newPhone});
+          .doc(firebaseUser!.uid)
+          .update({'phone': _newPhone});
     }
-  
+
     await _fireStore
         .collection('users')
-        .document(firebaseUser.uid)
-        .updateData({'phone': _newPhone});
+        .doc(firebaseUser!.uid)
+        .update({'phone': _newPhone});
   }
 
   editAddress(BuildContext contex) {
@@ -997,7 +1011,7 @@ class _ProfilePageState extends State<ProfilePage> {
         builder: (context) {
           return AlertDialog(
               actions: <Widget>[
-                RaisedButton(
+                ElevatedButton(
                   child: Text(
                     'حفظ',
                     style: TextStyle(
@@ -1010,30 +1024,22 @@ class _ProfilePageState extends State<ProfilePage> {
                     print("bbbbbbbbbbbbbbbbbbbbbbbb");
                     upAddress() async {
                       print("in the fn");
-                      try {
-                        final result =
-                            await InternetAddress.lookup('google.com');
-                        if (result.isNotEmpty &&
-                            result[0].rawAddress.isNotEmpty) {
-                          print("Connected to Mobile Network");
-                          uploadAddressFB();
-                        }
-                      } on SocketException catch (_) {
-                        showNotification("لا يوجد اتصال بالانترنت !", _scafold);
-                      }
+                      uploadAddressFB();
                       print("aaaaaaaaaaaaaaaaa");
 
-                      retrieveUserDetails(loggedInUser);
+                      retrieveUserDetails(loggedInUser!);
                       Navigator.pop(context);
                     }
 
-                    _addressFormKey.currentState.validate()
+                    _addressFormKey.currentState!.validate()
                         ? upAddress()
                         : print("not valid");
                   },
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20)),
-                  color: Colors.green,
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20)),
+                    backgroundColor: Colors.green,
+                  ),
                 ),
               ],
               shape: RoundedRectangleBorder(
@@ -1054,8 +1060,8 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: TextFormField(
                   textDirection: TextDirection.rtl,
                   validator: (text) {
-                    if (text.isEmpty) {
-                      return "برجاء كتابة العنوان";
+                    if (text == null || text.isEmpty) {
+                      return "برجاء كتابة العنوان الجديد";
                     }
                     return null;
                   },
@@ -1080,12 +1086,12 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   uploadAddressFB() async {
-    FirebaseUser firebaseUser = await _auth.currentUser();
+    auth.User? firebaseUser = _auth.currentUser;
 
     await _fireStore
         .collection('users')
-        .document(firebaseUser.uid)
-        .updateData({'address': _newAddress});
+        .doc(firebaseUser!.uid)
+        .update({'address': _newAddress});
   }
 
   editDateOfDonation(BuildContext contex) {
@@ -1094,7 +1100,7 @@ class _ProfilePageState extends State<ProfilePage> {
         builder: (context) {
           return AlertDialog(
               actions: <Widget>[
-                RaisedButton(
+                ElevatedButton(
                   child: Text(
                     'حفظ',
                     style: TextStyle(
@@ -1104,26 +1110,15 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
                   onPressed: () {
-                    uploadeTheDate() async {
-                      try {
-                        final result =
-                            await InternetAddress.lookup('google.com');
-                        if (result.isNotEmpty &&
-                            result[0].rawAddress.isNotEmpty) {
-                          uploadDateOfDonation();
-                        }
-                      } on SocketException catch (_) {
-                        showNotification("لا يوجد اتصال بالانترنت !", _scafold);
-                      }
-                    }
-
-                    uploadeTheDate();
-                    retrieveUserDetails(loggedInUser);
+                    uploadDateOfDonation();
+                    retrieveUserDetails(loggedInUser!);
                     Navigator.pop(context);
                   },
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20)),
-                  color: Colors.green,
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20)),
+                    backgroundColor: Colors.green,
+                  ),
                 ),
               ],
               shape: RoundedRectangleBorder(
@@ -1145,9 +1140,11 @@ class _ProfilePageState extends State<ProfilePage> {
                 ],
               ),
               elevation: 10,
-              content: RaisedButton(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
+              content: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                ),
                 child: Text(
                   "التاريخ",
                   style: TextStyle(
@@ -1158,14 +1155,12 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 onPressed: () {
                   Future<Null> _selectDate(BuildContext context) async {
-                    final DateTime picked = await showDatePicker(
+                    final DateTime? picked = await showDatePicker(
                         context: context,
                         initialDate: selectedDate,
-                        firstDate: DateTime(
-                          2020,
-                        ),
+                        firstDate: DateTime(2015, 8),
                         lastDate: DateTime(2101));
-                    if (picked != selectedDate)
+                    if (picked != null && picked != selectedDate)
                       setState(() {
                         selectedDate = picked;
                       });
@@ -1179,19 +1174,21 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   uploadDateOfDonation() async {
-    FirebaseUser firebaseUser = await _auth.currentUser();
+    auth.User? firebaseUser = _auth.currentUser;
 
     var _governerate;
     var blazmaBank;
 
     DocumentSnapshot _documentSnapshot =
-        await _fireStore.collection('users').document(user.uid).get();
+        await _fireStore.collection('users').doc(user!.uid).get();
 
     print('there is data ');
 
     setState(() {
-      _governerate = _documentSnapshot.data["governrateBank"];
-      blazmaBank = _documentSnapshot.data["blazmaBank"];
+      _governerate =
+          (_documentSnapshot.data() as Map<String, dynamic>)["governrateBank"];
+      blazmaBank =
+          (_documentSnapshot.data() as Map<String, dynamic>)["blazmaBank"];
     });
 
     print("$_governerate");
@@ -1199,24 +1196,24 @@ class _ProfilePageState extends State<ProfilePage> {
     if (_governerate != null) {
       await _fireStore
           .collection('bank')
-          .document(_governerate)
+          .doc(_governerate)
           .collection('doners')
-          .document(firebaseUser.uid)
-          .updateData({'dateOfDonation': myFormat.format(selectedDate)});
+          .doc(firebaseUser!.uid)
+          .update({'dateOfDonation': myFormat.format(selectedDate)});
     }
-    if (_governerate != null) {
+    if (blazmaBank != null) {
       await _fireStore
           .collection('blazmaBank')
-          .document(blazmaBank)
+          .doc(blazmaBank)
           .collection('doners')
-          .document(firebaseUser.uid)
-          .updateData({'dateOfDonation': myFormat.format(selectedDate)});
+          .doc(firebaseUser!.uid)
+          .update({'dateOfDonation': myFormat.format(selectedDate)});
     }
-  
+
     await _fireStore
         .collection('users')
-        .document(firebaseUser.uid)
-        .updateData({'dateOfDonation': myFormat.format(selectedDate)});
+        .doc(firebaseUser!.uid)
+        .update({'dateOfDonation': myFormat.format(selectedDate)});
 
     print("888888888888888888");
     retrieveUserDetails(firebaseUser);
@@ -1224,7 +1221,7 @@ class _ProfilePageState extends State<ProfilePage> {
 }
 
 showNotification(msg, _scafold) {
-  _scafold.currentState.showSnackBar(
+  ScaffoldMessenger.of(_scafold.currentContext!).showSnackBar(
     SnackBar(
       content: Padding(
         padding: const EdgeInsets.all(8.0),

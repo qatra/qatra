@@ -32,15 +32,15 @@ class User {
         date: map['date'],
       );
 
-  Map<String, dynamic> toMap(User user) => {
-        'displayName': user.displayName,
-        'email': user.email,
-        'uid': user.uid,
-        'phone': user.phone,
-        'fasila': user.fasila,
-        'address': user.address,
-        'imageUrl': user.imageUrl,
-        'dateOfDonation': user.dateOfDonation,
-        'date': user.date,
+  Map<String, dynamic> toMap() => {
+        'displayName': displayName,
+        'email': email,
+        'uid': uid,
+        'phone': phone,
+        'fasila': fasila,
+        'address': address,
+        'imageUrl': imageUrl,
+        'dateOfDonation': dateOfDonation,
+        'date': date,
       };
 }

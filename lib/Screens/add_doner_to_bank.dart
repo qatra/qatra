@@ -3,7 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:icandoit/wavyyy.dart';
 import '../user_model.dart';
 
-import 'dart:io';
+import 'package:universal_io/io.dart';
+import 'package:flutter/foundation.dart';
 
 creatAlertDialog(BuildContext context, text) {
   return showDialog(
@@ -85,7 +86,9 @@ class _AddDonerToBankState extends State<AddDonerToBank> {
   }
 
   validation() {
-    (_formKey.currentState?.validate() ?? false) ? addDonorToGovernrateBank() : print("not valid");
+    (_formKey.currentState?.validate() ?? false)
+        ? addDonorToGovernrateBank()
+        : print("not valid");
   }
 
   addDonorToGovernrateBank() async {
@@ -108,25 +111,28 @@ class _AddDonerToBankState extends State<AddDonerToBank> {
     });
 
     try {
-      final result = await InternetAddress.lookup('google.com');
-      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+      if (!kIsWeb) {
+        final result = await InternetAddress.lookup('google.com');
+        if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
           print("Connected to Mobile Network");
-
-        await _fireStore
-            .collection('bank')
-            .doc(widget.city)
-            .collection('doners')
-            .doc(now.toString())
-            .set(_user.toMap(_user));
-
-        Navigator.pop(context);
-
-        showNotification("تم اضافة متبرع بنجاح", context); // Pass context instead of widget._scafold
-
-        setState(() {
-          isLoading = false;
-        });
+        }
       }
+
+      await _fireStore
+          .collection('bank')
+          .doc(widget.city)
+          .collection('doners')
+          .doc(now.toString())
+          .set(_user!.toMap());
+
+      Navigator.pop(context);
+
+      showNotification("تم اضافة متبرع بنجاح",
+          context); // Pass context instead of widget._scafold
+
+      setState(() {
+        isLoading = false;
+      });
     } on SocketException catch (_) {
       print("Unable to connect. Please Check Internet Connection");
 
@@ -150,7 +156,6 @@ class _AddDonerToBankState extends State<AddDonerToBank> {
         textDirection: TextDirection.rtl,
         child: Scaffold(
           key: scafoldKey,
-
           floatingActionButton: Padding(
               padding: const EdgeInsets.only(right: 20, top: 20),
               child: GestureDetector(
@@ -368,7 +373,8 @@ class _AddDonerToBankState extends State<AddDonerToBank> {
                                 },
                                 style: ElevatedButton.styleFrom(
                                     shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(20)),
+                                        borderRadius:
+                                            BorderRadius.circular(20)),
                                     backgroundColor: Colors.green),
                               ),
                       ],

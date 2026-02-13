@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
-import 'package:icandoit/wavyyy.dart';
+// import 'package:icandoit/wavyyy.dart';
 import 'package:url_launcher/url_launcher.dart';
-
 
 class AboutTheApp extends StatefulWidget {
   @override
@@ -17,50 +16,23 @@ class _AboutTheAppState extends State<AboutTheApp> {
       home: Directionality(
           textDirection: TextDirection.rtl,
           child: Scaffold(
-
-              floatingActionButton: Padding(
-                  padding: const EdgeInsets.only(right: 20, top: 20),
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                    child: Align(
-                      alignment: Alignment.bottomRight,
-                      child: Stack(
-                        children: <Widget>[
-                          Image.asset(
-                            "assets/drop.png",
-                            width: 75,
-                            height: 80,
-                          ),
-                          Positioned(
-                            bottom: 18,
-                            right: 24,
-                            child: Icon(
-                              Icons.arrow_back,
-                              color: Colors.white,
-                              size: 28,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )),
+              appBar: AppBar(
+                backgroundColor: Colors.white,
+                elevation: 0,
+                title: Text(
+                  "عن التطبيق",
+                  style:
+                      TextStyle(fontFamily: "Tajawal", color: Colors.blue[900]),
+                ),
+                centerTitle: true,
+                leading: IconButton(
+                  icon: Icon(Icons.arrow_back, color: Colors.blue[900]),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ),
               body: Center(
                 child: Stack(
-
                   children: <Widget>[
-                    Container(
-                        height: 120,
-                        child: Wavyyyy(
-                          title: "عن التطبيق",
-                          backGroundColor: Colors.white,
-                          leftIcon: null,
-                          onPressedLeft: null,
-                          onPressedRight: null,
-                          directionOfRightIcon: TextDirection.rtl,
-                          rightIcon: null,
-                        )),
                     Padding(
                       padding: const EdgeInsets.only(top: 100),
                       child: Expanded(
@@ -70,11 +42,13 @@ class _AboutTheAppState extends State<AboutTheApp> {
                             Container(
                               decoration: BoxDecoration(
                                   color: Colors.grey[300],
-                                  borderRadius: BorderRadius.all(Radius.circular(35))),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(35))),
                               child: Column(
                                 children: <Widget>[
                                   Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: <Widget>[
                                       Padding(
                                         padding: const EdgeInsets.only(
@@ -109,7 +83,8 @@ class _AboutTheAppState extends State<AboutTheApp> {
                                     ),
                                   ),
                                   Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: <Widget>[
                                       Padding(
                                         padding: const EdgeInsets.only(
@@ -138,14 +113,18 @@ class _AboutTheAppState extends State<AboutTheApp> {
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.only(
-                                        top: 15, right: 25, left: 25, bottom: 3),
+                                        top: 15,
+                                        right: 25,
+                                        left: 25,
+                                        bottom: 3),
                                     child: Container(
                                       height: 1,
                                       color: Colors.grey,
                                     ),
                                   ),
                                   Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: <Widget>[
                                       Padding(
                                         padding: const EdgeInsets.only(
@@ -165,9 +144,8 @@ class _AboutTheAppState extends State<AboutTheApp> {
                                         right: 10, top: 5, left: 10),
                                     child: Text(
                                         "تقدر تشارك وتنشر طلبات التبرع عندك علي مواقع السوشيال ميديا "
-                                            "وتتفاعل مع صفحة التطبيق وتساعد المحتاج انه يوصل للمتبرع والعكس .. ممكن تنقذ حياة انسان "
-                                            "بضغطة واحدة ومن غير ما تاخد بالك ! "
-                                        ,
+                                        "وتتفاعل مع صفحة التطبيق وتساعد المحتاج انه يوصل للمتبرع والعكس .. ممكن تنقذ حياة انسان "
+                                        "بضغطة واحدة ومن غير ما تاخد بالك ! ",
                                         style: TextStyle(fontSize: 16)),
                                   ),
                                   Padding(
@@ -200,7 +178,8 @@ class _AboutTheAppState extends State<AboutTheApp> {
                             Container(
                               decoration: BoxDecoration(
                                   color: Colors.grey[300],
-                                  borderRadius: BorderRadius.all(Radius.circular(35))),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(35))),
                               child: Column(
                                 children: <Widget>[
                                   Padding(
@@ -225,9 +204,10 @@ class _AboutTheAppState extends State<AboutTheApp> {
                                     },
                                     text: "Gmail : qaatra2020@gmail.com",
 //                              options: LinkifyOptions(humanize: false),
-                                    style: TextStyle(color: Colors.black, fontSize: 17),
-                                    linkStyle:
-                                        TextStyle(color: Colors.blue, fontSize: 17),
+                                    style: TextStyle(
+                                        color: Colors.black, fontSize: 17),
+                                    linkStyle: TextStyle(
+                                        color: Colors.blue, fontSize: 17),
                                   ),
                                   SizedBox(
                                     height: 10,
@@ -243,9 +223,10 @@ class _AboutTheAppState extends State<AboutTheApp> {
                                     text:
                                         "FaceBook : https://www.facebook.com/qat.ra.94",
 //                              options: LinkifyOptions(humanize: false),
-                                    style: TextStyle(color: Colors.black, fontSize: 15),
-                                    linkStyle:
-                                        TextStyle(color: Colors.blue, fontSize: 15),
+                                    style: TextStyle(
+                                        color: Colors.black, fontSize: 15),
+                                    linkStyle: TextStyle(
+                                        color: Colors.blue, fontSize: 15),
                                   ),
                                   SizedBox(
                                     height: 30,
@@ -264,30 +245,37 @@ class _AboutTheAppState extends State<AboutTheApp> {
                                 child: Padding(
                                   padding: const EdgeInsets.all(15.0),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     children: <Widget>[
-                                      RichText(textAlign: TextAlign.center,
+                                      RichText(
+                                          textAlign: TextAlign.center,
                                           text: TextSpan(children: <TextSpan>[
-                                        TextSpan(
-                                          text:
-                                              "التطبيق مشروع تخرج طلبة كلية الهندسة جامعة المنصورة ",
-                                          style: TextStyle(
-                                              fontFamily: 'Tajawal',
-                                              fontSize: 16,
-                                              color: Colors.black,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                        TextSpan(
-                                          text: "قسم الاتصالات و الالكترونيات",
-                                          style: TextStyle(
-                                              fontFamily: 'Tajawal',
-                                              fontSize: 16,
-                                              color: Colors.black,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                      ])),
+                                            TextSpan(
+                                              text:
+                                                  "التطبيق مشروع تخرج طلبة كلية الهندسة جامعة المنصورة ",
+                                              style: TextStyle(
+                                                  fontFamily: 'Tajawal',
+                                                  fontSize: 16,
+                                                  color: Colors.black,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            TextSpan(
+                                              text:
+                                                  "قسم الاتصالات و الالكترونيات",
+                                              style: TextStyle(
+                                                  fontFamily: 'Tajawal',
+                                                  fontSize: 16,
+                                                  color: Colors.black,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          ])),
                                       Padding(
-                                        padding: const EdgeInsets.only(right: 4,left: 4,top: 15,bottom: 4),
+                                        padding: const EdgeInsets.only(
+                                            right: 4,
+                                            left: 4,
+                                            top: 15,
+                                            bottom: 4),
                                         child: Text(
                                           "عبدالله عزمي احمد",
                                           style: TextStyle(
@@ -364,7 +352,8 @@ class _AboutTheAppState extends State<AboutTheApp> {
                                         ),
                                       ),
                                       Padding(
-                                        padding: const EdgeInsets.only(top: 11,bottom: 6),
+                                        padding: const EdgeInsets.only(
+                                            top: 11, bottom: 6),
                                         child: Text(
                                           "تحت اشراف",
                                           style: TextStyle(

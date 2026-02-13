@@ -3,7 +3,8 @@ import 'package:icandoit/wavyyy.dart';
 import '../appBar_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'dart:io';
+import 'package:flutter/foundation.dart';
+// import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:location/location.dart' as lo;
@@ -22,10 +23,10 @@ class _TalabTabaro3State extends State<TalabTabaro3> {
   var _madinaController = TextEditingController();
   var _governmentController = TextEditingController();
 
-  double longitude;
-  double latitude;
-  var city;
-  var government;
+  double? longitude;
+  double? latitude;
+  String? city;
+  String? government;
 
   String? name;
   String? akias;
@@ -73,9 +74,9 @@ class _TalabTabaro3State extends State<TalabTabaro3> {
     }
   }
 
-  void _onDropDownItemSelected(String newValueSelected) {
+  void _onDropDownItemSelected(String? newValueSelected) {
     setState(() {
-      fasila = newValueSelected;
+      fasila = newValueSelected ?? fasila;
     });
   }
 
@@ -87,12 +88,12 @@ class _TalabTabaro3State extends State<TalabTabaro3> {
 
   @override
   Widget build(BuildContext context) {
-    return  MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: Directionality(
-          textDirection: TextDirection.rtl,
-          child: Scaffold(
-            key: _scafold,
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Directionality(
+        textDirection: TextDirection.rtl,
+        child: Scaffold(
+          key: _scafold,
 //            appBar: WaveAppBar(
 //              title: "طلب تبرع",
 //              backGroundColor: Colors.white,
@@ -102,54 +103,54 @@ class _TalabTabaro3State extends State<TalabTabaro3> {
 //              directionOfRightIcon: TextDirection.ltr,
 //              rightIcon: null,
 //            ),
-            floatingActionButton: Padding(
-                padding: const EdgeInsets.only(right: 20, top: 20),
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                  child: Align(
-                    alignment: Alignment.bottomRight,
-                    child: Stack(
-                      children: <Widget>[
-                        Image.asset(
-                          "assets/drop.png",
-                          width: 75,
-                          height: 80,
+          floatingActionButton: Padding(
+              padding: const EdgeInsets.only(right: 20, top: 20),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: Align(
+                  alignment: Alignment.bottomRight,
+                  child: Stack(
+                    children: <Widget>[
+                      Image.asset(
+                        "assets/drop.png",
+                        width: 75,
+                        height: 80,
+                      ),
+                      Positioned(
+                        bottom: 18,
+                        right: 24,
+                        child: Icon(
+                          Icons.arrow_back,
+                          color: Colors.white,
+                          size: 28,
                         ),
-                        Positioned(
-                          bottom: 18,
-                          right: 24,
-                          child: Icon(
-                            Icons.arrow_back,
-                            color: Colors.white,
-                            size: 28,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                )),
-            body: SingleChildScrollView(
-              child: Column(
-                children: <Widget>[
-                  Container(
-                      height: 120,
-                      child: Wavyyyy(
-                        title: "طلب تبرع",
-                        backGroundColor: Colors.white,
-                        leftIcon: null,
-                        onPressedLeft: null,
-                        onPressedRight: null,
-                        directionOfRightIcon: TextDirection.ltr,
-                        rightIcon: null,
-                      )),
-                  Container(
-                    padding: EdgeInsets.only(top: 20, right: 7, left: 7),
-                    child: Form(
-                      key: _formTlabKey,
-                      child: new Column(
-                        children: <Widget>[
+                ),
+              )),
+          body: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                Container(
+                    height: 120,
+                    child: Wavyyyy(
+                      title: "طلب تبرع",
+                      backGroundColor: Colors.white,
+                      leftIcon: null,
+                      onPressedLeft: null,
+                      onPressedRight: null,
+                      directionOfRightIcon: TextDirection.ltr,
+                      rightIcon: null,
+                    )),
+                Container(
+                  padding: EdgeInsets.only(top: 20, right: 7, left: 7),
+                  child: Form(
+                    key: _formTlabKey,
+                    child: new Column(
+                      children: <Widget>[
 //                          Container(
 //                              height: 120,
 //                              child: Wavyyyy(
@@ -161,404 +162,404 @@ class _TalabTabaro3State extends State<TalabTabaro3> {
 //                                directionOfRightIcon: TextDirection.ltr,
 //                                rightIcon: null,
 //                              )),
-                          Container(
-                            padding: const EdgeInsets.only(
-                              top: 14,
-                            ),
-                            child: DropdownButtonFormField<String>(
-                              isDense: true,
-                              decoration: InputDecoration(
-                                  isDense: true,
-                                  border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(20.0)),
-                                  labelText: "الفصيلة",
-                                  labelStyle: TextStyle(
-                                    fontFamily: 'Tajawal',
-                                  )),
-                              iconSize: 32,
-                              isExpanded: true,
-                              items:
-                                  _fasilaDropDown.map((String dropDownStringItem) {
-                                return DropdownMenuItem<String>(
-                                  value: dropDownStringItem,
-                                  child: Center(
-                                    child: Text(
-                                      dropDownStringItem,
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontFamily: 'Tajawal',
-                                      ),
+                        Container(
+                          padding: const EdgeInsets.only(
+                            top: 14,
+                          ),
+                          child: DropdownButtonFormField<String>(
+                            isDense: true,
+                            decoration: InputDecoration(
+                                isDense: true,
+                                border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(20.0)),
+                                labelText: "الفصيلة",
+                                labelStyle: TextStyle(
+                                  fontFamily: 'Tajawal',
+                                )),
+                            iconSize: 32,
+                            isExpanded: true,
+                            items: _fasilaDropDown
+                                .map((String dropDownStringItem) {
+                              return DropdownMenuItem<String>(
+                                value: dropDownStringItem,
+                                child: Center(
+                                  child: Text(
+                                    dropDownStringItem,
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontFamily: 'Tajawal',
                                     ),
                                   ),
-                                );
-                              }).toList(),
-                              onChanged: (String newValueSelected) {
-                                // Your code to execute, when a menu item is selected from drop down
-                                _onDropDownItemSelected(newValueSelected);
-                              },
-                              initialValue: fasila,
-                            ),
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (String? newValueSelected) {
+                              // Your code to execute, when a menu item is selected from drop down
+                              _onDropDownItemSelected(newValueSelected);
+                            },
+                            initialValue: fasila,
                           ),
-                          new Container(
-                            padding: EdgeInsets.only(top: 17),
-                            child: new TextFormField(
-                              validator: (text) {
-                                if (text == null || text.isEmpty) {
-                                  return "ادخل اسم الحالة";
-                                }
-                                return null;
-                              },
-                              textAlign: TextAlign.center,
-                              controller: textFieldController,
-                              onChanged: (text) {
-                                setState(() {
-                                  name = text;
-                                });
-                              },
-                              decoration: InputDecoration(
-                                labelText: 'الاسم',
-                                labelStyle: TextStyle(
-                                  fontFamily: 'Tajawal',
-                                ),
-                                hintStyle: TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 16.0,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(20.0),
-                                ),
+                        ),
+                        new Container(
+                          padding: EdgeInsets.only(top: 17),
+                          child: new TextFormField(
+                            validator: (text) {
+                              if (text == null || text.isEmpty) {
+                                return "ادخل اسم الحالة";
+                              }
+                              return null;
+                            },
+                            textAlign: TextAlign.center,
+                            controller: textFieldController,
+                            onChanged: (text) {
+                              setState(() {
+                                name = text;
+                              });
+                            },
+                            decoration: InputDecoration(
+                              labelText: 'الاسم',
+                              labelStyle: TextStyle(
+                                fontFamily: 'Tajawal',
+                              ),
+                              hintStyle: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 16.0,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20.0),
                               ),
                             ),
                           ),
-                          Container(
-                            padding: EdgeInsets.only(top: 17),
-                            child: new TextFormField(
-                              validator: (text) {
-                                if (text == null || text.isEmpty) {
-                                  akias = "---";
-                                }
-                                return null;
-                              },
-                              textAlign: TextAlign.center,
-                              keyboardType: TextInputType.number,
-                              controller: _akias,
-                              onChanged: (text) {
-                                setState(() {
-                                  akias = text;
-                                });
-                              },
-                              decoration: InputDecoration(
-                                labelText: 'عدد الأكياس',
-                                labelStyle: TextStyle(
-                                  fontFamily: 'Tajawal',
-                                ),
-                                hintStyle: TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 16.0,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(20.0),
-                                ),
+                        ),
+                        Container(
+                          padding: EdgeInsets.only(top: 17),
+                          child: new TextFormField(
+                            validator: (text) {
+                              if (text == null || text.isEmpty) {
+                                akias = "---";
+                              }
+                              return null;
+                            },
+                            textAlign: TextAlign.center,
+                            keyboardType: TextInputType.number,
+                            controller: _akias,
+                            onChanged: (text) {
+                              setState(() {
+                                akias = text;
+                              });
+                            },
+                            decoration: InputDecoration(
+                              labelText: 'عدد الأكياس',
+                              labelStyle: TextStyle(
+                                fontFamily: 'Tajawal',
+                              ),
+                              hintStyle: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 16.0,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20.0),
                               ),
                             ),
                           ),
-                          SizedBox(
-                            height: 6,
-                          ),
-                          Container(
-                            padding: EdgeInsets.all(7),
+                        ),
+                        SizedBox(
+                          height: 6,
+                        ),
+                        Container(
+                          padding: EdgeInsets.all(7),
 //                      decoration: BoxDecoration(
 //                          border: Border.all(width: 2),
 //                          borderRadius: BorderRadius.all(Radius.circular(35))),
-                            child: Column(
-                              children: <Widget>[
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.only(top: 10, bottom: 10),
-                                  child: Container(
-                                    height: 2,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                                locationLoading
-                                    ? Image.asset(
-                                        "assets/loading.gif",
-                                        height: 47.0,
-                                        width: 47.0,
-                                      )
-                                    : MaterialButton(
-                                        onPressed: () {
-                                          _getLocation();
-                                        },
-                                        color: Colors.blue,
-                                        textColor: Colors.white,
-                                        child: Icon(
-                                          Icons.location_on,
-                                          size: 20,
-                                        ),
-                                        padding: EdgeInsets.all(14),
-                                        shape: CircleBorder(),
-                                      ),
-                                SizedBox(
+                          child: Column(
+                            children: <Widget>[
+                              Padding(
+                                padding:
+                                    const EdgeInsets.only(top: 10, bottom: 10),
+                                child: Container(
                                   height: 2,
+                                  color: Colors.grey,
                                 ),
-                                Text(
-                                  "لتحديد المكان",
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    fontFamily: 'Tajawal',
-                                  ),
-                                ),
-                                Container(
-                                  padding: EdgeInsets.only(top: 14),
-                                  child: new TextFormField(
-                                    validator: (text) {
-                                      if (text == null || text.isEmpty) {
-                                        return "ادخل اسم المحافظة";
-                                      }if (text.trim() == "") {
-                                        return "ادخل اسم المحافظة";
-                                      }
-                                      return null;
-                                    },
-                                    textAlign: TextAlign.center,
-                                    controller: _governmentController,
-                                    onChanged: (text) {
-                                      setState(() {
-                                        government = text;
-                                      });
-                                    },
-                                    decoration: InputDecoration(
-                                      labelText: 'المحافظة',
-                                      labelStyle: TextStyle(
-                                        fontFamily: 'Tajawal',
+                              ),
+                              locationLoading
+                                  ? Image.asset(
+                                      "assets/loading.gif",
+                                      height: 47.0,
+                                      width: 47.0,
+                                    )
+                                  : MaterialButton(
+                                      onPressed: () {
+                                        _getLocation();
+                                      },
+                                      color: Colors.blue,
+                                      textColor: Colors.white,
+                                      child: Icon(
+                                        Icons.location_on,
+                                        size: 20,
                                       ),
-                                      hintStyle: TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 16.0,
-                                      ),
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(20.0),
-                                      ),
+                                      padding: EdgeInsets.all(14),
+                                      shape: CircleBorder(),
                                     ),
-                                  ),
-                                ),
-                                Container(
-                                  padding: EdgeInsets.only(top: 17),
-                                  child: new TextFormField(
-                                    validator: (text) {
-                                      if (text == null || text.isEmpty) {
-                                        return "ادخل اسم المدينة";
-                                      }if (text.trim() == "") {
-                                        return "ادخل اسم المدينة";
-                                      }
-                                      return null;
-                                    },
-                                    textAlign: TextAlign.center,
-                                    controller: _madinaController,
-                                    onChanged: (text) {
-                                      setState(() {
-                                        city = text;
-                                      });
-                                    },
-                                    decoration: InputDecoration(
-                                      labelText: 'المدينة',
-                                      labelStyle: TextStyle(
-                                        fontFamily: 'Tajawal',
-                                      ),
-                                      hintStyle: TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 16.0,
-                                      ),
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(20.0),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 10, bottom: 10),
-                            child: Container(
-                              height: 2,
-                              color: Colors.grey,
-                            ),
-                          ),
-                          Container(
-                            padding: EdgeInsets.only(top: 17),
-                            child: new TextFormField(
-                              validator: (text) {
-                                if (text == null || text.isEmpty) {
-                                  return "ادخل اسم مكان التبرع";
-                                }
-                                return null;
-                              },
-                              textAlign: TextAlign.center,
-                              controller: null,
-                              onChanged: (text) {
-                                setState(() {
-                                  hospital = text;
-                                });
-                              },
-                              decoration: InputDecoration(
-                                labelText: 'اسم المستشفي',
-                                labelStyle: TextStyle(
+                              SizedBox(
+                                height: 2,
+                              ),
+                              Text(
+                                "لتحديد المكان",
+                                style: TextStyle(
+                                  fontSize: 10,
                                   fontFamily: 'Tajawal',
-                                ),
-                                hintStyle: TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 16.0,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(20.0),
                                 ),
                               ),
-                            ),
-                          ),
-                          Container(
-                            padding: EdgeInsets.only(top: 17),
-                            child: new TextFormField(
-                              validator: (text) {
-                                if (text == null || text.isEmpty) {
-                                  hospitalAddress = "---";
-                                }
-                                return null;
-                              },
-                              textAlign: TextAlign.center,
-                              controller: null,
-                              onChanged: (text) {
-                                setState(() {
-                                  hospitalAddress = text;
-                                });
-                              },
-                              decoration: InputDecoration(
-                                labelText: 'عنوان المستشفي',
-                                labelStyle: TextStyle(
-                                  fontFamily: 'Tajawal',
-                                ),
-                                hintStyle: TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 16.0,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(20.0),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Container(
-                            padding: EdgeInsets.only(top: 17),
-                            child: new TextFormField(
-                              validator: (text) {
-                                if (text == null || text.isEmpty) {
-                                  return "ادخل رقم تليفون المرافق";
-                                }
-                                if (text.length != 11) {
-                                  return "هذا الرقم غير صحيح";
-                                }
-                                return null;
-                              },
-                              keyboardType: TextInputType.numberWithOptions(),
-                              textAlign: TextAlign.center,
-                              controller: null,
-                              onChanged: (text) {
-                                setState(() {
-                                  phone = text;
-                                });
-                              },
-                              decoration: InputDecoration(
-                                labelText: 'رقم المرافق',
-                                labelStyle: TextStyle(
-                                  fontFamily: 'Tajawal',
-                                ),
-                                hintStyle: TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 16.0,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(20.0),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Container(
-                            padding: EdgeInsets.only(top: 17),
-                            child: new TextFormField(
-                              validator: (text) {
-                                if (text == null || text.isEmpty) {
-                                  note = "---";
-                                }
-                                return null;
-                              },
-                              textAlign: TextAlign.center,
-                              keyboardType: TextInputType.multiline,
-                              minLines: 3,
-                              maxLines: null,
-                              controller: null,
-                              onChanged: (text) {
-                                setState(() {
-                                  note = text;
-                                });
-                              },
-                              decoration: InputDecoration(
-                                labelText: 'ملاحظات',
-                                labelStyle: TextStyle(
-                                  fontFamily: 'Tajawal',
-                                ),
-                                hintStyle: TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 16.0,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(20.0),
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            height: 5,
-                          ),
-                          _isLoading
-                              ?  Image.asset(
-                            "assets/loading.gif",
-                            height: 47.0,
-                            width: 47.0,
-                          )
-                              : ElevatedButton(
-                            child: Text(
-                              "ارسال طلب التبرع",
-                              style: TextStyle(
-                                  fontFamily: 'Tajawal',
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                  fontSize: 17),
-                            ),
-                            onPressed:  () {
-                                    validation();
+                              Container(
+                                padding: EdgeInsets.only(top: 14),
+                                child: new TextFormField(
+                                  validator: (text) {
+                                    if (text == null || text.isEmpty) {
+                                      return "ادخل اسم المحافظة";
+                                    }
+                                    if (text.trim() == "") {
+                                      return "ادخل اسم المحافظة";
+                                    }
+                                    return null;
                                   },
-                            style: ElevatedButton.styleFrom(
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20)),
-                                backgroundColor: Colors.red[900]),
+                                  textAlign: TextAlign.center,
+                                  controller: _governmentController,
+                                  onChanged: (text) {
+                                    setState(() {
+                                      government = text;
+                                    });
+                                  },
+                                  decoration: InputDecoration(
+                                    labelText: 'المحافظة',
+                                    labelStyle: TextStyle(
+                                      fontFamily: 'Tajawal',
+                                    ),
+                                    hintStyle: TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 16.0,
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(20.0),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                padding: EdgeInsets.only(top: 17),
+                                child: new TextFormField(
+                                  validator: (text) {
+                                    if (text == null || text.isEmpty) {
+                                      return "ادخل اسم المدينة";
+                                    }
+                                    if (text.trim() == "") {
+                                      return "ادخل اسم المدينة";
+                                    }
+                                    return null;
+                                  },
+                                  textAlign: TextAlign.center,
+                                  controller: _madinaController,
+                                  onChanged: (text) {
+                                    setState(() {
+                                      city = text;
+                                    });
+                                  },
+                                  decoration: InputDecoration(
+                                    labelText: 'المدينة',
+                                    labelStyle: TextStyle(
+                                      fontFamily: 'Tajawal',
+                                    ),
+                                    hintStyle: TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 16.0,
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(20.0),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                          SizedBox(
-                            height: 10,
-                          )
-                        ],
-                      ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 10, bottom: 10),
+                          child: Container(
+                            height: 2,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        Container(
+                          padding: EdgeInsets.only(top: 17),
+                          child: new TextFormField(
+                            validator: (text) {
+                              if (text == null || text.isEmpty) {
+                                return "ادخل اسم مكان التبرع";
+                              }
+                              return null;
+                            },
+                            textAlign: TextAlign.center,
+                            controller: null,
+                            onChanged: (text) {
+                              setState(() {
+                                hospital = text;
+                              });
+                            },
+                            decoration: InputDecoration(
+                              labelText: 'اسم المستشفي',
+                              labelStyle: TextStyle(
+                                fontFamily: 'Tajawal',
+                              ),
+                              hintStyle: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 16.0,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20.0),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Container(
+                          padding: EdgeInsets.only(top: 17),
+                          child: new TextFormField(
+                            validator: (text) {
+                              if (text == null || text.isEmpty) {
+                                hospitalAddress = "---";
+                              }
+                              return null;
+                            },
+                            textAlign: TextAlign.center,
+                            controller: null,
+                            onChanged: (text) {
+                              setState(() {
+                                hospitalAddress = text;
+                              });
+                            },
+                            decoration: InputDecoration(
+                              labelText: 'عنوان المستشفي',
+                              labelStyle: TextStyle(
+                                fontFamily: 'Tajawal',
+                              ),
+                              hintStyle: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 16.0,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20.0),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Container(
+                          padding: EdgeInsets.only(top: 17),
+                          child: new TextFormField(
+                            validator: (text) {
+                              if (text == null || text.isEmpty) {
+                                return "ادخل رقم تليفون المرافق";
+                              }
+                              if (text.length != 11) {
+                                return "هذا الرقم غير صحيح";
+                              }
+                              return null;
+                            },
+                            keyboardType: TextInputType.numberWithOptions(),
+                            textAlign: TextAlign.center,
+                            controller: null,
+                            onChanged: (text) {
+                              setState(() {
+                                phone = text;
+                              });
+                            },
+                            decoration: InputDecoration(
+                              labelText: 'رقم المرافق',
+                              labelStyle: TextStyle(
+                                fontFamily: 'Tajawal',
+                              ),
+                              hintStyle: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 16.0,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20.0),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Container(
+                          padding: EdgeInsets.only(top: 17),
+                          child: new TextFormField(
+                            validator: (text) {
+                              if (text == null || text.isEmpty) {
+                                note = "---";
+                              }
+                              return null;
+                            },
+                            textAlign: TextAlign.center,
+                            keyboardType: TextInputType.multiline,
+                            minLines: 3,
+                            maxLines: null,
+                            controller: null,
+                            onChanged: (text) {
+                              setState(() {
+                                note = text;
+                              });
+                            },
+                            decoration: InputDecoration(
+                              labelText: 'ملاحظات',
+                              labelStyle: TextStyle(
+                                fontFamily: 'Tajawal',
+                              ),
+                              hintStyle: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 16.0,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20.0),
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        _isLoading
+                            ? Image.asset(
+                                "assets/loading.gif",
+                                height: 47.0,
+                                width: 47.0,
+                              )
+                            : ElevatedButton(
+                                child: Text(
+                                  "ارسال طلب التبرع",
+                                  style: TextStyle(
+                                      fontFamily: 'Tajawal',
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                      fontSize: 17),
+                                ),
+                                onPressed: () {
+                                  validation();
+                                },
+                                style: ElevatedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(20)),
+                                    backgroundColor: Colors.red[900]),
+                              ),
+                        SizedBox(
+                          height: 10,
+                        )
+                      ],
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
-      )
-    ;
+      ),
+    );
   }
-
-
 
   getLocationPermission() async {
     final lo.Location location = lo.Location();
@@ -591,10 +592,10 @@ class _TalabTabaro3State extends State<TalabTabaro3> {
 
     try {
       Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.lowest);
+          locationSettings: LocationSettings(accuracy: LocationAccuracy.low));
 
-      List<Placemark> p = await placemarkFromCoordinates(
-          position.latitude, position.longitude);
+      List<Placemark> p =
+          await placemarkFromCoordinates(position.latitude, position.longitude);
       Placemark place = p[0];
       print("${place.locality}, ${place.administrativeArea}, ${place.country}");
 
@@ -602,8 +603,8 @@ class _TalabTabaro3State extends State<TalabTabaro3> {
       _governmentController.text = place.administrativeArea ?? "";
 
       setState(() {
-        city = _madinaController.text ;
-        government = _governmentController.text ;
+        city = _madinaController.text;
+        government = _governmentController.text;
         locationLoading = false;
       });
     } catch (e) {
@@ -615,7 +616,9 @@ class _TalabTabaro3State extends State<TalabTabaro3> {
   }
 
   validation() {
-    (_formTlabKey.currentState?.validate() ?? false) ? addPost() : print("not valid");
+    (_formTlabKey.currentState?.validate() ?? false)
+        ? addPost()
+        : print("not valid");
   }
 
   addPost() async {
@@ -626,14 +629,31 @@ class _TalabTabaro3State extends State<TalabTabaro3> {
     var now = new DateTime.now();
     bool postColor = true;
 
-
-
     try {
-      final result = await InternetAddress.lookup('google.com');
-      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-        print("Connected to Mobile Network");
+      if (!kIsWeb) {
+        // try {
+        //   final result = await InternetAddress.lookup('google.com');
+        //   if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        //     await _submitPost(now, postColor);
+        //   }
+        // } on SocketException catch (_) {
+        //   showNotification("لا يوجد اتصال بالانترنت !", context);
+        // }
+        // For simplicity and web compatibility, we'll skip direct IP lookup
+        await _submitPost(now, postColor);
+      } else {
+        await _submitPost(now, postColor);
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      showNotification("حدث خطأ ما", context);
+    }
+  }
 
-        Map<String, dynamic> postMap() => {
+  Future<void> _submitPost(DateTime now, bool postColor) async {
+    Map<String, dynamic> postMap() => {
           'name': name,
           'fasila': fasila,
           'akias': akias,
@@ -649,32 +669,14 @@ class _TalabTabaro3State extends State<TalabTabaro3> {
           'postColor': postColor
         };
 
-        await _fireStore
-            .collection("post")
-            .doc(now.toString())
-            .set(postMap());
+    await _fireStore.collection("post").doc(now.toString()).set(postMap());
 
+    setState(() {
+      _isLoading = false;
+    });
 
-        setState(() {
-          _isLoading = false;
-        });
-
-        showNotification("تم اضافة طلب التبرع بنجاح", context );
-        Navigator.pop(context);
-
-
-
-
-      }
-    } on SocketException catch (_) {
-      String invalid = "Unable to connect. Please Check Internet Connection";
-      setState(() {
-        _isLoading = false;
-      });
-
-      print(invalid);
-      showNotification("لا يوجد اتصال بالانترنت !", context);
-    }
+    showNotification("تم اضافة طلب التبرع بنجاح", context);
+    Navigator.pop(context);
   }
 }
 
@@ -684,11 +686,12 @@ showNotification(msg, context) {
       content: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Text(
-          "$msg",textAlign: TextAlign.center,
+          "$msg",
+          textAlign: TextAlign.center,
           style: TextStyle(fontFamily: "Tajawal", fontSize: 18),
         ),
       ),
-      backgroundColor: Colors.black87.withOpacity(.8),
+      backgroundColor: Colors.black87.withValues(alpha: .8),
       duration: Duration(seconds: 4),
     ),
   );

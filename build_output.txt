@@ -1,0 +1,204 @@
+Compiling lib/main.dart for the Web...                          
+Wasm dry run succeeded. Consider building and testing your application with the `--wasm` flag. See docs for more info: https://docs.flutter.dev/platform-integration/web/wasm
+Use --no-wasm-dry-run to disable these warnings.
+Target dart2js failed: ProcessException: Process exited abnormally with exit code 1:
+lib/Screens/chat.dart:198:23:
+Error: The parameter 'sender' can't have a value of 'null' because of its type 'String', but the implicit default value is 'null'.
+  MessageBubble({this.sender, this.text, this.isMe, this.date});
+                      ^^^^^^
+lib/Screens/chat.dart:198:36:
+Error: The parameter 'text' can't have a value of 'null' because of its type 'String', but the implicit default value is 'null'.
+  MessageBubble({this.sender, this.text, this.isMe, this.date});
+                                   ^^^^
+lib/Screens/chat.dart:198:47:
+Error: The parameter 'isMe' can't have a value of 'null' because of its type 'bool', but the implicit default value is 'null'.
+  MessageBubble({this.sender, this.text, this.isMe, this.date});
+                                              ^^^^
+lib/Screens/onBoarding.dart:41:7:
+Error: No named parameter with the name 'descriptionPadding'.
+      descriptionPadding: EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
+      ^^^^^^^^^^^^^^^^^^
+../../.pub-cache/hosted/pub.dev/introduction_screen-4.0.0/lib/src/model/page_decoration.dart:80:9:
+Info: Found this candidate, but the arguments don't match.
+  const PageDecoration({
+        ^^^^^^^^^^^^^^
+lib/Screens/onBoarding.dart:91:9:
+Error: No named parameter with the name 'skipFlex'.
+        skipFlex: 0,
+        ^^^^^^^^
+../../.pub-cache/hosted/pub.dev/introduction_screen-4.0.0/lib/src/introduction_screen.dart:293:3:
+Info: Found this candidate, but the arguments don't match.
+  IntroductionScreen(
+  ^^^^^^^^^^^^^^^^^^
+lib/Screens/login_page.dart:33:35:
+Error: Couldn't find constructor 'GoogleSignIn'.
+      GoogleSignIn googleSignIn = GoogleSignIn();
+                                  ^^^^^^^^^^^^
+lib/Screens/login_page.dart:34:57:
+Error: The method 'signIn' isn't defined for the type 'GoogleSignIn'.
+ - 'GoogleSignIn' is from 'package:google_sign_in/google_sign_in.dart' ('../../.pub-cache/hosted/pub.dev/google_sign_in-7.2.0/lib/google_sign_in.dart').
+      GoogleSignInAccount? account = await googleSignIn.signIn();
+                                                        ^^^^^^
+lib/Screens/login_page.dart:37:39:
+Error: Property 'authentication' cannot be accessed on 'GoogleSignInAccount?' because it is potentially null.
+ - 'GoogleSignInAccount' is from 'package:google_sign_in/google_sign_in.dart' ('../../.pub-cache/hosted/pub.dev/google_sign_in-7.2.0/lib/google_sign_in.dart').
+              idToken: (await account.authentication).idToken,
+                                      ^^^^^^^^^^^^^^
+lib/Screens/login_page.dart:38:43:
+Error: Property 'authentication' cannot be accessed on 'GoogleSignInAccount?' because it is potentially null.
+ - 'GoogleSignInAccount' is from 'package:google_sign_in/google_sign_in.dart' ('../../.pub-cache/hosted/pub.dev/google_sign_in-7.2.0/lib/google_sign_in.dart').
+              accessToken: (await account.authentication).accessToken));
+                                          ^^^^^^^^^^^^^^
+lib/Screens/login_page.dart:38:59:
+Error: The getter 'accessToken' isn't defined for the type 'GoogleSignInAuthentication'.
+ - 'GoogleSignInAuthentication' is from 'package:google_sign_in/src/token_types.dart' ('../../.pub-cache/hosted/pub.dev/google_sign_in-7.2.0/lib/src/token_types.dart').
+              accessToken: (await account.authentication).accessToken));
+                                                          ^^^^^^^^^^^
+lib/Screens/login_page.dart:132:48:
+Error: Property 'isEmpty' cannot be accessed on 'String?' because it is potentially null.
+                                      if (text.isEmpty) {
+                                               ^^^^^^^
+lib/Screens/login_page.dart:135:48:
+Error: Property 'length' cannot be accessed on 'String?' because it is potentially null.
+                                      if (text.length < 2) {
+                                               ^^^^^^
+lib/Screens/login_page.dart:168:48:
+Error: Property 'isEmpty' cannot be accessed on 'String?' because it is potentially null.
+                                      if (text.isEmpty) {
+                                               ^^^^^^^
+lib/Screens/login_page.dart:171:48:
+Error: Property 'length' cannot be accessed on 'String?' because it is potentially null.
+                                      if (text.length <= 5) {
+                                               ^^^^^^
+lib/Screens/first_page.dart:401:37:
+Error: Method 'openDrawer' cannot be called on 'ScaffoldState?' because it is potentially null.
+ - 'ScaffoldState' is from 'package:flutter/src/material/scaffold.dart' ('../../flutter/3.35.3/packages/flutter/lib/src/material/scaffold.dart').
+                  _key.currentState.openDrawer();
+                                    ^^^^^^^^^^
+lib/Screens/first_page.dart:418:47:
+Error: Method 'openDrawer' cannot be called on 'ScaffoldState?' because it is potentially null.
+ - 'ScaffoldState' is from 'package:flutter/src/material/scaffold.dart' ('../../flutter/3.35.3/packages/flutter/lib/src/material/scaffold.dart').
+                            _key.currentState.openDrawer();
+                                              ^^^^^^^^^^
+lib/Screens/first_page.dart:455:36:
+Error: The argument type 'void Function(String)' can't be assigned to the parameter type 'void Function(String?)?'.
+                        onChanged: (String newValueSelected) {
+                                   ^
+lib/Screens/first_page.dart:464:31:
+Error: The argument type 'Stream<dynamic>' can't be assigned to the parameter type 'Stream<QuerySnapshot<Object?>>?'.
+ - 'Stream' is from 'dart:async'.
+ - 'QuerySnapshot' is from 'package:cloud_firestore/cloud_firestore.dart' ('../../.pub-cache/hosted/pub.dev/cloud_firestore-6.1.2/lib/cloud_firestore.dart').
+ - 'Object' is from 'dart:core'.
+                      stream: search,
+                              ^
+lib/Screens/first_page.dart:1229:42:
+Error: A value of type 'String?' can't be assigned to a variable of type 'String'.
+    String phoneNumber = "tel:" + widget.phone;
+                                         ^
+lib/Screens/profile_page.dart:730:63:
+Error: Property 'email' cannot be accessed on 'User?' because it is potentially null.
+ - 'User' is from 'package:icandoit/user_model.dart' ('lib/user_model.dart').
+                                                  : Text(user.email,
+                                                              ^^^^^
+lib/Screens/profile_page.dart:23:9:
+Info: 'user' refers to a public property so it couldn't be promoted.
+  User? user;
+        ^
+lib/Screens/profile_page.dart:23:9:
+Info: 'user' couldn't be promoted because field promotion is only available in Dart 3.2 and above.
+  User? user;
+        ^
+lib/Screens/profile_page.dart:730:63:
+Error: The argument type 'String?' can't be assigned to the parameter type 'String'.
+                                                  : Text(user.email,
+                                                              ^
+lib/Screens/profile_page.dart:767:17:
+Error: The method 'RaisedButton' isn't defined for the type '_ProfilePageState'.
+ - '_ProfilePageState' is from 'package:icandoit/Screens/profile_page.dart' ('lib/Screens/profile_page.dart').
+                RaisedButton(
+                ^^^^^^^^^^^^
+lib/Screens/profile_page.dart:797:47:
+Error: Method 'validate' cannot be called on 'FormState?' because it is potentially null.
+ - 'FormState' is from 'package:flutter/src/widgets/form.dart' ('../../flutter/3.35.3/packages/flutter/lib/src/widgets/form.dart').
+                    _nameFormKey.currentState.validate()
+                                              ^^^^^^^^
+lib/Screens/profile_page.dart:823:30:
+Error: Method 'trim' cannot be called on 'String?' because it is potentially null.
+                    if (text.trim() == "") {
+                             ^^^^
+lib/Screens/profile_page.dart:870:25:
+Error: The argument type 'User?' can't be assigned to the parameter type 'User'.
+ - 'User' is from 'package:firebase_auth/firebase_auth.dart' ('../../.pub-cache/hosted/pub.dev/firebase_auth-6.1.4/lib/firebase_auth.dart').
+    retrieveUserDetails(loggedInUser);
+                        ^
+lib/Screens/profile_page.dart:936:30:
+Error: Property 'isEmpty' cannot be accessed on 'String?' because it is potentially null.
+                    if (text.isEmpty) {
+                             ^^^^^^^
+lib/Screens/profile_page.dart:938:37:
+Error: Property 'length' cannot be accessed on 'String?' because it is potentially null.
+                    } else if (text.length != 11) {
+                                    ^^^^^^
+lib/Screens/profile_page.dart:1051:30:
+Error: Property 'isEmpty' cannot be accessed on 'String?' because it is potentially null.
+                    if (text.isEmpty) {
+                             ^^^^^^^
+lib/Screens/profile_page.dart:1146:45:
+Error: A value of type 'DateTime?' can't be assigned to a variable of type 'DateTime'.
+ - 'DateTime' is from 'dart:core'.
+                    final DateTime picked = await showDatePicker(
+                                            ^
+lib/Screens/profile_page.dart:1205:27:
+Error: Property 'uid' cannot be accessed on 'User?' because it is potentially null.
+ - 'User' is from 'package:firebase_auth/firebase_auth.dart' ('../../.pub-cache/hosted/pub.dev/firebase_auth-6.1.4/lib/firebase_auth.dart').
+        .doc(firebaseUser.uid)
+                          ^^^
+lib/Screens/profile_page.dart:1209:25:
+Error: The argument type 'User?' can't be assigned to the parameter type 'User'.
+ - 'User' is from 'package:firebase_auth/firebase_auth.dart' ('../../.pub-cache/hosted/pub.dev/firebase_auth-6.1.4/lib/firebase_auth.dart').
+    retrieveUserDetails(firebaseUser);
+                        ^
+Error: Compilation failed.
+  Command: /Users/abdallahazmy/flutter/3.35.3/bin/cache/dart-sdk/bin/dart compile js --platform-binaries=/Users/abdallahazmy/flutter/3.35.3/bin/cache/flutter_web_sdk/kernel --invoker=flutter_tool -Ddart.vm.product=true -DFLUTTER_VERSION=3.35.3 -DFLUTTER_CHANNEL=stable -DFLUTTER_GIT_URL=https://github.com/flutter/flutter.git -DFLUTTER_FRAMEWORK_REVISION=a402d9a437 -DFLUTTER_ENGINE_REVISION=ddf47dd3ff -DFLUTTER_DART_VERSION=3.9.2 -DFLUTTER_WEB_USE_SKIA=true -DFLUTTER_WEB_USE_SKWASM=false -DFLUTTER_WEB_CANVASKIT_URL=https://www.gstatic.com/flutter-canvaskit/ddf47dd3ff96dbde6d9c614db0d7f019d7c7a2b7/ --native-null-assertions --no-source-maps -O4 --minify -o /Users/abdallahazmy/Projects/qatra-blood-donation/.dart_tool/flutter_build/dbe35ef30fbf6855010b2cece8740e49/app.dill --packages=/Users/abdallahazmy/Projects/qatra-blood-donation/.dart_tool/package_config.json --cfe-only /Users/abdallahazmy/Projects/qatra-blood-donation/.dart_tool/flutter_build/dbe35ef30fbf6855010b2cece8740e49/main.dart
+#0      RunResult.throwException (package:flutter_tools/src/base/process.dart:118:5)
+#1      _DefaultProcessUtils.run (package:flutter_tools/src/base/process.dart:344:19)
+<asynchronous suspension>
+#2      Dart2JSTarget.build (package:flutter_tools/src/build_system/targets/web.dart:204:5)
+<asynchronous suspension>
+#3      _BuildInstance._invokeInternal (package:flutter_tools/src/build_system/build_system.dart:873:9)
+<asynchronous suspension>
+#4      Future.wait.<anonymous closure> (dart:async/future.dart:525:21)
+<asynchronous suspension>
+#5      _BuildInstance.invokeTarget (package:flutter_tools/src/build_system/build_system.dart:811:32)
+<asynchronous suspension>
+#6      Future.wait.<anonymous closure> (dart:async/future.dart:525:21)
+<asynchronous suspension>
+#7      _BuildInstance.invokeTarget (package:flutter_tools/src/build_system/build_system.dart:811:32)
+<asynchronous suspension>
+#8      FlutterBuildSystem.build (package:flutter_tools/src/build_system/build_system.dart:631:16)
+<asynchronous suspension>
+#9      WebBuilder.buildWeb (package:flutter_tools/src/web/compile.dart:90:34)
+<asynchronous suspension>
+#10     BuildWebCommand.runCommand (package:flutter_tools/src/commands/build_web.dart:282:5)
+<asynchronous suspension>
+#11     FlutterCommand.run.<anonymous closure> (package:flutter_tools/src/runner/flutter_command.dart:1581:27)
+<asynchronous suspension>
+#12     AppContext.run.<anonymous closure> (package:flutter_tools/src/base/context.dart:154:19)
+<asynchronous suspension>
+#13     CommandRunner.runCommand (package:args/command_runner.dart:212:13)
+<asynchronous suspension>
+#14     FlutterCommandRunner.runCommand.<anonymous closure> (package:flutter_tools/src/runner/flutter_command_runner.dart:503:9)
+<asynchronous suspension>
+#15     AppContext.run.<anonymous closure> (package:flutter_tools/src/base/context.dart:154:19)
+<asynchronous suspension>
+#16     FlutterCommandRunner.runCommand (package:flutter_tools/src/runner/flutter_command_runner.dart:438:5)
+<asynchronous suspension>
+#17     run.<anonymous closure>.<anonymous closure> (package:flutter_tools/runner.dart:98:11)
+<asynchronous suspension>
+#18     AppContext.run.<anonymous closure> (package:flutter_tools/src/base/context.dart:154:19)
+<asynchronous suspension>
+#19     main (package:flutter_tools/executable.dart:101:3)
+<asynchronous suspension>
+
+Compiling lib/main.dart for the Web...                             11.0s
+Error: Failed to compile application for the Web.

@@ -1,0 +1,47 @@
+Analyzing qatra-blood-donation...                               
+
+warning • The include file 'package:flutter_lints/flutter.yaml' in '/Users/abdallahazmy/Projects/qatra-blood-donation/analysis_options.yaml' can't be found when analyzing '/Users/abdallahazmy/Projects/qatra-blood-donation' • analysis_options.yaml:10:10 • include_file_not_found
+   info • 'canLaunch' is deprecated and shouldn't be used. Use canLaunchUrl instead • lib/Screens/about_theApp.dart:199:49 • deprecated_member_use
+   info • 'launch' is deprecated and shouldn't be used. Use launchUrl instead • lib/Screens/about_theApp.dart:200:47 • deprecated_member_use
+   info • 'canLaunch' is deprecated and shouldn't be used. Use canLaunchUrl instead • lib/Screens/about_theApp.dart:217:49 • deprecated_member_use
+   info • 'launch' is deprecated and shouldn't be used. Use launchUrl instead • lib/Screens/about_theApp.dart:218:47 • deprecated_member_use
+warning • Unused import: '../appBar_widget.dart' • lib/Screens/addDonorToBlazmaBank.dart:4:8 • unused_import
+   info • The import of 'package:flutter/cupertino.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' • lib/Screens/addDonorToBlazmaBank.dart:6:8 • unnecessary_import
+warning • This class (or a class that this class inherits from) is marked as '@immutable', but one or more of its instance fields aren't final: AddDonerToBlazmaBank.city, AddDonerToBlazmaBank._scafold • lib/Screens/addDonorToBlazmaBank.dart:33:7 • must_be_immutable
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/Screens/addDonorToBlazmaBank.dart:78:41 • deprecated_member_use
+warning • This class (or a class that this class inherits from) is marked as '@immutable', but one or more of its instance fields aren't final: AddDonerToBank.city, AddDonerToBank._scafold • lib/Screens/add_doner_to_bank.dart:31:7 • must_be_immutable
+warning • The value of the field '_scafold' isn't used • lib/Screens/add_doner_to_bank.dart:33:28 • unused_field
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/Screens/add_doner_to_bank.dart:76:41 • deprecated_member_use
+   info • The import of 'dart:ui' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/cupertino.dart' • lib/Screens/blazma_governrate_bank.dart:1:8 • unnecessary_import
+   info • The import of 'package:flutter/cupertino.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' • lib/Screens/blazma_governrate_bank.dart:2:8 • unnecessary_import
+warning • Unused import: '../appBar_widget.dart' • lib/Screens/blazma_governrate_bank.dart:7:8 • unused_import
+   info • The import of 'package:flutter/foundation.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/cupertino.dart' • lib/Screens/blazma_governrate_bank.dart:12:8 • unnecessary_import
+warning • The value of the local variable 'now' isn't used • lib/Screens/blazma_governrate_bank.dart:107:9 • unused_local_variable
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/Screens/blazma_governrate_bank.dart:591:39 • deprecated_member_use
+   info • The import of 'package:flutter/cupertino.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' • lib/Screens/chat.dart:1:8 • unnecessary_import
+warning • Unused import: '../appBar_widget.dart' • lib/Screens/chat.dart:7:8 • unused_import
+   info • The import of 'package:flutter/cupertino.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' • lib/Screens/first_page.dart:1:8 • unnecessary_import
+warning • Unused import: 'package:icandoit/appBar_widget.dart' • lib/Screens/first_page.dart:24:8 • unused_import
+warning • The declaration 'backIcon' isn't referenced • lib/Screens/first_page.dart:103:19 • unused_element
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/Screens/first_page.dart:239:65 • deprecated_member_use
+   info • 'launch' is deprecated and shouldn't be used. Use launchUrl instead • lib/Screens/first_page.dart:1232:5 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/Screens/first_page.dart:1382:39 • deprecated_member_use
+   info • The import of 'dart:ui' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/cupertino.dart' • lib/Screens/governrate_bank.dart:1:8 • unnecessary_import
+   info • The import of 'package:flutter/cupertino.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' • lib/Screens/governrate_bank.dart:2:8 • unnecessary_import
+warning • Unused import: '../appBar_widget.dart' • lib/Screens/governrate_bank.dart:7:8 • unused_import
+   info • The import of 'package:flutter/foundation.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/cupertino.dart' • lib/Screens/governrate_bank.dart:12:8 • unnecessary_import
+warning • The value of the local variable 'now' isn't used • lib/Screens/governrate_bank.dart:107:9 • unused_local_variable
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/Screens/governrate_bank.dart:591:39 • deprecated_member_use
+warning • The value of the local variable 'invalid' isn't used • lib/Screens/login_page.dart:69:18 • unused_local_variable
+warning • The value of the local variable 'user' isn't used • lib/Screens/login_page.dart:457:13 • unused_local_variable
+warning • Unused import: 'package:cached_network_image/cached_network_image.dart' • lib/Screens/profile_page.dart:1:8 • unused_import
+warning • Unused import: '../appBar_widget.dart' • lib/Screens/profile_page.dart:10:8 • unused_import
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/Screens/profile_page.dart:274:57 • deprecated_member_use
+  error • The argument type 'User?' can't be assigned to the parameter type 'User'.  • lib/Screens/profile_page.dart:880:25 • argument_type_not_assignable
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/Screens/profile_page.dart:1232:39 • deprecated_member_use
+warning • The value of the field '_myLocation' isn't used • lib/Screens/register_page.dart:62:7 • unused_field
+warning • The value of the local variable 'newUser' isn't used • lib/Screens/register_page.dart:552:15 • unused_local_variable
+warning • Unused import: '../appBar_widget.dart' • lib/Screens/tlab_tabaro3.dart:3:8 • unused_import
+   info • The import of 'package:flutter/services.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' • lib/Screens/tlab_tabaro3.dart:8:8 • unnecessary_import
+warning • Unused import: 'package:flutter/foundation.dart' • lib/main.dart:3:8 • unused_import
+

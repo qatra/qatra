@@ -7,17 +7,16 @@ import 'package:url_launcher/url_launcher.dart';
 class UserProfile extends StatefulWidget {
   final User user;
 
-  const UserProfile({Key key, this.user}) : super(key: key);
+  const UserProfile({Key? key, required this.user}) : super(key: key);
 
   @override
   _UserProfileState createState() => _UserProfileState();
 }
 
 class _UserProfileState extends State<UserProfile> {
-
   imageConditions() {
     return CachedNetworkImage(
-      imageUrl: "${widget.user.imageUrl}",
+      imageUrl: "${widget.user.imageUrl ?? ""}",
       placeholder: (context, url) => new Container(
           child: CircularProgressIndicator(),
           decoration: BoxDecoration(
@@ -25,21 +24,13 @@ class _UserProfileState extends State<UserProfile> {
                   image: AssetImage("assets/abcd.jpg"), fit: BoxFit.cover))),
       errorWidget: (context, url, error) => new Icon(Icons.error),
     );
-
-  
-      return Image.asset(
-        "assets/abcd.jpg",
-        fit: BoxFit.cover,
-      );
-
-
   }
+
   @override
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-
           floatingActionButton: Padding(
               padding: const EdgeInsets.only(right: 20, top: 20),
               child: GestureDetector(
@@ -97,22 +88,21 @@ class _UserProfileState extends State<UserProfile> {
                               height: 125,
                               width: 125,
                               margin: EdgeInsets.only(top: 12),
-                              child: ClipOval(
-                                  child: imageConditions())),
+                              child: ClipOval(child: imageConditions())),
                           Padding(
                             padding: EdgeInsets.all(4),
                           ),
                           Center(
-                                  child: Text(
-                                    widget.user.displayName,
-                                    style: TextStyle(
-                                        fontFamily: 'Tajawal',
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 27),
+                            child: Text(
+                              widget.user.displayName ?? "No Name",
+                              style: TextStyle(
+                                  fontFamily: 'Tajawal',
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 27),
 //                          textAlign: TextAlign.center,
-                                  ),
-                                ),
+                            ),
+                          ),
                           Padding(
                             padding: EdgeInsets.all(2),
                           ),
@@ -134,7 +124,7 @@ class _UserProfileState extends State<UserProfile> {
 class UserInfo extends StatefulWidget {
   final User user;
 
-  const UserInfo({Key key, this.user}) : super(key: key);
+  const UserInfo({Key? key, required this.user}) : super(key: key);
 
   @override
   _UserInfoState createState() => _UserInfoState();
@@ -142,8 +132,8 @@ class UserInfo extends StatefulWidget {
 
 class _UserInfoState extends State<UserInfo> {
   call() {
-    String phoneNumber = "tel:" + widget.user.phone;
-    launch(phoneNumber);
+    String phoneNumber = "tel:" + (widget.user.phone ?? "");
+    launchUrl(Uri.parse(phoneNumber));
   }
 
   @override
@@ -185,17 +175,17 @@ class _UserInfoState extends State<UserInfo> {
                               fontFamily: 'Tajawal',
                             )),
                         subtitle: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: <Widget>[
-                                  Text(widget.user.fasila,
-                                      textDirection: TextDirection.ltr,
-                                      style: TextStyle(
-                                          color: Colors.red[900],
-                                          fontFamily: 'Tajawal',
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 18)),
-                                ],
-                              ),
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: <Widget>[
+                            Text(widget.user.fasila ?? "-",
+                                textDirection: TextDirection.ltr,
+                                style: TextStyle(
+                                    color: Colors.red[900],
+                                    fontFamily: 'Tajawal',
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18)),
+                          ],
+                        ),
                       ),
                       ListTile(
                         leading: Icon(Icons.phone),
@@ -203,13 +193,14 @@ class _UserInfoState extends State<UserInfo> {
                             style: TextStyle(
                               fontFamily: 'Tajawal',
                             )),
-                        subtitle: SelectableText(widget.user.phone, onTap: () {
-                                call();
-                              },
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.blue,
-                                    fontSize: 18)),
+                        subtitle: SelectableText(widget.user.phone ?? "-",
+                            onTap: () {
+                          call();
+                        },
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue,
+                                fontSize: 18)),
                       ),
                       ListTile(
                         leading: Icon(Icons.my_location),
@@ -217,12 +208,12 @@ class _UserInfoState extends State<UserInfo> {
                             style: TextStyle(
                               fontFamily: 'Tajawal',
                             )),
-                        subtitle: Text(widget.user.address,
-                                style: TextStyle(
-                                    fontFamily: 'Tajawal',
-                                    color: Colors.red[900],
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 19)),
+                        subtitle: Text(widget.user.address ?? "-",
+                            style: TextStyle(
+                                fontFamily: 'Tajawal',
+                                color: Colors.red[900],
+                                fontWeight: FontWeight.bold,
+                                fontSize: 19)),
                       ),
                       ListTile(
                         leading: Icon(Icons.email),
@@ -230,10 +221,11 @@ class _UserInfoState extends State<UserInfo> {
                             style: TextStyle(
                               fontFamily: 'Tajawal',
                             )),
-                        subtitle: Text(widget.user.email,
-                                style: TextStyle(
-                                    color: Colors.red[900],
-                                    fontWeight: FontWeight.bold, fontSize: 18)),
+                        subtitle: Text(widget.user.email ?? "-",
+                            style: TextStyle(
+                                color: Colors.red[900],
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18)),
                       ),
                       ListTile(
                           leading: Icon(Icons.person),
@@ -241,11 +233,11 @@ class _UserInfoState extends State<UserInfo> {
                               style: TextStyle(
                                 fontFamily: 'Tajawal',
                               )),
-                          subtitle: Text(widget.user.dateOfDonation,
-                                  style: TextStyle(
-                                      color: Colors.red[900],
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18))),
+                          subtitle: Text(widget.user.dateOfDonation ?? "-",
+                              style: TextStyle(
+                                  color: Colors.red[900],
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18))),
                     ],
                   ))
                 ],

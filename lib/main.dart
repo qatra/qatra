@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
+import 'firebase_options.dart';
 import 'Screens/splash.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(
     MyApp(),
   );
 }
-
 
 class MyApp extends StatefulWidget {
   @override
@@ -46,8 +52,8 @@ class _MyAppState extends State<MyApp> {
   }
 
   void subscripeAdmin() {
-    _firebaseMessaging.subscribeToTopic("Admin");
+    if (!kIsWeb) {
+      _firebaseMessaging.subscribeToTopic("Admin");
+    }
   }
-
-
 }

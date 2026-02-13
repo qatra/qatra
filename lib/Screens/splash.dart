@@ -57,7 +57,7 @@ class _SplashScreenState extends State<SplashScreen> {
   checkIfLoggedIn() async {
     Future.delayed(const Duration(seconds: 2, milliseconds: 200), () {
       loggedCheck() async {
-        await FirebaseAuth.instance.currentUser() != null
+        FirebaseAuth.instance.currentUser != null
             ? Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (context) => FirstPage()))
             : Navigator.of(context).pushReplacement(
@@ -76,81 +76,80 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
-        body: Container(
-          color: Colors.white,
-          child: Stack(
-            alignment: Alignment.center,
-            children: <Widget>[
-              Center(
-                child: Container(
-                  child: Opacity(
-                    opacity: 1,
-                    child: Shimmer.fromColors(
-                      baseColor: Colors.red,
-                      highlightColor: Colors.red[900],
-                      child: Image.asset(
-                        "assets/fainallogo.png",
-                        height: 140,
-                        width: 150,
-                        fit: BoxFit.fill,
-                      ),
+    return Scaffold(
+      body: Container(
+        color: Colors.white,
+        child: Stack(
+          alignment: Alignment.center,
+          children: <Widget>[
+            Center(
+              child: Container(
+                child: Opacity(
+                  opacity: 1,
+                  child: Shimmer.fromColors(
+                    baseColor: Colors.red,
+                    highlightColor: Colors.red[900]!,
+                    child: Image.asset(
+                      "assets/fainallogo.png",
+                      height: 140,
+                      width: 150,
+                      fit: BoxFit.fill,
                     ),
                   ),
                 ),
               ),
-              Positioned(
-                bottom: 60,
-                child: TextLiquidFill(
-                  text: 'قطرة دم = حياة',
-                  waveColor: Colors.red[900],
-                  boxBackgroundColor: Colors.white,
-                  textStyle: TextStyle(
-                    fontFamily: 'Tajawal',
-                    fontSize: 45,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  loadDuration: Duration(seconds: 1, milliseconds: 750),
+            ),
+            Positioned(
+              bottom: 60,
+              child: TextLiquidFill(
+                text: 'قطرة دم = حياة',
+                waveColor: Colors.red[900]!,
+                boxBackgroundColor: Colors.white,
+                textStyle: TextStyle(
+                  fontFamily: 'Tajawal',
+                  fontSize: 45,
+                  fontWeight: FontWeight.bold,
                 ),
+                loadDuration: Duration(seconds: 1, milliseconds: 750),
               ),
-              refreshButton == false
-                  ? Container()
-                  : Positioned(
-                      bottom: 50,
-                      child: RaisedButton(
-                        child: Row(
-                          children: <Widget>[
-                            Icon(
-                              Icons.refresh,
-                              color: Colors.white,
-                            ),
-                            SizedBox(
-                              width: 7,
-                            ),
-                            Text(
-                              'اعادة المحاولة',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        onPressed: () async {
-
-
-//                          checkInternetConnection();
-                        },
+            ),
+            refreshButton == false
+                ? Container()
+                : Positioned(
+                    bottom: 50,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red[900],
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20)),
-                        color: Colors.red[900],
                       ),
+                      child: Row(
+                        children: <Widget>[
+                          Icon(
+                            Icons.refresh,
+                            color: Colors.white,
+                          ),
+                          SizedBox(
+                            width: 7,
+                          ),
+                          Text(
+                            'اعادة المحاولة',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      onPressed: () async {
+                        // checkInternetConnection();
+                      },
                     ),
-            ],
-          ),
+                  ),
+          ],
         ),
-      )
-    ;
+      ),
+    );
   }
 }

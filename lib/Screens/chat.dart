@@ -1,28 +1,29 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:icandoit/wavyyy.dart';
 import 'package:intl/intl.dart' as intl;
 import '../appBar_widget.dart';
-import '../user_model.dart';
+import '../user_model.dart' as model;
 import 'user_profile_page.dart';
 import 'package:icandoit/message_model.dart';
 
-final _auth = FirebaseAuth.instance;
-final _fireStore = Firestore.instance;
-FirebaseUser loggedInUser;
-String messageText;
+final _auth = auth.FirebaseAuth.instance;
+final _fireStore = FirebaseFirestore.instance;
+auth.User? loggedInUser;
+String? messageText;
 
-Future<FirebaseUser> getCurrentUser() async {
+Future<auth.User?> getCurrentUser() async {
   try {
-    final user = await _auth.currentUser();
+    final user = _auth.currentUser;
     if (user != null) {
       loggedInUser = user;
     }
   } catch (e) {
     print(e);
   }
+  return null;
 }
 
 class Chat extends StatefulWidget {
@@ -32,7 +33,7 @@ class Chat extends StatefulWidget {
 
 class _ChatState extends State<Chat> {
   final messageController = TextEditingController();
-  MessageModel messageModel;
+  late MessageModel messageModel;
 
   @override
   void initState() {
@@ -66,15 +67,11 @@ class _ChatState extends State<Chat> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
-
                   MessagesStream(),
                   Container(
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
-
-
-
                         Expanded(
                           child: Container(
                             height: 55,
@@ -82,7 +79,8 @@ class _ChatState extends State<Chat> {
                             padding: EdgeInsets.only(bottom: 5, left: 3),
                             child: TextField(
                               decoration: InputDecoration(
-                                contentPadding: EdgeInsets.only(top: 14, left: 16),
+                                contentPadding:
+                                    EdgeInsets.only(top: 14, left: 16),
                                 hintText: 'اكتب هنا',
                                 hintStyle: TextStyle(
                                   color: Colors.grey,
@@ -101,16 +99,14 @@ class _ChatState extends State<Chat> {
                         ),
                         Padding(
                           padding: const EdgeInsets.all(4.0),
-                          child: FlatButton(
-                            shape: new RoundedRectangleBorder(
-                                borderRadius: new BorderRadius.circular(30.0)),
-
-                            color: Colors.red[900],
-                            colorBrightness: Brightness.dark,
-
-                            highlightColor: Colors.red,
-                            padding:
-                                EdgeInsets.symmetric(horizontal: 3.0, vertical: 4.0),
+                          child: TextButton(
+                            style: TextButton.styleFrom(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30.0)),
+                              backgroundColor: Colors.red[900],
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 3.0, vertical: 4.0),
+                            ),
                             // gi
 
                             onPressed: () {
@@ -118,7 +114,7 @@ class _ChatState extends State<Chat> {
                               setState(() {
                                 messageModel = MessageModel(
                                   messageText: messageText,
-                                  sender: loggedInUser.email,
+                                  sender: loggedInUser?.email,
                                   now: now,
                                 );
                               });
@@ -126,8 +122,8 @@ class _ChatState extends State<Chat> {
                               if (messageController.text != "") {
                                 _fireStore
                                     .collection("messages")
-                                    .document(now.toString())
-                                    .setData(messageModel.toMap(messageModel));
+                                    .doc(now.toString())
+                                    .set(messageModel.toMap());
 
                                 messageController.clear();
                               }
@@ -170,13 +166,14 @@ class MessagesStream extends StatelessWidget {
               ),
             );
           }
-          final messages = snapshot.data.documents;
+          final messages = snapshot.data!.docs;
           List<MessageBubble> messageBubbles = [];
           for (var message in messages) {
-            final messageText = message.data["text"];
-            final messageSender = message.data["sender"];
-            final date = message.data["date"].toDate();
-            final currentUser = loggedInUser.email;
+            final data = message.data() as Map<String, dynamic>;
+            final messageText = data["text"];
+            final messageSender = data["sender"];
+            final date = (data["date"] as Timestamp?)?.toDate();
+            final currentUser = loggedInUser?.email;
 
             final messageBubble = MessageBubble(
               date: date,
@@ -198,7 +195,11 @@ class MessagesStream extends StatelessWidget {
 }
 
 class MessageBubble extends StatefulWidget {
-  MessageBubble({this.sender, this.text, this.isMe, this.date});
+  MessageBubble(
+      {required this.sender,
+      required this.text,
+      required this.isMe,
+      this.date});
 
   final String sender;
   final date;
@@ -210,7 +211,7 @@ class MessageBubble extends StatefulWidget {
 }
 
 class _MessageBubbleState extends State<MessageBubble> {
-  User user;
+  model.User? user;
 
   changeDateFormat() {
     String formattedDate = intl.DateFormat.yMd().add_jm().format(widget.date);
@@ -231,7 +232,7 @@ class _MessageBubbleState extends State<MessageBubble> {
                       context,
                       new MaterialPageRoute(
                           builder: (context) => new UserProfile(
-                                user: user,
+                                user: user!,
                               )));
                 },
                 child: Row(
@@ -271,13 +272,13 @@ class _MessageBubbleState extends State<MessageBubble> {
         });
   }
 
-  Future<User> getSenderData() async {
-    var _querySnapshot = await Firestore.instance
+  Future<model.User> getSenderData() async {
+    var _querySnapshot = await FirebaseFirestore.instance
         .collection("users")
         .where("email", isEqualTo: widget.sender)
-        .getDocuments();
+        .get();
 
-    return User.fromMap(_querySnapshot.documents[0].data);
+    return model.User.fromMap(_querySnapshot.docs[0].data());
   }
 
   @override
@@ -299,10 +300,9 @@ class _MessageBubbleState extends State<MessageBubble> {
                 user = _user;
               });
 
-              creatAlertDialog(context, user.displayName);
+              creatAlertDialog(context, user?.displayName ?? "Unknown");
             },
             child: Container(
-
               child: Material(
                 borderRadius: widget.isMe
                     ? BorderRadius.only(
@@ -318,7 +318,9 @@ class _MessageBubbleState extends State<MessageBubble> {
                 child: Padding(
                   padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                   child: Padding(
-                    padding: widget.isMe ? const EdgeInsets.only(left: 10) : const EdgeInsets.only(right: 10),
+                    padding: widget.isMe
+                        ? const EdgeInsets.only(left: 10)
+                        : const EdgeInsets.only(right: 10),
                     child: Text(
                       widget.text,
                       style: TextStyle(
