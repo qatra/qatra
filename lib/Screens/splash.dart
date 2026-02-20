@@ -1,77 +1,45 @@
-import 'package:flutter/material.dart';
-import 'onBoarding.dart';
-import 'package:shimmer/shimmer.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'login_page.dart';
-import 'first_page.dart';
-import 'dart:async';
 import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shimmer/shimmer.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
+import '../bloc/app_bloc.dart';
+import 'login_page.dart';
+import 'main_screen.dart';
 
 class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
   @override
-  _SplashScreenState createState() => _SplashScreenState();
+  SplashScreenState createState() => SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class SplashScreenState extends State<SplashScreen> {
   var alertMessage = "برجاء التحقق من الاتصال بشبكة الانترنت";
   bool refreshButton = false;
 
-  Future checkFirstSeen() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool _seen = (prefs.getBool('seen') ?? false);
-
-    if (_seen) {
-      checkIfLoggedIn();
-    } else {
-      await prefs.setBool('seen', true);
-      Future.delayed(const Duration(seconds: 2), () {
+  Future<void> checkIfLoggedIn() async {
+    if (FirebaseAuth.instance.currentUser != null) {
+      await context.read<AppCubit>().refreshUserProfile();
+      if (mounted) {
         Navigator.of(context).pushReplacement(
-            new MaterialPageRoute(builder: (context) => OnBoardingPage()));
-      });
-    }
-  }
-
-//  checkInternetConnection() async {
-//    Future.delayed(const Duration(seconds: 7), () {
-//      EasyLoading.dismiss();
-//      print('Helllllllllllllllllllllllllllllllllllllllllo, world');
-//      creatConnectionAlert(context, alertMessage);
-//      setState(() {
-//        refreshButton = true;
-//      });
-//    });
-//    var url = 'https://www.google.com/';
-//    var response = await http.get(url);
-//    print('Response status: ${response.statusCode}');
-//
-//    if (response.statusCode == 200) {
-//      checkIfLoggedIn();
-//    } else {
-//      creatConnectionAlert(context, alertMessage);
-//      print(alertMessage);
-//    }
-//  }
-
-  checkIfLoggedIn() async {
-    Future.delayed(const Duration(seconds: 2, milliseconds: 200), () {
-      loggedCheck() async {
-        FirebaseAuth.instance.currentUser != null
-            ? Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (context) => FirstPage()))
-            : Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (context) => LoginPage()));
+            MaterialPageRoute(builder: (context) => MainScreen()));
       }
-
-      loggedCheck();
-    });
+    } else {
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => LoginPage()));
+    }
   }
 
   @override
   void initState() {
     super.initState();
-    checkFirstSeen();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        checkIfLoggedIn();
+      }
+    });
   }
 
   @override
@@ -83,18 +51,16 @@ class _SplashScreenState extends State<SplashScreen> {
           alignment: Alignment.center,
           children: <Widget>[
             Center(
-              child: Container(
-                child: Opacity(
-                  opacity: 1,
-                  child: Shimmer.fromColors(
-                    baseColor: Colors.red,
-                    highlightColor: Colors.red[900]!,
-                    child: Image.asset(
-                      "assets/fainallogo.png",
-                      height: 140,
-                      width: 150,
-                      fit: BoxFit.fill,
-                    ),
+              child: Opacity(
+                opacity: 1,
+                child: Shimmer.fromColors(
+                  baseColor: Colors.red,
+                  highlightColor: Colors.red[900]!,
+                  child: Image.asset(
+                    "assets/fainallogo.png",
+                    height: 140,
+                    width: 150,
+                    fit: BoxFit.fill,
                   ),
                 ),
               ),
@@ -110,7 +76,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   fontSize: 45,
                   fontWeight: FontWeight.bold,
                 ),
-                loadDuration: Duration(seconds: 1, milliseconds: 750),
+                loadDuration: Duration(milliseconds: 750),
               ),
             ),
             refreshButton == false
@@ -142,9 +108,7 @@ class _SplashScreenState extends State<SplashScreen> {
                           ),
                         ],
                       ),
-                      onPressed: () async {
-                        // checkInternetConnection();
-                      },
+                      onPressed: () async {},
                     ),
                   ),
           ],

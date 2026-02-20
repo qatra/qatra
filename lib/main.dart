@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
 import 'firebase_options.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'Screens/splash.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
+
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'bloc/app_bloc.dart';
+import 'bloc/post_cubit.dart';
+import 'bloc/donor_cubit.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -11,49 +15,42 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   runApp(
-    MyApp(),
+    MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => AppCubit()..appStarted()),
+        BlocProvider(create: (context) => PostCubit()..fetchPosts()),
+        BlocProvider(create: (context) => DonorCubit()),
+      ],
+      child: MyApp(),
+    ),
   );
 }
 
 class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
   @override
-  _MyAppState createState() => _MyAppState();
+  MyAppState createState() => MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
-  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
-  @override
-  void initState() {
-//    configureNotifications();
-    subscripeAdmin();
-    getDeviceToken();
-    super.initState();
-  }
-
+class MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: SplashScreen(),
       title: 'قطرة',
-      theme: new ThemeData(primarySwatch: Colors.blue),
+      theme: ThemeData(primarySwatch: Colors.blue),
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: [
+        Locale('ar', 'AE'), // Arabic
+        Locale('en', 'US'), // English
+      ],
+      locale: Locale('ar', 'AE'),
     );
-  }
-
-  void configureNotifications() {
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print("massssssageee --- : ${message.data}");
-    });
-  }
-
-  void getDeviceToken() async {
-    String? devicetoken = await _firebaseMessaging.getToken();
-    print("device Token : $devicetoken");
-  }
-
-  void subscripeAdmin() {
-    if (!kIsWeb) {
-      _firebaseMessaging.subscribeToTopic("Admin");
-    }
   }
 }

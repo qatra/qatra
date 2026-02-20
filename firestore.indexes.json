@@ -1,0 +1,33 @@
+{
+    "indexes": [
+        {
+            "collectionGroup": "post",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "fasila",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "date",
+                    "order": "DESCENDING"
+                }
+            ]
+        },
+        {
+            "collectionGroup": "doners",
+            "queryScope": "COLLECTION_GROUP",
+            "fields": [
+                {
+                    "fieldPath": "fasila",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "date",
+                    "order": "DESCENDING"
+                }
+            ]
+        }
+    ],
+    "fieldOverrides": []
+}

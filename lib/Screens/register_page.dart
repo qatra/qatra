@@ -1,33 +1,36 @@
 import 'package:firebase_auth/firebase_auth.dart' as auth;
-import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:geocoding/geocoding.dart';
-import 'first_page.dart';
-import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import '../user_model.dart';
-
-import 'package:universal_io/io.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:icandoit/Screens/login_page.dart';
 import 'package:location/location.dart' as lo;
+import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
-final _fireStore = FirebaseFirestore.instance;
-final _auth = auth.FirebaseAuth.instance;
+import '../repositories/firebase_repository.dart';
+import '../helpers/utils_helper.dart';
+import '../user_model.dart';
+import '../widgets/governorate_selector.dart';
+import '../widgets/fasila_selector.dart';
+import '../utils/phone_formatter.dart';
+import '../utils/constants.dart';
+import 'main_screen.dart';
+
+final FirebaseRepository _firebaseRepo = FirebaseRepository.instance;
 User? _user;
 
 class RegisterPage extends StatefulWidget {
+  final String? emailFromGoogle;
+  final String? uidFromGoogle;
+
+  const RegisterPage({super.key, this.emailFromGoogle, this.uidFromGoogle});
+
   @override
-  _RegisterPageState createState() => _RegisterPageState();
+  RegisterPageState createState() => RegisterPageState();
 }
 
-class _RegisterPageState extends State<RegisterPage> {
-  final TextEditingController _confirmController = new TextEditingController();
-  final TextEditingController _emailController = new TextEditingController();
-  final TextEditingController _passwordController = new TextEditingController();
-  final TextEditingController _nameController = new TextEditingController();
-  final TextEditingController _addressController = new TextEditingController();
-
-  bool _locationLoading = false;
+class RegisterPageState extends State<RegisterPage> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
 
   String? name;
   String? email;
@@ -35,503 +38,305 @@ class _RegisterPageState extends State<RegisterPage> {
   String? confirmPassword;
   String? phoneNumber;
   String? address;
+  String? governorate;
 
-  var _fasila = [
-    'حدد فصيلتك',
-    'AB+',
-    "AB-",
-    "A+",
-    "A-",
-    "B+",
-    "B-",
-    "O+",
-    "O-",
-    "لا اعرف"
-  ];
-  var _currentFasilaSelected = 'حدد فصيلتك';
+  String? _currentFasilaSelected;
 
   bool showSpinner = false;
 
   final _formKey = GlobalKey<FormState>();
 
-//  double longitude;
-//  double latitude;
-//  var city;
-//  var government;
-
-  var _myLocation;
-
-//  Future haa() async {
-//
-//    Location location = new Location();
-//    LocationData myLocation = await location.getLocation();
-//    bool _serviceEnabled;
-//    PermissionStatus _permissionGranted;
-//    setState(() {
-//      _myLocation = myLocation ;
-//    });
-//
-//  }
-//  Future<Map<String, double>> _getLocation() async {
-////var currentLocation = <String, double>{};
-//    LocationData myLocation
-//    Map<String,double> currentLocation;
-//    try {
-//      currentLocation = await location.getLocation();
-//    } catch (e) {
-//      currentLocation = null;
-//    }
-//    setState(() {
-//      userLocation = currentLocation;
-//    });
-//    return currentLocation;
-//
-//
-//
-//  }
-
   @override
   void initState() {
-//    haa();
-
     super.initState();
+    if (widget.emailFromGoogle != null) {
+      _emailController.text = widget.emailFromGoogle!;
+      email = widget.emailFromGoogle;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Directionality(
-        textDirection: TextDirection.rtl,
-        child: Scaffold(
-            backgroundColor: Colors.white,
-            body: ModalProgressHUD(
-              inAsyncCall: showSpinner,
-              child: Center(
-                  child: Form(
-                key: _formKey,
-                child: ListView(
-                    shrinkWrap: true,
-                    padding: EdgeInsets.all(15.0),
-                    children: <Widget>[
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Container(
-                          padding: EdgeInsets.only(
-                              top: 5.0, right: 20.0, left: 20.0, bottom: 10),
-                          child: new Column(children: <Widget>[
-                            Container(
-                              padding: EdgeInsets.only(bottom: 20.00),
-                              child: Image.asset("assets/blood.jpg"),
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: ModalProgressHUD(
+          inAsyncCall: showSpinner,
+          child: Center(
+            child: Form(
+              key: _formKey,
+              child: ListView(
+                shrinkWrap: true,
+                padding: EdgeInsets.all(15.0),
+                children: <Widget>[
+                  Container(
+                    padding: EdgeInsets.only(
+                        top: 5.0, right: 20.0, left: 20.0, bottom: 10),
+                    child: Column(
+                      children: <Widget>[
+                        Column(
+                          children: <Widget>[
+                            TextFormField(
+                              validator: (text) {
+                                if (text == null || text.isEmpty) {
+                                  return "برجاء كتابة الاسم";
+                                }
+                                if (text.length > 40) {
+                                  return "الاسم طويل جدا";
+                                }
+                                if (text.trim() == "") {
+                                  return "لا يجب ان يكون الاسم كله مسافات";
+                                }
+                                if (text.length < 2) {
+                                  return "الاسم قصير جدا";
+                                }
+                                return null;
+                              },
+                              textAlign: TextAlign.center,
+                              controller: _nameController,
+                              onChanged: (text) {
+                                setState(() {
+                                  name = text;
+                                });
+                              },
+                              decoration: InputDecoration(
+                                  labelText: 'الاسم',
+                                  labelStyle: TextStyle(
+                                    fontFamily: 'Tajawal',
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(20.0),
+                                  ),
+                                  prefixIcon: Icon(Icons.account_circle)),
                             ),
                             Container(
-                              child: new Column(
-                                children: <Widget>[
-                                  Container(
-                                    child: new TextFormField(
-                                      validator: (text) {
-                                        if (text == null || text.isEmpty) {
-                                          return "برجاء كتابة الاسم";
-                                        }
-                                        if (text.length > 40) {
-                                          return "الاسم طويل جدا";
-                                        }
-                                        if (text.trim() == "") {
-                                          return "لا يجب ان يكون الاسم كله مسافات";
-                                        }
-
-                                        if (text.length < 2) {
-                                          return "الاسم قصير جدا";
-                                        }
-                                        return null;
-                                      },
-                                      textAlign: TextAlign.center,
-                                      controller: _nameController,
-                                      onChanged: (text) {
-                                        setState(() {
-                                          name = text;
-                                        });
-                                      },
-                                      decoration: InputDecoration(
-                                          labelText: 'الاسم',
-                                          labelStyle: TextStyle(
-                                            fontFamily: 'Tajawal',
-                                          ),
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(20.0),
-                                          ),
-                                          prefixIcon:
-                                              Icon(Icons.account_circle)),
+                              padding: EdgeInsets.only(top: 17),
+                              child: TextFormField(
+                                readOnly: widget.emailFromGoogle != null,
+                                enabled: widget.emailFromGoogle == null,
+                                validator: (text) {
+                                  if (text == null || text.isEmpty) {
+                                    return "برجاء كتابة البريد الالكتروني";
+                                  }
+                                  if (text.length > 50) {
+                                    return "البريد الالكتروني طويل جدا";
+                                  }
+                                  if (text.contains(" ")) {
+                                    return "لا يجب ان توجد مسافات في البريد الالكتروني";
+                                  }
+                                  if (!text.contains("@") ||
+                                      !text.contains(".")) {
+                                    return "البريد الالكتروني غير صحيح";
+                                  }
+                                  if (text.length < 2) {
+                                    return "البريد الالكتروني قصير جدا";
+                                  }
+                                  return null;
+                                },
+                                keyboardType: TextInputType.emailAddress,
+                                textAlign: TextAlign.center,
+                                controller: _emailController,
+                                onChanged: (text) {
+                                  setState(() {
+                                    email = text;
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                    labelText: 'البريد الالكتروني',
+                                    labelStyle: TextStyle(
+                                      fontFamily: 'Tajawal',
                                     ),
-                                  ),
-                                  Container(
-                                    padding: EdgeInsets.only(top: 17),
-                                    child: new TextFormField(
-                                      validator: (text) {
-                                        if (text == null || text.isEmpty) {
-                                          return "برجاء كتابة البريد الالكتروني";
-                                        }
-                                        if (text.length > 50) {
-                                          return "البريد الالكتروني طويل جدا";
-                                        }
-                                        if (text.contains(" ")) {
-                                          return "لا يجب ان توجد مسافات في البريد الالكتروني";
-                                        }
-                                        if (!text.contains("@")) {
-                                          return "البريد الالكتروني غير صحيح";
-                                        }
-                                        if (!text.contains(".")) {
-                                          return "البريد الالكتروني غير صحيح";
-                                        }
-                                        if (text.length < 2) {
-                                          return "البريد الالكتروني قصير جدا";
-                                        }
-                                        return null;
-                                      },
-                                      keyboardType: TextInputType.emailAddress,
-                                      textAlign: TextAlign.center,
-                                      controller: _emailController,
-                                      onChanged: (text) {
-                                        setState(() {
-                                          email = text;
-                                        });
-                                      },
-                                      decoration: InputDecoration(
-                                          labelText: 'البريد الالكتروني',
-                                          labelStyle: TextStyle(
-                                            fontFamily: 'Tajawal',
-                                          ),
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(20.0),
-                                          ),
-                                          prefixIcon: Icon(Icons.email)),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(20.0),
                                     ),
+                                    prefixIcon: Icon(Icons.email)),
+                              ),
+                            ),
+                            Container(
+                              padding: EdgeInsets.only(top: 17),
+                              child: TextFormField(
+                                validator: (text) {
+                                  if (text == null) return null;
+                                  if (text.contains(" ")) {
+                                    return "لا يجب ان توجد مسافات في رقم التليفون";
+                                  }
+                                  if (text.isEmpty) {
+                                    return "برجاء كتابة رقم التليفون";
+                                  }
+                                  if (text.length != 11) {
+                                    return "رقم التليفون غير صحيح";
+                                  }
+                                  return null;
+                                },
+                                textAlign: TextAlign.center,
+                                keyboardType: TextInputType.number,
+                                inputFormatters: [EnglishNumeralsFormatter()],
+                                onChanged: (text) {
+                                  setState(() {
+                                    phoneNumber = text;
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                    labelText: 'رقم التليفون',
+                                    labelStyle: TextStyle(
+                                      fontFamily: 'Tajawal',
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(20.0),
+                                    ),
+                                    prefixIcon: Icon(Icons.phone_android)),
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.only(top: 17),
+                              child: FasilaSelector(
+                                selectedFasila: _currentFasilaSelected,
+                                fasilaList: bloodTypes,
+                                onFasilaSelected: (value) {
+                                  _onDropDownItemSelected(value);
+                                },
+                                validator: (val) {
+                                  if (val == null || val.isEmpty) {
+                                    return "حدد فصييلة دمك";
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.only(top: 17),
+                              child: GovernorateSelector(
+                                selectedGovernorate: governorate,
+                                onGovernorateSelected: (value) {
+                                  setState(() {
+                                    governorate = value;
+                                  });
+                                },
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return "برجاء اختيار المحافظة";
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.only(top: 17),
+                              child: TextFormField(
+                                controller: _addressController,
+                                validator: (text) {
+                                  if (text == null || text.isEmpty) {
+                                    return "برجاء كتابة المنطقة";
+                                  }
+                                  if (text.length > 60) {
+                                    return "العنوان طويل جدا";
+                                  }
+                                  if (text.length < 2) {
+                                    return "العنوان قصير جدا";
+                                  }
+                                  return null;
+                                },
+                                textAlign: TextAlign.center,
+                                onChanged: (text) {
+                                  setState(() {
+                                    address = text;
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  labelText: 'المنطقة',
+                                  labelStyle: const TextStyle(
+                                    fontFamily: 'Tajawal',
                                   ),
-                                  new Container(
-                                    padding: EdgeInsets.only(top: 17),
-                                    child: new TextFormField(
-                                      validator: (text) {
-                                        if (text == null || text.isEmpty) {
-                                          return "برجاء كتابة كلمة المرور";
-                                        }
-                                        if (text.contains(" ")) {
-                                          return "لا يجب ان توجد مسافات في كلمة المرور";
-                                        }
-
-                                        if (text.length <= 5) {
-                                          return "كلمة المرور يجب ان لا تقل عن 6 حروف";
-                                        }
-                                        return null;
-                                      },
-                                      textAlign: TextAlign.center,
-                                      controller: _passwordController,
-                                      onChanged: (text) {
-                                        setState(() {
-                                          password = text;
-                                        });
-                                      },
-                                      decoration: new InputDecoration(
-                                        prefixIcon: Icon(Icons.lock_outline),
-                                        labelText: 'كلمة المرور',
-                                        labelStyle: TextStyle(
-                                          fontFamily: 'Tajawal',
-                                        ),
-                                        border: OutlineInputBorder(
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(20.0),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Container(
+                              padding: EdgeInsets.only(top: 13),
+                              child: SizedBox(
+                                width: 300,
+                                height: 37,
+                                child: ElevatedButton(
+                                  onPressed: () async {
+                                    _formKey.currentState!.validate()
+                                        ? creatUser()
+                                        : debugPrint("not valid");
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                      shape: RoundedRectangleBorder(
                                           borderRadius:
-                                              BorderRadius.circular(20.0),
-                                        ),
-                                      ),
-                                      obscureText: true,
+                                              BorderRadius.circular(20)),
+                                      backgroundColor: Colors.red[900]!),
+                                  child: Text(
+                                    'إنشاء حساب',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'Tajawal',
                                     ),
-                                  )
-                                ],
+                                  ),
+                                ),
                               ),
                             ),
-                            Container(
-                              child: new Column(
-                                children: <Widget>[
-                                  Container(
-                                    padding: EdgeInsets.only(top: 17),
-                                    child: new TextFormField(
-                                      validator: (text) {
-                                        if (text == null || text.isEmpty) {
-                                          return "برجاء كتابة تاكيد كلمة المرور";
-                                        }
-                                        if (text != password) {
-                                          return "كلمة المرور و تأكيد كلمة المرور غير متطابقان";
-                                        }
-                                        return null;
-                                      },
-                                      textAlign: TextAlign.center,
-                                      controller: _confirmController,
-                                      onChanged: (text) {
-                                        setState(() {
-                                          confirmPassword = text;
-                                        });
-                                      },
-                                      decoration: InputDecoration(
-                                          labelText: 'تأكيد كلمة المرور',
-                                          labelStyle: TextStyle(
-                                            fontFamily: 'Tajawal',
-                                          ),
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(20.0),
-                                          ),
-                                          prefixIcon: Icon(Icons.lock)),
-                                      obscureText: true,
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: EdgeInsets.only(top: 17),
-                                    child: new TextFormField(
-                                      validator: (text) {
-                                        if (text == null) return null;
-                                        if (text.contains(" ")) {
-                                          return "لا يجب ان توجد مسافات في رقم التليفون";
-                                        }
-                                        if (text.isEmpty) {
-                                          return "برجاء كتابة رقم التليفون";
-                                        }
-                                        if (text.length != 11) {
-                                          return "رقم التليفون غير صحيح";
-                                        }
-                                        return null;
-                                      },
-                                      textAlign: TextAlign.center,
-                                      keyboardType: TextInputType.number,
-                                      controller: null,
-                                      onChanged: (text) {
-                                        setState(() {
-                                          phoneNumber = text;
-                                        });
-                                      },
-                                      decoration: InputDecoration(
-                                          labelText: 'رقم التليفون',
-                                          labelStyle: TextStyle(
-                                            fontFamily: 'Tajawal',
-                                          ),
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(20.0),
-                                          ),
-                                          prefixIcon:
-                                              Icon(Icons.phone_android)),
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.only(top: 17),
-                                    child: DropdownButtonFormField<String>(
-                                      validator: (value) =>
-                                          value == "حدد فصيلتك"
-                                              ? 'برجاء اختيار الفصيلة'
-                                              : null,
-                                      elevation: 10,
-                                      isDense: true,
-                                      decoration: InputDecoration(
-                                          border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(20.0)),
-                                          prefixIcon: Icon(
-                                            Icons.local_hospital,
-                                            size: 22,
-                                          )),
-                                      items: _fasila
-                                          .map((String dropDownStringItem) {
-                                        return DropdownMenuItem<String>(
-                                          value: dropDownStringItem,
-                                          child: Center(
-                                            child: Text(
-                                              dropDownStringItem,
-                                              textDirection: TextDirection.ltr,
-                                              style: TextStyle(
-                                                fontFamily: 'Tajawal',
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      }).toList(),
-                                      onChanged: (String? newValueSelected) {
-                                        // Your code to execute, when a menu item is selected from drop down
-                                        if (newValueSelected != null) {
-                                          _onDropDownItemSelected(
-                                              newValueSelected);
-                                        }
-                                      },
-                                      initialValue: _currentFasilaSelected,
-                                    ),
-                                  ),
-                                  Container(
-                                      padding: EdgeInsets.only(top: 17),
-                                      child: TextFormField(
-                                        controller: _addressController,
-                                        validator: (text) {
-                                          if (text == null || text.isEmpty) {
-                                            return "برجاء تحديد العنوان";
-                                          }
-                                          if (text.length > 60) {
-                                            return "العنوان طويل جدا";
-                                          }
-                                          if (text.length < 2) {
-                                            return "العنوان قصير جدا";
-                                          }
-                                          return null;
-                                        },
-                                        textAlign: TextAlign.center,
-                                        onChanged: (text) {
-                                          setState(() {
-                                            address = text;
-                                          });
-                                        },
-                                        decoration: InputDecoration(
-                                            labelText: 'العنوان',
-                                            labelStyle: TextStyle(
-                                              fontFamily: 'Tajawal',
-                                            ),
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(20.0),
-                                            ),
-                                            icon: _locationLoading
-                                                ? Image.asset(
-                                                    "assets/loading.gif",
-                                                    height: 47.0,
-                                                    width: 47.0,
-                                                  )
-                                                : InkWell(
-                                                    onTap: () {
-                                                      getLocation();
-
-//
-                                                    },
-                                                    child: Column(
-                                                      children: <Widget>[
-                                                        Icon(
-                                                          Icons.location_on,
-                                                          size: 40,
-                                                          color: Colors.blue,
-                                                        ),
-                                                        SizedBox(
-                                                          height: 2,
-                                                        ),
-                                                        Text(
-                                                          "لتحديد المكان",
-                                                          style: TextStyle(
-                                                            fontSize: 10,
-                                                            color: Colors.blue,
-                                                            fontFamily:
-                                                                'Tajawal',
-                                                          ),
-                                                        )
-                                                      ],
-                                                    ))),
-                                      )),
-                                  Container(
-                                    padding: EdgeInsets.only(top: 13),
-                                    child: SizedBox(
-                                      width: 300,
-                                      height: 37,
-                                      child: ElevatedButton(
-                                        child: new Text(
-                                          'إنشاء حساب',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                            fontFamily: 'Tajawal',
-                                          ),
-                                        ),
-                                        onPressed: () async {
-                                          _formKey.currentState!.validate()
-                                              ? creatUser()
-                                              : print("not valid");
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                            shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(20)),
-                                            backgroundColor: Colors.red[900]!),
-                                      ),
-                                    ),
-                                  ),
-                                  new TextButton(
-                                    child: new Text(
-                                      'لديك حساب ؟ سجل دخولك من هنا .',
-                                      style: TextStyle(
-                                        fontFamily: 'Tajawal',
-                                      ),
-                                    ),
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-                                  ),
-                                ],
+                            SizedBox(height: 10),
+                            TextButton(
+                              child: Text(
+                                'لديك حساب ؟ سجل دخولك من هنا .',
+                                style: TextStyle(
+                                  fontFamily: 'Tajawal',
+                                ),
                               ),
-                            )
-                          ]))
-                    ]),
-              )),
-            )),
+                              onPressed: () {
+                                Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const LoginPage()));
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
 
-  getLocationPermission() async {
+  Future<void> getLocationPermission() async {
     final lo.Location location = lo.Location();
-    bool _serviceEnabled;
-    lo.PermissionStatus _permissionGranted;
+    bool serviceEnabled;
+    lo.PermissionStatus permissionGranted;
 
-    _serviceEnabled = await location.serviceEnabled();
-    if (!_serviceEnabled) {
-      _serviceEnabled = await location.requestService();
-      if (!_serviceEnabled) {
-        return;
+    try {
+      serviceEnabled = await location.serviceEnabled();
+      if (!serviceEnabled) {
+        serviceEnabled = await location.requestService();
+        if (!serviceEnabled) {
+          return;
+        }
       }
-    }
 
-    _permissionGranted = await location.hasPermission();
-    if (_permissionGranted == lo.PermissionStatus.denied) {
-      _permissionGranted = await location.requestPermission();
-      if (_permissionGranted != lo.PermissionStatus.granted) {
-        return;
+      if (!kIsWeb) {
+        permissionGranted = await location.hasPermission();
+        if (permissionGranted == lo.PermissionStatus.denied) {
+          permissionGranted = await location.requestPermission();
+          if (permissionGranted != lo.PermissionStatus.granted) {
+            return;
+          }
+        }
       }
+    } catch (e) {
+      debugPrint("Location permission error: $e");
     }
-  }
-
-  void getLocation() async {
-    getLocationPermission();
-    setState(() {
-      _locationLoading = true;
-    });
-
-    Position position = await Geolocator.getCurrentPosition(
-        locationSettings: LocationSettings(accuracy: LocationAccuracy.low));
-
-    List<Placemark> p =
-        await placemarkFromCoordinates(position.latitude, position.longitude);
-    Placemark place = p[0];
-    print("${place.locality}, ${place.administrativeArea}, ${place.country}");
-
-    _addressController.text = "${place.administrativeArea}--${place.locality}";
-
-    setState(() {
-      address = _addressController.text;
-    });
-
-    setState(() {
-      _locationLoading = false;
-    });
-  }
-
-  userData() async {
-    _fireStore.collection("UserData").add({
-      'name': name,
-      'email': email,
-      'phone': phoneNumber,
-      'fasila': _currentFasilaSelected,
-    });
   }
 
   creatUser() async {
@@ -541,108 +346,73 @@ class _RegisterPageState extends State<RegisterPage> {
     auth.User? firebaseUser;
 
     try {
-      if (!kIsWeb) {
-        final result = await InternetAddress.lookup('google.com');
-        if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-          print("Connected to Mobile Network");
-        }
-      }
-
       try {
-        final newUser = await _auth.createUserWithEmailAndPassword(
-            email: email!, password: password!);
+        if (widget.uidFromGoogle != null) {
+          // If we have a Google UID, we use the current user or the one from Google flow
+          firebaseUser = _firebaseRepo.currentUser;
+        } else {
+          // This path might no longer be used if we only allow Google Sign-In,
+          // but keeping for robustness if password code is ever uncommented.
+          await _firebaseRepo.register(
+              email!, password ?? "dummy_password_unused");
+          firebaseUser = _firebaseRepo.currentUser;
+        }
 
-        firebaseUser = _auth.currentUser;
+        if (firebaseUser != null) {
+          var now = DateTime.now();
+          _user = User(
+              uid: firebaseUser.uid,
+              email: firebaseUser.email,
+              displayName: name,
+              phone: phoneNumber,
+              fasila: _currentFasilaSelected,
+              address: address,
+              governorate: governorate,
+              date: now,
+              dateOfDonation: "----");
 
-        var now = new DateTime.now();
-        _user = User(
-            uid: firebaseUser!.uid,
-            email: firebaseUser.email,
-            displayName: name,
-            phone: phoneNumber,
-            fasila: _currentFasilaSelected,
-            address: address,
-            date: now,
-            dateOfDonation: "----");
-        await _fireStore
-            .collection('users')
-            .doc(firebaseUser.uid)
-            .set(_user!.toMap());
+          await _firebaseRepo.createUserProfile(_user!);
 
-        setState(() {
-          showSpinner = false;
-        });
-        Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (BuildContext context) => FirstPage()),
-            (Route<dynamic> route) => route is FirstPage);
+          setState(() {
+            showSpinner = false;
+          });
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                  builder: (BuildContext context) => const MainScreen()),
+              (Route<dynamic> route) => false);
+        } else {
+          showNotification("حدث خطأ في استرداد بيانات المستخدم", context);
+        }
       } catch (e) {
         setState(() {
           showSpinner = false;
         });
-        var errorSigningIn;
-        if (!kIsWeb && Platform.isAndroid) {
-          if (e is auth.FirebaseAuthException) {
-            switch (e.message) {
-              case 'There is no user record corresponding to this identifier. The user may have been deleted.':
-                errorSigningIn =
-                    "لا يوجد مستخدم بهذه المعلومات , قد يكون هناك خطأ في البريد الالكتروني او كلمة المرور .";
-                break;
-              case 'The password is invalid or the user does not have a password.':
-                errorSigningIn = "كلمة مرور خاطئة .";
-                break;
-              case 'A network error (such as timeout, interrupted connection or unreachable host) has occurred.':
-                errorSigningIn =
-                    "خطأ في الاتصال بشبكة الانترنت , تحقق من اتصالك و حاول مرة اخري .";
-                break;
-              // ...
-              default:
-                print('Case ${e.message} is not yet implemented');
-                errorSigningIn = '${e.message}';
-            }
-          } else {
-            errorSigningIn = e.toString();
-          }
-        } else if (!kIsWeb && Platform.isIOS) {
+        String errorSigningIn = "حدث خطأ أثناء إنشاء الحساب: $e";
+        if (!kIsWeb) {
           if (e is auth.FirebaseAuthException) {
             switch (e.code) {
               case 'user-not-found':
-                errorSigningIn =
-                    "لا يوجد مستخدم بهذه المعلومات , قد يكون هناك خطأ في البريد الالكتروني او كلمة المرور .";
+                errorSigningIn = "لا يوجد مستخدم بهذه المعلومات";
                 break;
               case 'wrong-password':
-                errorSigningIn = "كلمة مرور خاطئة .";
+                errorSigningIn = "كلمة مرور خاطئة";
                 break;
               case 'network-request-failed':
-                errorSigningIn =
-                    "خطأ في الاتصال بشبكة الانترنت , تحقق من اتصالك و حاول مرة اخري .";
+                errorSigningIn = "خطأ في الاتصال بالشبكة";
                 break;
-              // ...
               default:
-                print('Case ${e.message} is not yet implemented');
-                errorSigningIn = '${e.message}';
+                errorSigningIn = e.message ?? e.code;
             }
-          } else {
-            errorSigningIn = e.toString();
           }
-        } else {
-          errorSigningIn = e.toString();
         }
-
         showNotification(errorSigningIn, context);
-
-        print(e);
       }
+    } catch (e) {
       setState(() {
         showSpinner = false;
       });
-    } on SocketException catch (_) {
-      String invalid = "لا يوجد اتصال بشبكة الانترنت !";
-      print(invalid);
-      setState(() {
-        showSpinner = false;
-      });
-      showNotification(invalid, context);
+      showNotification("خطأ غير متوقع", context);
     }
   }
 
@@ -651,21 +421,4 @@ class _RegisterPageState extends State<RegisterPage> {
       _currentFasilaSelected = newValueSelected ?? _currentFasilaSelected;
     });
   }
-}
-
-showNotification(msg, context) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Text(
-          "$msg",
-          textAlign: TextAlign.center,
-          style: TextStyle(fontFamily: "Tajawal", fontSize: 18),
-        ),
-      ),
-      backgroundColor: Colors.black87.withValues(alpha: .8),
-      duration: Duration(seconds: 4),
-    ),
-  );
 }

@@ -5,9 +5,11 @@ class User {
   String? phone;
   String? fasila;
   String? address;
+  String? governorate;
+  String? governrateBank;
   String? dateOfDonation;
   String? imageUrl;
-  var date;
+  dynamic date;
 
   User(
       {this.displayName,
@@ -16,6 +18,8 @@ class User {
       this.phone,
       this.fasila,
       this.address,
+      this.governorate,
+      this.governrateBank,
       this.imageUrl,
       this.dateOfDonation,
       this.date});
@@ -27,6 +31,8 @@ class User {
         phone: map['phone'],
         fasila: map['fasila'],
         address: map['address'],
+        governorate: map['governorate'],
+        governrateBank: map['governrateBank'],
         imageUrl: map['imageUrl'],
         dateOfDonation: map['dateOfDonation'],
         date: map['date'],
@@ -39,8 +45,38 @@ class User {
         'phone': phone,
         'fasila': fasila,
         'address': address,
+        'governorate': governorate,
+        'governrateBank': governrateBank,
         'imageUrl': imageUrl,
         'dateOfDonation': dateOfDonation,
         'date': date,
       };
+
+  User copyWith({
+    String? displayName,
+    String? email,
+    String? uid,
+    String? phone,
+    String? fasila,
+    String? address,
+    String? governorate,
+    String? governrateBank,
+    String? imageUrl,
+    String? dateOfDonation,
+    dynamic date,
+  }) {
+    return User(
+      displayName: displayName ?? this.displayName,
+      email: email ?? this.email,
+      uid: uid ?? this.uid,
+      phone: phone ?? this.phone,
+      fasila: fasila ?? this.fasila,
+      address: address ?? this.address,
+      governorate: governorate ?? this.governorate,
+      governrateBank: governrateBank ?? this.governrateBank,
+      imageUrl: imageUrl ?? this.imageUrl,
+      dateOfDonation: dateOfDonation ?? this.dateOfDonation,
+      date: date ?? this.date,
+    );
+  }
 }

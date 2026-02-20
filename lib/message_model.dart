@@ -1,7 +1,7 @@
 class MessageModel {
   String? messageText;
   String? sender;
-  var now;
+  dynamic now;
 
   MessageModel({
     this.messageText,

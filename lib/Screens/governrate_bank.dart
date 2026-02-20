@@ -1,47 +1,38 @@
-import 'dart:ui';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:icandoit/wavyyy.dart';
-import '../appBar_widget.dart';
-import '../user_model.dart';
-import 'user_profile_page.dart';
-import 'add_doner_to_bank.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:icandoit/Screens/donor_card.dart';
+import 'package:icandoit/bloc/donor_cubit.dart';
+import 'package:icandoit/helpers/utils_helper.dart';
 
-final _fireStore = FirebaseFirestore.instance;
+import '../bloc/app_bloc.dart';
+import '../bloc/app_state.dart';
+import '../user_model.dart';
+import 'add_doner_to_bank.dart';
+import '../repositories/firebase_repository.dart';
+
+final FirebaseRepository _firebaseRepo = FirebaseRepository.instance;
 
 class GovernrateBank extends StatefulWidget {
-  final String city;
+  final String governrate;
 
-  const GovernrateBank({Key? key, required this.city}) : super(key: key);
+  const GovernrateBank({super.key, required this.governrate});
 
   @override
-  _GovernrateBankState createState() => _GovernrateBankState();
+  GovernrateBankState createState() => GovernrateBankState();
 }
 
-class _GovernrateBankState extends State<GovernrateBank> {
-  @override
-  void initState() {
-    super.initState();
-    _readCheckIfAccAddedToBank();
-  }
+class GovernrateBankState extends State<GovernrateBank> {
+  final GlobalKey<ScaffoldState> _scafold = GlobalKey<ScaffoldState>();
+  final ScrollController _scrollController = ScrollController();
 
-  GlobalKey<ScaffoldState> _scafold = new GlobalKey<ScaffoldState>();
+  final TextEditingController _searchController = TextEditingController();
+  final String _searchQuery = "";
 
-  var name;
-  var fasila;
-  var phone;
-  int addedToBank = 0;
-  Stream? search;
-
-  final _auth = auth.FirebaseAuth.instance;
   User? _user;
-  User? loggedInUser;
 
-  var __fasila = [
+  final __fasila = [
     ' - عرض كل الفصائل -  ',
     'AB+',
     "AB-",
@@ -52,111 +43,68 @@ class _GovernrateBankState extends State<GovernrateBank> {
     "O+",
     "O-",
   ];
-  var __currentFasilaSelected = ' - عرض كل الفصائل -  ';
 
   void _onDropDownItemSelected(String newValueSelected) {
-    setState(() {
-      __currentFasilaSelected = newValueSelected;
-      print(" $__currentFasilaSelected sellected");
+    context.read<DonorCubit>().setFilter(newValueSelected, widget.governrate);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<DonorCubit>().fetchDonors(widget.governrate, refresh: true);
     });
   }
 
-  inetialSearch() {
-    Stream _search = _fireStore
-        .collection("bank")
-        .doc(widget.city)
-        .collection('doners')
-        .orderBy('date', descending: true)
-        .snapshots();
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
-    if (__currentFasilaSelected != ' - عرض كل الفصائل -  ') {
-      setState(() {
-        _search = _fireStore
-            .collection("bank")
-            .doc(widget.city)
-            .collection('doners')
-            .orderBy('date', descending: true)
-            .where('fasila', isEqualTo: __currentFasilaSelected)
-            .snapshots();
-      });
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      context.read<DonorCubit>().fetchDonors(widget.governrate);
     }
-    return _search;
-  }
-
-  setTheSearch() {}
-
-  _readCheckIfAccAddedToBank() async {
-    final prefs = await SharedPreferences.getInstance();
-    final key = 'my_int_key';
-    setState(() {
-      addedToBank = prefs.getInt(key) ?? 0;
-    });
-
-    print('read: $addedToBank');
-  }
-
-  _saveCheckIfAccAddedToBank() async {
-    final prefs = await SharedPreferences.getInstance();
-    final key = 'my_int_key';
-    addedToBank = 1;
-    prefs.setInt(key, addedToBank);
-    print('saved $addedToBank');
   }
 
   addMyAccToBank() async {
-    var now = new DateTime.now();
-
     try {
-      auth.User? firebaseUser = _auth.currentUser;
+      auth.User? firebaseUser = _firebaseRepo.currentUser;
       if (firebaseUser != null) {
-        uploadUserToGovernrateBank() async {
-          await _fireStore
-              .collection('users')
-              .doc(firebaseUser.uid)
-              .update({'governrateBank': widget.city});
+        await _firebaseRepo.updateUserBank(firebaseUser.uid, widget.governrate);
+
+        if (_user != null) {
+          final updatedUser =
+              _user!.copyWith(governrateBank: widget.governrate);
+          await _firebaseRepo.addDonorToBank(widget.governrate, updatedUser);
+
+          if (mounted) {
+            context.read<AppCubit>().updateProfile(updatedUser);
+            context
+                .read<DonorCubit>()
+                .fetchDonors(widget.governrate, refresh: true);
+            showNotification("تم اضافة حسابك بنجاح", context);
+          }
         }
-
-        uploadUserToGovernrateBank();
-
-        await _fireStore
-            .collection('bank')
-            .doc(widget.city)
-            .collection('doners')
-            .doc(firebaseUser.uid)
-            .set(_user?.toMap() ?? {});
-
-        _saveCheckIfAccAddedToBank();
-        showNotification("تم اضافة حسابك بنجاح", context);
       }
     } catch (_) {
-      showNotification("حدث خطأ ما", context);
+      if (mounted) {
+        showNotification("حدث خطأ ما", context);
+      }
     }
-    _readCheckIfAccAddedToBank();
-  }
-
-  Future<User?> retrieveUserDetails(User firebaseUser) async {
-    DocumentSnapshot _documentSnapshot =
-        await _fireStore.collection('users').doc(firebaseUser.uid).get();
-
-    return User.fromMap(_documentSnapshot.data() as Map<String, dynamic>);
-  }
-
-  Future<User?> getCurrentUser() async {
-    return loggedInUser = _auth.currentUser as User?;
   }
 
   makeUserObject() async {
-    User? _currentUser = await getCurrentUser();
-
-    if (_currentUser != null) {
-      var userdata = await retrieveUserDetails(_currentUser);
-      var now = new DateTime.now();
-      setState(() {
-        _user = userdata;
-        if (_user != null) {
-          _user!.date = now;
-        }
-      });
+    final state = context.read<AppCubit>().state;
+    if (state is AppAuthenticated && state.userProfile != null) {
+      _user = state.userProfile;
+      var now = DateTime.now();
+      if (_user != null) {
+        _user!.date = now;
+      }
       addMyAccToBank();
     }
   }
@@ -166,6 +114,7 @@ class _GovernrateBankState extends State<GovernrateBank> {
         context: context,
         builder: (context) {
           return AlertDialog(
+            backgroundColor: Colors.white,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             title: Center(
@@ -180,7 +129,7 @@ class _GovernrateBankState extends State<GovernrateBank> {
               ),
             ),
             elevation: 10,
-            content: Container(
+            content: SizedBox(
               height: 50,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -235,361 +184,304 @@ class _GovernrateBankState extends State<GovernrateBank> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Directionality(
-        textDirection: TextDirection.rtl,
-        child: Scaffold(
-          key: _scafold,
-          backgroundColor: Colors.white,
-          floatingActionButton: Padding(
-              padding: const EdgeInsets.only(right: 20, top: 20),
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.pop(context);
+    return Scaffold(
+      key: _scafold,
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: Text(
+          widget.governrate,
+          style: const TextStyle(
+            fontFamily: 'Tajawal',
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.red[900],
+        iconTheme: const IconThemeData(color: Colors.white),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: CustomScrollView(
+          controller: _scrollController,
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: <Widget>[
+            SliverToBoxAdapter(
+              child: Column(
+                children: [
+                  // _buildAdminSearchField(),
+                  const SizedBox(height: 10),
+                  _buildBloodTypeFilter(),
+                  _buildActionButtons(),
+                  const SizedBox(height: 10),
+                ],
+              ),
+            ),
+            BlocBuilder<DonorCubit, DonorState>(
+              builder: (context, state) {
+                if (state.error != null) {
+                  return SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Center(child: Text("Error: ${state.error}")),
+                  );
+                }
+                if (state.donors.isEmpty && state.isLoading) {
+                  return const SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
+                if (state.donors.isEmpty && !state.isLoading) {
+                  return const SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Center(child: Text("لا يوجد متبرعين حتي الان")),
+                  );
+                }
+
+                return _buildSliverDonorList(state);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Widget _buildAdminSearchField() {
+  //   return BlocBuilder<AppCubit, AppState>(
+  //     builder: (context, state) {
+  //       if (state is AppAuthenticated && state.isAdmin) {
+  //         return Padding(
+  //           padding: const EdgeInsets.only(top: 10),
+  //           child: TextField(
+  //             controller: _searchController,
+  //             onChanged: (value) {
+  //               setState(() {
+  //                 _searchQuery = value.trim();
+  //               });
+  //             },
+  //             decoration: InputDecoration(
+  //               isDense: true,
+  //               hintText: "بحث بالرقم أو العنوان",
+  //               hintStyle: const TextStyle(fontFamily: "Tajawal"),
+  //               prefixIcon: Icon(
+  //                 Icons.search,
+  //                 size: 24,
+  //               ),
+  //               border: OutlineInputBorder(
+  //                 borderRadius: BorderRadius.circular(20),
+  //               ),
+  //             ),
+  //           ),
+  //         );
+  //       }
+  //       return const SizedBox.shrink();
+  //     },
+  //   );
+  // }
+
+  Widget _buildActionButtons() {
+    return BlocBuilder<AppCubit, AppState>(
+      builder: (context, state) {
+        final bool isUserInBank = (state is AppAuthenticated) &&
+            (state.userProfile?.governrateBank == widget.governrate);
+
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            if (!isUserInBank)
+              ElevatedButton(
+                onPressed: () {
+                  creatAlertDialog(context, widget.governrate);
                 },
-                child: Align(
-                  alignment: Alignment.bottomRight,
-                  child: Stack(
-                    children: <Widget>[
-                      Image.asset(
-                        "assets/drop.png",
-                        width: 75,
-                        height: 80,
-                      ),
-                      Positioned(
-                        bottom: 18,
-                        right: 24,
-                        child: Icon(
-                          Icons.arrow_back,
-                          color: Colors.white,
-                          size: 28,
-                        ),
-                      ),
-                    ],
-                  ),
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  backgroundColor: Colors.red,
                 ),
-              )),
-          body: Column(
-//              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Container(
-                  height: 120,
-                  child: Wavyyyy(
-                    title: widget.city,
-                    backGroundColor: Colors.white,
-                    leftIcon: null,
-                    onPressedLeft: null,
-                    onPressedRight: null,
-                    directionOfRightIcon: TextDirection.ltr,
-                    rightIcon: null,
-                  )),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      addedToBank == 0
-                          ? Padding(
-                              padding: const EdgeInsets.only(left: 5),
-                              child: ElevatedButton(
-                                child: Container(
-                                  width: 135,
-                                  child: Center(
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 6),
-                                      child: Text(
-                                        'اضف حسابك\nالي بنك الدم',
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          fontFamily: 'Tajawal',
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                onPressed: () {
-                                  creatAlertDialog(context, widget.city);
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20)),
-                                  backgroundColor: Colors.red,
-                                ),
-                              ),
-                            )
-                          : SizedBox(
-                              width: 0,
-                            ),
-                      ElevatedButton(
-                        child: Container(
-                          width: 135,
-                          child: Center(
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 6),
-                              child: Text(
-                                'أضف متبرع\nالي بنك الدم',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: 'Tajawal',
-                                    fontSize: 16),
-                              ),
-                            ),
-                          ),
-                        ),
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              new MaterialPageRoute(
-                                  builder: (context) =>
-                                      AddDonerToBank(widget.city, _scafold)));
-                        },
-                        style: ElevatedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20)),
-                          backgroundColor: Colors.green,
+                child: const SizedBox(
+                  width: 135,
+                  child: Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 6),
+                      child: Text(
+                        'اضف حسابك\nالي بنك الدم',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Tajawal',
                         ),
                       ),
-                    ],
-                  ),
-                  Container(
-                    padding: const EdgeInsets.only(top: 9, right: 10, left: 10),
-                    child: DropdownButtonFormField<String>(
-                      isDense: true,
-                      decoration: InputDecoration(
-                          isDense: true,
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(20.0)),
-                          prefixIcon: Icon(
-                            Icons.local_hospital,
-                            color: Colors.red[900],
-                            size: 24,
-                          )),
-                      validator: (value) =>
-                          value == "حدد فصيلتك" ? 'برجاء اختيار الفصيلة' : null,
-                      items: __fasila.map((String dropDownStringItem) {
-                        return DropdownMenuItem<String>(
-                          value: dropDownStringItem,
-                          child: Center(
-                              child: Text(
-                            dropDownStringItem,
-                            textDirection: TextDirection.ltr,
-                            style: TextStyle(
-                              color: Colors.red[900],
-                              fontSize: 18,
-                              fontFamily: 'Tajawal',
-                            ),
-                          )),
-                        );
-                      }).toList(),
-                      onChanged: (String? newValueSelected) {
-                        // Your code to execute, when a menu item is selected from drop down
-                        if (newValueSelected != null) {
-                          _onDropDownItemSelected(newValueSelected);
-                        }
-                        setTheSearch();
-                      },
-                      initialValue: __currentFasilaSelected,
                     ),
                   ),
-                ],
+                ),
               ),
-              StreamBuilder<QuerySnapshot>(
-                  stream: inetialSearch(),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          Container(
-                            height: 150,
-                            child: Center(
-                              child: CircularProgressIndicator(
-                                backgroundColor: Colors.red[900],
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    }
-                    final usersData = snapshot.data!.docs;
-                    List<Doner> messageBubbles = [];
-                    for (var user in usersData) {
-                      final data = user.data() as Map<String, dynamic>;
-                      final displayName = data["displayName"];
-                      final address = data["address"];
-                      final fasila = data["fasila"];
-                      final phone = data["phone"];
-                      final email = data["email"];
-                      final imageUrl = data["imageUrl"];
-                      final dateOfDonation = data["dateOfDonation"];
-
-                      final messageBubble = Doner(
-                        fasila: fasila,
-                        address: address,
-                        displayName: displayName,
-                        phone: phone,
-                        email: email,
-                        imageUrl: imageUrl,
-                        dateOfDonation: dateOfDonation,
-                      );
-
-                      messageBubbles.add(messageBubble);
-                    }
-                    return Expanded(
-                      child: messageBubbles.length == 0
-                          ? Padding(
-                              padding: const EdgeInsets.only(bottom: 80),
-                              child: Center(
-                                child: Text(
-                                  "لا يوجد متبرعين حتي الان",
-                                  style: TextStyle(
-                                      fontSize: 20, fontFamily: "Tajawal"),
-                                ),
-                              ),
-                            )
-                          : ListView(
-//                  reverse: true,
-                              children: messageBubbles,
-                            ),
-                    );
-                  }),
-            ],
-          ),
-        ),
-      ),
+            if (!isUserInBank) const SizedBox(width: 10),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            AddDonerToBank(widget.governrate))).then((_) {
+                  if (context.mounted) {
+                    context
+                        .read<DonorCubit>()
+                        .fetchDonors(widget.governrate, refresh: true);
+                  }
+                });
+              },
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                backgroundColor: Colors.green,
+              ),
+              child: const SizedBox(
+                width: 135,
+                child: Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 6),
+                    child: Text(
+                      'أضف متبرع\nالي بنك الدم',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Tajawal',
+                          fontSize: 16),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
-}
 
-class Doner extends StatefulWidget {
-  Doner(
-      {this.fasila,
-      this.address,
-      this.displayName,
-      this.phone,
-      this.email,
-      this.imageUrl,
-      this.dateOfDonation});
-
-  final String? fasila;
-  final String? address;
-  final String? displayName;
-  final String? phone;
-  final String? email;
-  final String? imageUrl;
-  final String? dateOfDonation;
-
-  @override
-  _DonerState createState() => _DonerState();
-}
-
-class _DonerState extends State<Doner> {
-  User? _user;
-
-  makeMapForUserInfo() {
-    Map<String, dynamic> userMap = {
-      'displayName': widget.displayName,
-      'email': widget.email,
-      'phone': widget.phone,
-      'fasila': widget.fasila,
-      'address': widget.address,
-      'imageUrl': widget.imageUrl,
-      'dateOfDonation': widget.dateOfDonation
-    };
-    return User.fromMap(userMap);
-  }
-
-  updateInternData() {
-    makeMapForUserInfo();
-    setState(() {
-      var userInfo = makeMapForUserInfo();
-      _user = userInfo;
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    updateInternData();
-
-    return Padding(
-      padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
-      child: Card(
-        elevation: 5,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        color: null,
-        child: Container(
-          child: ListTile(
-            leading: Text(
-              widget.fasila ?? "",
+  Widget _buildBloodTypeFilter() {
+    return Container(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: DropdownButtonFormField<String>(
+        isDense: true,
+        decoration: InputDecoration(
+            isDense: true,
+            border:
+                OutlineInputBorder(borderRadius: BorderRadius.circular(20.0)),
+            prefixIcon: Icon(
+              Icons.local_hospital,
+              color: Colors.red[900],
+              size: 24,
+            )),
+        validator: (value) =>
+            value == "حدد فصيلتك" ? 'برجاء اختيار الفصيلة' : null,
+        items: __fasila.map((String dropDownStringItem) {
+          return DropdownMenuItem<String>(
+            value: dropDownStringItem,
+            child: Center(
+                child: Text(
+              dropDownStringItem,
               textDirection: TextDirection.ltr,
               style: TextStyle(
-                  color: Colors.red[900],
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20),
-            ),
-            onTap: () {
-              Navigator.push(
-                  context,
-                  new MaterialPageRoute(
-                      builder: (context) => new UserProfile(
-                            user: _user!,
-                          )));
-            },
-            title: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Text(
-                    widget.address ?? "",
-                    style: TextStyle(
-                        fontFamily: 'Tajawal',
-//                        fontWeight: FontWeight.bold,
-                        fontSize: 18),
-                  ),
-                  Text(
-                    widget.displayName ?? "",
-                    style: TextStyle(
-                        fontFamily: 'Tajawal',
-                        color: Colors.grey[700],
-                        fontSize: 15),
-                  ),
-                ],
+                color: Colors.red[900],
+                fontSize: 18,
+                fontFamily: 'Tajawal',
               ),
-            ),
-          ),
-        ),
+            )),
+          );
+        }).toList(),
+        onChanged: (String? newValueSelected) {
+          if (newValueSelected != null) {
+            _onDropDownItemSelected(newValueSelected);
+          }
+        },
+        initialValue: context.watch<DonorCubit>().state.bloodType,
       ),
     );
   }
-}
 
-showNotification(msg, context) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Text(
-          "$msg",
-          textAlign: TextAlign.center,
-          style: TextStyle(fontFamily: "Tajawal", fontSize: 18),
+  Widget _buildSliverDonorList(DonorState state) {
+    final usersData = state.donors;
+    List<DonorCard> donorsCards = [];
+    for (var user in usersData) {
+      final data = user.data() as Map<String, dynamic>;
+      final displayName = data["displayName"];
+      final address = data["address"];
+      final governorate = data["governorate"];
+      final fasila = data["fasila"];
+      final phone = data["phone"];
+      final email = data["email"];
+      final dateOfDonation = data["dateOfDonation"];
+
+      final messageBubble = DonorCard(
+        fasila: fasila,
+        address: address,
+        governorate: governorate ?? widget.governrate,
+        displayName: displayName,
+        phone: phone,
+        email: email,
+        dateOfDonation: dateOfDonation,
+        docId: user.id,
+      );
+
+      if (_searchQuery.isNotEmpty) {
+        final appState = context.read<AppCubit>().state;
+        final bool canSearch = appState is AppAuthenticated && appState.isAdmin;
+
+        if (canSearch) {
+          final phoneMatch =
+              phone != null && phone.toString().contains(_searchQuery);
+          final addressMatch = address != null &&
+              address
+                  .toString()
+                  .toLowerCase()
+                  .contains(_searchQuery.toLowerCase());
+
+          if (phoneMatch || addressMatch) {
+            donorsCards.add(messageBubble);
+          }
+        } else {
+          donorsCards.add(messageBubble);
+        }
+      } else {
+        donorsCards.add(messageBubble);
+      }
+    }
+
+    if (donorsCards.isEmpty) {
+      return const SliverToBoxAdapter(
+        child: Padding(
+          padding: EdgeInsets.only(top: 50),
+          child: Center(
+            child: Text(
+              "لا يوجد متبرعين حتي الان",
+              style: TextStyle(fontSize: 20, fontFamily: "Tajawal"),
+            ),
+          ),
         ),
+      );
+    }
+
+    return SliverList(
+      delegate: SliverChildBuilderDelegate(
+        (context, index) {
+          if (index >= donorsCards.length) {
+            return const Padding(
+              padding: EdgeInsets.symmetric(vertical: 20),
+              child: Center(child: CircularProgressIndicator()),
+            );
+          }
+          return donorsCards[index];
+        },
+        childCount: state.hasMore ? donorsCards.length + 1 : donorsCards.length,
       ),
-      backgroundColor: Colors.black87.withOpacity(.8),
-      duration: Duration(seconds: 4),
-    ),
-  );
+    );
+  }
 }
