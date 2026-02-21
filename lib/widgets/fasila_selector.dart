@@ -7,6 +7,7 @@ class FasilaSelector extends StatelessWidget {
   final String? Function(String?)? validator;
   final List<String>? customFasilaList;
   final String? hintText;
+  final Color? iconColor;
 
   const FasilaSelector({
     super.key,
@@ -15,6 +16,7 @@ class FasilaSelector extends StatelessWidget {
     this.validator,
     this.customFasilaList,
     this.hintText,
+    this.iconColor,
   });
 
   @override
@@ -45,12 +47,12 @@ class FasilaSelector extends StatelessWidget {
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20.0),
         ),
-        prefixIcon: const Icon(
+        prefixIcon: Icon(
           Icons.local_hospital_outlined,
-          color: Colors.black,
+          color: iconColor ?? Colors.black,
           size: 24,
         ),
-        labelStyle: const TextStyle(fontFamily: "Tajawal", color: Colors.black),
+        labelStyle: TextStyle(fontFamily: "Tajawal", color: Colors.black),
         contentPadding: const EdgeInsets.symmetric(vertical: 13.5),
       ),
       validator: validator,

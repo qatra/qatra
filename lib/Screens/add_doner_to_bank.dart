@@ -152,6 +152,7 @@ class AddDonerToBankState extends State<AddDonerToBank> {
                       validator: (value) =>
                           value == null ? 'برجاء اختيار الفصيلة' : null,
                       hintText: 'فصيلة الدم',
+                      iconColor: Colors.red[900],
                     ),
                     SizedBox(
                       height: 10,
@@ -181,12 +182,15 @@ class AddDonerToBankState extends State<AddDonerToBank> {
                           hintStyle: TextStyle(
                             fontFamily: 'Tajawal',
                             fontSize: 15,
-                            color: Colors.grey,
+                            color: Colors.black54,
                           ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(20.0),
                           ),
-                          prefixIcon: Icon(Icons.account_circle)),
+                          prefixIcon: Icon(
+                            Icons.account_circle,
+                            color: Colors.red[900],
+                          )),
                     ),
                     SizedBox(
                       height: 4,
@@ -221,12 +225,13 @@ class AddDonerToBankState extends State<AddDonerToBank> {
                             hintStyle: TextStyle(
                               fontFamily: 'Tajawal',
                               fontSize: 15,
-                              color: Colors.grey,
+                              color: Colors.black54,
                             ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20.0),
                             ),
-                            prefixIcon: Icon(Icons.phone_android)),
+                            prefixIcon: Icon(Icons.phone_android,
+                                color: Colors.red[900])),
                       ),
                     ),
                     SizedBox(
@@ -243,7 +248,7 @@ class AddDonerToBankState extends State<AddDonerToBank> {
                           hintStyle: TextStyle(
                             fontFamily: 'Tajawal',
                             fontSize: 15,
-                            color: Colors.grey,
+                            color: Colors.black54,
                           ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(20.0),
@@ -252,7 +257,8 @@ class AddDonerToBankState extends State<AddDonerToBank> {
                             borderRadius: BorderRadius.circular(20.0),
                             borderSide: BorderSide(color: Colors.grey),
                           ),
-                          prefixIcon: Icon(Icons.location_city),
+                          prefixIcon:
+                              Icon(Icons.location_city, color: Colors.red[900]),
                         ),
                       ),
                     ),
@@ -282,12 +288,13 @@ class AddDonerToBankState extends State<AddDonerToBank> {
                             });
                           },
                           decoration: InputDecoration(
-                            prefixIcon: Icon(Icons.add_location),
+                            prefixIcon: Icon(Icons.add_location,
+                                color: Colors.red[900]),
                             hintText: 'المدينة',
                             hintStyle: TextStyle(
                               fontFamily: 'Tajawal',
                               fontSize: 15,
-                              color: Colors.grey,
+                              color: Colors.black54,
                             ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20.0),

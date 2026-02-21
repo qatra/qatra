@@ -82,7 +82,11 @@ class MyProfilePageState extends State<MyProfilePage> {
           ? Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (value == null) Text(isOptional ? '(اختياري)' : ''),
+                if (value == null)
+                  Padding(
+                    padding: const EdgeInsetsDirectional.only(end: 8),
+                    child: Text(isOptional ? '(اختياري)' : ''),
+                  ),
                 IconButton(
                   icon: const Icon(Icons.edit, color: Colors.blue),
                   onPressed: onEdit,

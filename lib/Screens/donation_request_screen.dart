@@ -106,6 +106,7 @@ class DonationRequestScreenState extends State<DonationRequestScreen> {
                     onFasilaSelected: (value) {
                       _onDropDownItemSelected(value);
                     },
+                    iconColor: Colors.red[900],
                     hintText: 'فصيلة الدم',
                     validator: (val) {
                       if (val == null || val.isEmpty) {
