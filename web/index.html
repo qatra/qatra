@@ -38,6 +38,36 @@
 </head>
 
 <body>
+  <style>
+    body {
+      background-color: #FFFFFF;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    #splash {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #FFFFFF;
+      z-index: 9999;
+    }
+
+    #splash img {
+      width: 150px;
+      height: 150px;
+    }
+  </style>
+
+  <div id="splash">
+    <img src="icons/Icon-192.png" alt="Splash Logo" />
+  </div>
+
   <script src="flutter_bootstrap.js" async></script>
 </body>
 
