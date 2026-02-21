@@ -48,7 +48,6 @@ class PostBubble extends StatefulWidget {
 
 class PostBubbleState extends State<PostBubble> {
   final FirebaseRepository _firebaseRepo = FirebaseRepository.instance;
-  final GlobalKey _boundaryKey = GlobalKey();
   bool isExpanded = false;
   changeDateFormat() {
     String formattedDate = intl.DateFormat.yMMMMd('en_US').format(widget.date);
@@ -103,55 +102,56 @@ class PostBubbleState extends State<PostBubble> {
         child: BlocBuilder<AppCubit, AppState>(builder: (context, state) {
           final bool isOwner = widget.postSender == widget.loggedInUser?.email;
           final bool isAdmin = state is AppAuthenticated && state.isAdmin;
-          return RepaintBoundary(
-            key: _boundaryKey,
-            child: Stack(
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                      boxShadow: [
-                        BoxShadow(
-                            color: Colors.black.withValues(alpha: .3),
-                            offset: Offset(0, 0),
-                            blurRadius: 6)
-                      ],
-                      borderRadius: BorderRadius.circular(25),
-                      color: changeColor()),
-                  width: double.infinity,
-                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 13),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: <Widget>[
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Text(
-                              fasilaText,
-                              textDirection: TextDirection.ltr,
-                              style: TextStyle(
-                                fontFamily: 'Tajawal',
-                                color: Colors.red[900],
-                                fontWeight: FontWeight.bold,
-                                fontSize: 25,
-                              ),
-                              textAlign: TextAlign.center,
+          return Stack(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.black.withValues(alpha: .3),
+                          offset: Offset(0, 0),
+                          blurRadius: 6)
+                    ],
+                    borderRadius: BorderRadius.circular(25),
+                    color: changeColor()),
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: <Widget>[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Text(
+                            fasilaText,
+                            textDirection: TextDirection.ltr,
+                            style: TextStyle(
+                              fontFamily: 'Tajawal',
+                              color: Colors.red[900],
+                              fontWeight: FontWeight.bold,
+                              fontSize: 23,
                             ),
-                          ],
-                        ),
-                        SizedBox(
-                          height: 5,
-                        ),
-                        Row(
-                          children: <Widget>[
-                            Icon(
-                              Icons.location_on,
-                              color: Colors.red[700],
-                              size: 20,
-                            ),
-                            SizedBox(
-                              width: 5,
-                            ),
-                            Flexible(
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      Row(
+                        children: <Widget>[
+                          Icon(
+                            Icons.location_on,
+                            color: Colors.red[700],
+                            size: 20,
+                          ),
+                          SizedBox(
+                            width: 5,
+                          ),
+                          Flexible(
+                            child: Padding(
+                              padding:
+                                  const EdgeInsetsDirectional.only(end: 30),
                               child: Text(
                                   "${widget.government} -- ${widget.city}",
                                   style: TextStyle(
@@ -161,42 +161,46 @@ class PostBubbleState extends State<PostBubble> {
                                       fontSize: 16,
                                       letterSpacing: .3)),
                             ),
-                          ],
-                        ),
-                        SizedBox(
-                          height: 3,
-                        ),
-                        Row(
-                          children: <Widget>[
-                            Icon(
-                              Icons.local_hospital,
-                              color: Colors.red[700],
-                              size: 20,
-                            ),
-                            SizedBox(
-                              width: 5,
-                            ),
-                            Flexible(
-                              child: Row(
-                                children: <Widget>[
-                                  Flexible(
-                                    child: RichText(
-                                      text: TextSpan(children: <TextSpan>[
-                                        TextSpan(
-                                          text: 'اسم المستشفي :',
-                                          style: TextStyle(
-                                              fontFamily: 'Tajawal',
-                                              color: Colors.grey[800],
-                                              fontSize: 14,
-                                              letterSpacing: .3),
-                                        ),
-                                      ]),
-                                    ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 3,
+                      ),
+                      Row(
+                        children: <Widget>[
+                          Icon(
+                            Icons.local_hospital,
+                            color: Colors.red[700],
+                            size: 20,
+                          ),
+                          SizedBox(
+                            width: 5,
+                          ),
+                          Flexible(
+                            child: Row(
+                              children: <Widget>[
+                                Flexible(
+                                  child: RichText(
+                                    text: TextSpan(children: <TextSpan>[
+                                      TextSpan(
+                                        text: 'اسم المستشفي :',
+                                        style: TextStyle(
+                                            fontFamily: 'Tajawal',
+                                            color: Colors.grey[800],
+                                            fontSize: 14,
+                                            letterSpacing: .3),
+                                      ),
+                                    ]),
                                   ),
-                                  SizedBox(
-                                    width: 2,
-                                  ),
-                                  Flexible(
+                                ),
+                                SizedBox(
+                                  width: 2,
+                                ),
+                                Flexible(
+                                  child: Padding(
+                                    padding: const EdgeInsetsDirectional.only(
+                                        end: 30),
                                     child: RichText(
                                       text: TextSpan(
                                         text: '${widget.hospital}',
@@ -207,26 +211,30 @@ class PostBubbleState extends State<PostBubble> {
                                             letterSpacing: .3),
                                       ),
                                     ),
-                                  )
-                                ],
-                              ),
+                                  ),
+                                )
+                              ],
                             ),
-                          ],
-                        ),
-                        SizedBox(
-                          height: 3,
-                        ),
-                        Row(
-                          children: <Widget>[
-                            Icon(
-                              Icons.account_circle,
-                              color: Colors.red[700],
-                              size: 20,
-                            ),
-                            SizedBox(
-                              width: 5,
-                            ),
-                            Flexible(
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 3,
+                      ),
+                      Row(
+                        children: <Widget>[
+                          Icon(
+                            Icons.account_circle,
+                            color: Colors.red[700],
+                            size: 20,
+                          ),
+                          SizedBox(
+                            width: 5,
+                          ),
+                          Flexible(
+                            child: Padding(
+                              padding:
+                                  const EdgeInsetsDirectional.only(end: 30),
                               child: RichText(
                                 text: TextSpan(children: <TextSpan>[
                                   TextSpan(
@@ -247,242 +255,245 @@ class PostBubbleState extends State<PostBubble> {
                                   ),
                                 ]),
                               ),
-                            )
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
+                            ),
+                          )
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: <Widget>[
+                          Container(
+                            padding: EdgeInsets.only(top: 1),
+                            child: Text(
+                              changeDateFormat(),
+                              style: TextStyle(fontSize: 14),
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (isExpanded)
+                        Column(
                           children: <Widget>[
                             Container(
-                              padding: EdgeInsets.only(top: 1),
-                              child: Text(
-                                changeDateFormat(),
-                                style: TextStyle(fontSize: 14),
-                              ),
-                            ),
-                          ],
-                        ),
-                        if (isExpanded)
-                          Column(
-                            children: <Widget>[
-                              Container(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Column(
-                                    children: <Widget>[
-                                      widget.postColor == true
-                                          ? Row(
-                                              children: <Widget>[
-                                                Icon(
-                                                  Icons.phone,
-                                                  color: Colors.lightBlueAccent,
-                                                  size: 20,
-                                                ),
-                                                SizedBox(
-                                                  width: 5,
-                                                ),
-                                                Flexible(
-                                                  child: SelectableText(
-                                                      "${widget.phone}",
-                                                      onTap: () {
-                                                    if (widget.phone != null &&
-                                                        widget.phone!
-                                                            .trim()
-                                                            .isNotEmpty) {
-                                                      makePhoneCall(
-                                                          widget.phone!);
-                                                    }
-                                                  },
-                                                      style: TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          color: Colors
-                                                              .lightBlueAccent,
-                                                          fontSize: 16,
-                                                          letterSpacing: .3)),
-                                                ),
-                                              ],
-                                            )
-                                          : Row(
-                                              children: <Widget>[
-                                                Icon(
-                                                  Icons.phone,
-                                                  color: Colors.lightBlueAccent,
-                                                  size: 20,
-                                                ),
-                                                SizedBox(
-                                                  width: 5,
-                                                ),
-                                                Flexible(
-                                                  child: Text("-----------",
-                                                      style: TextStyle(
-                                                          color: Colors
-                                                              .lightBlueAccent,
-                                                          fontSize: 16,
-                                                          letterSpacing: .3)),
-                                                ),
-                                              ],
-                                            ),
-                                      SizedBox(
-                                        height: 3,
-                                      ),
-                                      Container(
-                                        height: 1,
-                                        color: Colors.grey[300],
-                                      ),
-                                      SizedBox(
-                                        height: 3,
-                                      ),
-                                      Row(
-                                        children: <Widget>[
-                                          Icon(
-                                            Icons.accessibility_new,
-                                            color: Colors.red[700],
-                                            size: 20,
+                                padding: const EdgeInsets.all(16.0),
+                                child: Column(
+                                  children: <Widget>[
+                                    widget.postColor == true
+                                        ? Row(
+                                            children: <Widget>[
+                                              Icon(
+                                                Icons.phone,
+                                                color: Colors.lightBlueAccent,
+                                                size: 20,
+                                              ),
+                                              SizedBox(
+                                                width: 5,
+                                              ),
+                                              Flexible(
+                                                child: SelectableText(
+                                                    "${widget.phone}",
+                                                    onTap: () {
+                                                  if (widget.phone != null &&
+                                                      widget.phone!
+                                                          .trim()
+                                                          .isNotEmpty) {
+                                                    makePhoneCall(
+                                                        widget.phone!);
+                                                  }
+                                                },
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: Colors
+                                                            .lightBlueAccent,
+                                                        fontSize: 16,
+                                                        letterSpacing: .3)),
+                                              ),
+                                            ],
+                                          )
+                                        : Row(
+                                            children: <Widget>[
+                                              Icon(
+                                                Icons.phone,
+                                                color: Colors.lightBlueAccent,
+                                                size: 20,
+                                              ),
+                                              SizedBox(
+                                                width: 5,
+                                              ),
+                                              Flexible(
+                                                child: Text("-----------",
+                                                    style: TextStyle(
+                                                        color: Colors
+                                                            .lightBlueAccent,
+                                                        fontSize: 16,
+                                                        letterSpacing: .3)),
+                                              ),
+                                            ],
                                           ),
-                                          SizedBox(
-                                            width: 5,
+                                    SizedBox(
+                                      height: 3,
+                                    ),
+                                    Container(
+                                      height: 1,
+                                      color: Colors.grey[300],
+                                    ),
+                                    SizedBox(
+                                      height: 3,
+                                    ),
+                                    Row(
+                                      children: <Widget>[
+                                        Icon(
+                                          Icons.accessibility_new,
+                                          color: Colors.red[700],
+                                          size: 20,
+                                        ),
+                                        SizedBox(
+                                          width: 5,
+                                        ),
+                                        Flexible(
+                                          child: RichText(
+                                            text: TextSpan(children: <TextSpan>[
+                                              TextSpan(
+                                                text: 'عدد الأكياس :',
+                                                style: TextStyle(
+                                                    fontFamily: 'Tajawal',
+                                                    color: Colors.grey[800],
+                                                    fontSize: 14,
+                                                    letterSpacing: .3),
+                                              ),
+                                              TextSpan(
+                                                text: ' ${widget.akias}',
+                                                style: TextStyle(
+                                                    fontFamily: 'Tajawal',
+                                                    color: Colors.red[500],
+                                                    fontSize: 16,
+                                                    letterSpacing: .3),
+                                              ),
+                                            ]),
                                           ),
-                                          Flexible(
-                                            child: RichText(
-                                              text:
-                                                  TextSpan(children: <TextSpan>[
-                                                TextSpan(
-                                                  text: 'عدد الأكياس :',
-                                                  style: TextStyle(
-                                                      fontFamily: 'Tajawal',
-                                                      color: Colors.grey[800],
-                                                      fontSize: 14,
-                                                      letterSpacing: .3),
-                                                ),
-                                                TextSpan(
-                                                  text: ' ${widget.akias}',
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      height: 3,
+                                    ),
+                                    Container(
+                                      height: 1,
+                                      color: Colors.grey[300],
+                                    ),
+                                    SizedBox(
+                                      height: 3,
+                                    ),
+                                    Row(
+                                      children: <Widget>[
+                                        Icon(
+                                          Icons.content_paste,
+                                          color: Colors.red[700],
+                                          size: 20,
+                                        ),
+                                        SizedBox(
+                                          width: 5,
+                                        ),
+                                        Flexible(
+                                          child: Row(
+                                            children: <Widget>[
+                                              RichText(
+                                                text: TextSpan(
+                                                    children: <TextSpan>[
+                                                      TextSpan(
+                                                        text: 'ملاحظة :',
+                                                        style: TextStyle(
+                                                            fontFamily:
+                                                                'Tajawal',
+                                                            color: Colors
+                                                                .grey[800],
+                                                            fontSize: 14,
+                                                            letterSpacing: .3),
+                                                      ),
+                                                    ]),
+                                              ),
+                                              SizedBox(
+                                                width: 2,
+                                              ),
+                                              Flexible(
+                                                  child: RichText(
+                                                text: TextSpan(
+                                                  text: '${widget.note}',
                                                   style: TextStyle(
                                                       fontFamily: 'Tajawal',
                                                       color: Colors.red[500],
                                                       fontSize: 16,
                                                       letterSpacing: .3),
                                                 ),
-                                              ]),
-                                            ),
+                                              ))
+                                            ],
                                           ),
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        height: 3,
-                                      ),
-                                      Container(
-                                        height: 1,
-                                        color: Colors.grey[300],
-                                      ),
-                                      SizedBox(
-                                        height: 3,
-                                      ),
-                                      Row(
-                                        children: <Widget>[
-                                          Icon(
-                                            Icons.content_paste,
-                                            color: Colors.red[700],
-                                            size: 20,
-                                          ),
-                                          SizedBox(
-                                            width: 5,
-                                          ),
-                                          Flexible(
-                                            child: Row(
-                                              children: <Widget>[
-                                                RichText(
-                                                  text: TextSpan(
-                                                      children: <TextSpan>[
-                                                        TextSpan(
-                                                          text: 'ملاحظة :',
-                                                          style: TextStyle(
-                                                              fontFamily:
-                                                                  'Tajawal',
-                                                              color: Colors
-                                                                  .grey[800],
-                                                              fontSize: 14,
-                                                              letterSpacing:
-                                                                  .3),
-                                                        ),
-                                                      ]),
-                                                ),
-                                                SizedBox(
-                                                  width: 2,
-                                                ),
-                                                Flexible(
-                                                    child: RichText(
-                                                  text: TextSpan(
-                                                    text: '${widget.note}',
-                                                    style: TextStyle(
-                                                        fontFamily: 'Tajawal',
-                                                        color: Colors.red[500],
-                                                        fontSize: 16,
-                                                        letterSpacing: .3),
-                                                  ),
-                                                ))
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  )),
-                            ],
-                          ),
-                        AnimatedRotation(
-                          turns: isExpanded ? 0.5 : 0.0,
-                          // 0.5 turn = 180 degrees
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeInOut,
-                          child: const Icon(
-                            Icons.keyboard_arrow_down,
-                            size: 28,
-                          ),
-                        )
-                      ],
-                    ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                )),
+                          ],
+                        ),
+                      AnimatedRotation(
+                        turns: isExpanded ? 0.5 : 0.0,
+                        // 0.5 turn = 180 degrees
+                        duration: const Duration(milliseconds: 300),
+
+                        curve: Curves.easeInOut,
+                        child: const Icon(
+                          Icons.keyboard_arrow_down,
+                          size: 24,
+                        ),
+                      )
+                    ],
                   ),
                 ),
-                if (isOwner || isAdmin) ...[
-                  Positioned(
-                    left: 0,
-                    top: 20,
-                    child: MaterialButton(
-                        onPressed: () {
-                          editTlabState(context);
-                        },
-                        color: Colors.red[700],
-                        shape: const CircleBorder(),
-                        child: const Padding(
-                          padding: EdgeInsets.all(3.0),
-                          child: Icon(
-                            Icons.edit,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                        )),
-                  ),
-                  Positioned(
-                    left: 0,
-                    top: 60,
-                    child: MaterialButton(
-                        onPressed: () {
-                          deleteTlab(context);
-                        },
-                        color: Colors.red[700],
-                        shape: const CircleBorder(),
-                        child: const Padding(
-                          padding: EdgeInsets.all(3.0),
-                          child: Icon(
-                            Icons.delete,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                        )),
-                  ),
-                ],
+              ),
+              if (isOwner || isAdmin) ...[
+                Positioned(
+                  left: 10,
+                  top: 45,
+                  child: InkWell(
+                      onTap: () {
+                        editTlabState(context);
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(3.0),
+                        decoration: BoxDecoration(
+                          color: Colors.red[700],
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.edit,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      )),
+                ),
+                Positioned(
+                  left: 10,
+                  top: 82,
+                  child: InkWell(
+                      onTap: () {
+                        deleteTlab(context);
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(3.0),
+                        decoration: BoxDecoration(
+                          color: Colors.red[700],
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.delete,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      )),
+                ),
               ],
-            ),
+            ],
           );
         }),
       ),
