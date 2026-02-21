@@ -8,6 +8,9 @@ import 'my_profile_page.dart';
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
+  /// Allows external components to change the active tab.
+  static final ValueNotifier<int> changeTabNotifier = ValueNotifier<int>(0);
+
   @override
   State<MainScreen> createState() => _MainScreenState();
 }
@@ -19,11 +22,31 @@ class _MainScreenState extends State<MainScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(
+        initialIndex: MainScreen.changeTabNotifier.value,
+        length: 3,
+        vsync: this);
+
+    MainScreen.changeTabNotifier.addListener(_onExternalTabChange);
+    _tabController.addListener(_onInternalTabChange);
+  }
+
+  void _onExternalTabChange() {
+    if (_tabController.index != MainScreen.changeTabNotifier.value) {
+      _tabController.index = MainScreen.changeTabNotifier.value;
+    }
+  }
+
+  void _onInternalTabChange() {
+    if (MainScreen.changeTabNotifier.value != _tabController.index) {
+      MainScreen.changeTabNotifier.value = _tabController.index;
+    }
   }
 
   @override
   void dispose() {
+    MainScreen.changeTabNotifier.removeListener(_onExternalTabChange);
+    _tabController.removeListener(_onInternalTabChange);
     _tabController.dispose();
     super.dispose();
   }

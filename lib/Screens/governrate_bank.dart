@@ -11,7 +11,7 @@ import '../bloc/app_bloc.dart';
 import '../bloc/app_state.dart';
 import '../user_model.dart';
 import 'add_doner_to_bank.dart';
-import 'my_profile_page.dart';
+import 'main_screen.dart';
 import '../repositories/firebase_repository.dart';
 
 final FirebaseRepository _firebaseRepo = FirebaseRepository.instance;
@@ -351,11 +351,9 @@ class GovernrateBankState extends State<GovernrateBank> {
                     if (!_isProfileComplete(currentUser)) {
                       showNotification("يجب عليك إكمال بياناتك أولاً", context);
                       if (context.mounted) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const MyProfilePage()),
-                        );
+                        Navigator.popUntil(context, (route) => route.isFirst);
+                        MainScreen.changeTabNotifier.value =
+                            2; // MyProfilePage is at index 2
                       }
                     } else {
                       creatAlertDialog(context, widget.governrate);
