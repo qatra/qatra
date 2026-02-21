@@ -82,7 +82,7 @@ class _GovernrateSearchListState extends State<GovernrateSearchList> {
                   itemBuilder: (context, index) {
                     final city = _filteredCities[index];
                     return Card(
-                      elevation: 2,
+                      elevation: 5,
                       margin: EdgeInsets.zero,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15),
@@ -98,11 +98,6 @@ class _GovernrateSearchListState extends State<GovernrateSearchList> {
                               fontSize: 18,
                             ),
                           ),
-                        ),
-                        trailing: Icon(
-                          Icons.arrow_forward_ios,
-                          size: 16,
-                          color: Colors.red[900],
                         ),
                       ),
                     );
