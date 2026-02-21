@@ -30,12 +30,14 @@ class FasilaSelector extends StatelessWidget {
       isExpanded: true,
       hint: hintText != null
           ? Center(
-              child: Text(hintText!,
-                  style: const TextStyle(
-                    fontFamily: "Tajawal",
-                    color: Colors.grey,
-                    fontSize: 15.0,
-                  )),
+              child: Text(
+                hintText!,
+                style: const TextStyle(
+                  fontFamily: 'Tajawal',
+                  fontSize: 15,
+                  color: Colors.black54,
+                ),
+              ),
             )
           : null,
       decoration: InputDecoration(

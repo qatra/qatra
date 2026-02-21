@@ -4,6 +4,7 @@ import 'city_search_list.dart';
 class GovernorateSelector extends StatelessWidget {
   final String? selectedGovernorate;
   final bool isShowIcon;
+  final Color? iconColor;
   final Function(String) onGovernorateSelected;
   final String? Function(String?)? validator;
 
@@ -13,6 +14,7 @@ class GovernorateSelector extends StatelessWidget {
     required this.selectedGovernorate,
     required this.onGovernorateSelected,
     this.validator,
+    this.iconColor,
   });
 
   @override
@@ -31,12 +33,13 @@ class GovernorateSelector extends StatelessWidget {
           borderRadius: BorderRadius.circular(20.0),
         ),
         prefixIcon: isShowIcon
-            ? Icon(Icons.location_city, color: Colors.red[900])
+            ? Icon(Icons.location_city, color: iconColor ?? Colors.red[900])
             : null,
         hintText: selectedGovernorate ?? 'اختر المحافظة',
-        hintStyle: const TextStyle(
-          color: Colors.grey,
-          fontSize: 15.0,
+        hintStyle: TextStyle(
+          fontFamily: 'Tajawal',
+          fontSize: 15,
+          color: Colors.black54,
         ),
       ),
       controller: TextEditingController(text: selectedGovernorate),

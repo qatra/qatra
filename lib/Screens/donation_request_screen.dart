@@ -132,11 +132,10 @@ class DonationRequestScreenState extends State<DonationRequestScreen> {
                     decoration: InputDecoration(
                       hintText: 'الاسم',
                       prefixIcon: Icon(Icons.person, color: Colors.red[900]),
-                      labelStyle: const TextStyle(
-                          fontFamily: 'Tajawal', color: Colors.black),
                       hintStyle: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 15.0,
+                        fontFamily: 'Tajawal',
+                        fontSize: 15,
+                        color: Colors.black54,
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20.0),
@@ -187,8 +186,9 @@ class DonationRequestScreenState extends State<DonationRequestScreen> {
                         fontFamily: 'Tajawal',
                       ),
                       hintStyle: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 15.0,
+                        fontFamily: 'Tajawal',
+                        fontSize: 15,
+                        color: Colors.black54,
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20.0),
@@ -214,12 +214,10 @@ class DonationRequestScreenState extends State<DonationRequestScreen> {
                       hintText: 'اسم المستشفي',
                       prefixIcon:
                           Icon(Icons.local_hospital, color: Colors.red[900]),
-                      labelStyle: const TextStyle(
-                        fontFamily: 'Tajawal',
-                      ),
                       hintStyle: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 15.0,
+                        fontFamily: 'Tajawal',
+                        fontSize: 15,
+                        color: Colors.black54,
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20.0),
@@ -249,12 +247,10 @@ class DonationRequestScreenState extends State<DonationRequestScreen> {
                     decoration: InputDecoration(
                       hintText: 'رقم المرافق',
                       prefixIcon: Icon(Icons.phone, color: Colors.red[900]),
-                      labelStyle: const TextStyle(
-                        fontFamily: 'Tajawal',
-                      ),
                       hintStyle: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 15.0,
+                        fontFamily: 'Tajawal',
+                        fontSize: 15,
+                        color: Colors.black54,
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20.0),
@@ -280,12 +276,10 @@ class DonationRequestScreenState extends State<DonationRequestScreen> {
                     decoration: InputDecoration(
                       hintText: 'عدد الأكياس',
                       prefixIcon: Icon(Icons.bloodtype, color: Colors.red[900]),
-                      labelStyle: const TextStyle(
-                        fontFamily: 'Tajawal',
-                      ),
                       hintStyle: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 15.0,
+                        fontFamily: 'Tajawal',
+                        fontSize: 15,
+                        color: Colors.black54,
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20.0),
@@ -311,12 +305,10 @@ class DonationRequestScreenState extends State<DonationRequestScreen> {
                     decoration: InputDecoration(
                       hintText: 'ملاحظات',
                       prefixIcon: Icon(Icons.note, color: Colors.red[900]),
-                      labelStyle: const TextStyle(
-                        fontFamily: 'Tajawal',
-                      ),
                       hintStyle: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 15.0,
+                        fontFamily: 'Tajawal',
+                        fontSize: 15,
+                        color: Colors.black54,
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20.0),

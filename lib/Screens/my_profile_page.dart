@@ -53,7 +53,8 @@ class MyProfilePageState extends State<MyProfilePage> {
   Widget _buildProfileTile({
     required IconData icon,
     required String title,
-    required String value,
+    String? value,
+    bool isOptional = false,
     VoidCallback? onEdit,
     TextDirection valueDirection = TextDirection.rtl,
   }) {
@@ -69,7 +70,7 @@ class MyProfilePageState extends State<MyProfilePage> {
             fontFamily: 'Tajawal', color: Colors.black, fontSize: 15),
       ),
       subtitle: Text(
-        value,
+        value ?? '',
         textDirection: valueDirection,
         style: TextStyle(
           color: Colors.red[900],
@@ -78,9 +79,15 @@ class MyProfilePageState extends State<MyProfilePage> {
         ),
       ),
       trailing: onEdit != null
-          ? IconButton(
-              icon: const Icon(Icons.edit, color: Colors.blue),
-              onPressed: onEdit,
+          ? Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (value == null) Text(isOptional ? '(اختياري)' : ''),
+                IconButton(
+                  icon: const Icon(Icons.edit, color: Colors.blue),
+                  onPressed: onEdit,
+                ),
+              ],
             )
           : null,
     );
@@ -91,21 +98,21 @@ class MyProfilePageState extends State<MyProfilePage> {
     return BlocBuilder<AppCubit, AppState>(
       builder: (context, state) {
         User? user;
-        String name = "---";
-        String phone = "---";
-        String address = "---";
-        String governorate = "---";
-        String fasila = "---";
-        String dateOfDonation = "---";
+        String? name;
+        String? phone;
+        String? address;
+        String? governorate;
+        String? fasila;
+        String? dateOfDonation;
 
         if (state is AppAuthenticated) {
           user = state.userProfile;
-          name = user?.displayName ?? "---";
-          phone = user?.phone ?? "---";
-          address = user?.address ?? "---";
-          governorate = user?.governorate ?? "---";
-          fasila = user?.fasila ?? "---";
-          dateOfDonation = user?.dateOfDonation ?? "---";
+          name = user?.displayName;
+          phone = user?.phone;
+          address = user?.address;
+          governorate = user?.governorate;
+          fasila = user?.fasila;
+          dateOfDonation = user?.dateOfDonation;
         }
 
         return Directionality(
@@ -164,13 +171,14 @@ class MyProfilePageState extends State<MyProfilePage> {
                               icon: Icons.calendar_today,
                               title: "موعد اخر تبرع :",
                               value: dateOfDonation,
+                              isOptional: true,
                               onEdit: () => editDateOfDonation(context),
                             ),
                             Divider(),
                             _buildProfileTile(
                               icon: Icons.email,
                               title: "البريد الالكتروني :",
-                              value: user?.email ?? "---",
+                              value: user?.email,
                             ),
                             if (user?.registeredBanks != null &&
                                 user!.registeredBanks!.isNotEmpty) ...[

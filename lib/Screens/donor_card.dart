@@ -91,7 +91,7 @@ class DonorCardState extends State<DonorCard> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Text(
-                _buildAddressDisplay(),
+                widget.address ?? '',
                 style: TextStyle(fontFamily: 'Tajawal', fontSize: 18),
               ),
               Text(
@@ -106,17 +106,5 @@ class DonorCardState extends State<DonorCard> {
         ),
       ),
     );
-  }
-
-  String _buildAddressDisplay() {
-    final gov = widget.governorate;
-    final addr = widget.address;
-    if (gov != null && gov.isNotEmpty) {
-      if (addr != null && addr.isNotEmpty) {
-        return '$gov - $addr';
-      }
-      return gov;
-    }
-    return addr ?? "";
   }
 }

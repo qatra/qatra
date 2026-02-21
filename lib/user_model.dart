@@ -1,6 +1,6 @@
 class User {
   String? displayName;
-  String? email;
+  String email;
   String? uid;
   String? phone;
   String? fasila;
@@ -13,7 +13,7 @@ class User {
 
   User(
       {this.displayName,
-      this.email,
+      required this.email,
       this.uid,
       this.phone,
       this.fasila,

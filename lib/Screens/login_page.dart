@@ -92,7 +92,7 @@ class LoginPageState extends State<LoginPage> {
       }
     } catch (e) {
       debugPrint(e.toString());
-      showNotification(e.toString(), context);
+      // showNotification(e.toString(), context);
     } finally {
       setState(() {
         showSpinner = false;

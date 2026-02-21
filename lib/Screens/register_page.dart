@@ -1,7 +1,11 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:icandoit/Screens/login_page.dart';
+import 'package:icandoit/bloc/app_bloc.dart';
 import 'package:location/location.dart' as lo;
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import '../repositories/firebase_repository.dart';
@@ -16,10 +20,11 @@ final FirebaseRepository _firebaseRepo = FirebaseRepository.instance;
 User? _user;
 
 class RegisterPage extends StatefulWidget {
-  final String? emailFromGoogle;
-  final String? uidFromGoogle;
+  final String emailFromGoogle;
+  final String uidFromGoogle;
 
-  const RegisterPage({super.key, this.emailFromGoogle, this.uidFromGoogle});
+  const RegisterPage(
+      {super.key, required this.emailFromGoogle, required this.uidFromGoogle});
 
   @override
   RegisterPageState createState() => RegisterPageState();
@@ -31,7 +36,6 @@ class RegisterPageState extends State<RegisterPage> {
   final TextEditingController _addressController = TextEditingController();
 
   String? name;
-  String? email;
   String? password;
   String? confirmPassword;
   String? phoneNumber;
@@ -43,15 +47,6 @@ class RegisterPageState extends State<RegisterPage> {
   bool showSpinner = false;
 
   final _formKey = GlobalKey<FormState>();
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.emailFromGoogle != null) {
-      _emailController.text = widget.emailFromGoogle!;
-      email = widget.emailFromGoogle;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -113,8 +108,8 @@ class RegisterPageState extends State<RegisterPage> {
                             Container(
                               padding: EdgeInsets.only(top: 17),
                               child: TextFormField(
-                                readOnly: widget.emailFromGoogle != null,
-                                enabled: widget.emailFromGoogle == null,
+                                readOnly: true,
+                                // enabled: widget.emailFromGoogle == null,
                                 validator: (text) {
                                   if (text == null || text.isEmpty) {
                                     return "برجاء كتابة البريد الالكتروني";
@@ -137,11 +132,11 @@ class RegisterPageState extends State<RegisterPage> {
                                 keyboardType: TextInputType.emailAddress,
                                 textAlign: TextAlign.center,
                                 controller: _emailController,
-                                onChanged: (text) {
-                                  setState(() {
-                                    email = text;
-                                  });
-                                },
+                                // onChanged: (text) {
+                                //   setState(() {
+                                //     email = text;
+                                //   });
+                                // },
                                 decoration: InputDecoration(
                                     hintText: 'البريد الالكتروني',
                                     hintStyle: TextStyle(
@@ -296,18 +291,6 @@ class RegisterPageState extends State<RegisterPage> {
                                     height: 37,
                                     child: ElevatedButton(
                                       onPressed: () async {
-                                        // Fast registration: strictly email check if not from Google
-                                        if (widget.emailFromGoogle == null) {
-                                          if (email == null ||
-                                              email!.isEmpty ||
-                                              !email!.contains("@") ||
-                                              !email!.contains(".")) {
-                                            showNotification(
-                                                "برجاء كتابة بريد الكتروني صحيح للتسجيل السريع",
-                                                context);
-                                            return;
-                                          }
-                                        }
                                         creatUser(isFast: true);
                                       },
                                       style: ElevatedButton.styleFrom(
@@ -390,34 +373,24 @@ class RegisterPageState extends State<RegisterPage> {
     setState(() {
       showSpinner = true;
     });
-    auth.User? firebaseUser;
 
     try {
       try {
-        if (widget.uidFromGoogle != null) {
-          // If we have a Google UID, we use the current user or the one from Google flow
-          firebaseUser = _firebaseRepo.currentUser;
-        } else {
-          // This path might no longer be used if we only allow Google Sign-In,
-          // but keeping for robustness if password code is ever uncommented.
-          await _firebaseRepo.register(
-              email!, password ?? "dummy_password_unused");
-          firebaseUser = _firebaseRepo.currentUser;
-        }
-
         var now = DateTime.now();
         _user = User(
-            uid: firebaseUser!.uid,
-            email: firebaseUser.email,
-            displayName: isFast ? "----" : name,
-            phone: isFast ? "----" : phoneNumber,
-            fasila: isFast ? "----" : _currentFasilaSelected,
-            address: isFast ? "----" : address,
-            governorate: isFast ? "----" : governorate,
+            uid: widget.uidFromGoogle,
+            email: widget.emailFromGoogle,
+            displayName: isFast ? null : name,
+            phone: isFast ? null : phoneNumber,
+            fasila: isFast ? null : _currentFasilaSelected,
+            address: isFast ? null : address,
+            governorate: isFast ? null : governorate,
             date: now,
-            dateOfDonation: "----");
+            dateOfDonation: null);
 
         await _firebaseRepo.createUserProfile(_user!);
+
+        context.read<AppCubit>().updateProfile(_user!);
 
         setState(() {
           showSpinner = false;
