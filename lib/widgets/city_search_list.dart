@@ -88,7 +88,9 @@ class _GovernrateSearchListState extends State<GovernrateSearchList> {
                         borderRadius: BorderRadius.circular(15),
                       ),
                       child: ListTile(
+                        dense: true,
                         onTap: () => widget.onGovernrateTap(city),
+                        contentPadding: EdgeInsets.zero,
                         title: Center(
                           child: Text(
                             city,
