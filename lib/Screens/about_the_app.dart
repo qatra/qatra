@@ -133,7 +133,7 @@ class AboutTheApp extends StatelessWidget {
 
   Widget _buildName(String name) {
     return Padding(
-      padding: const EdgeInsets.all(4.0),
+      padding: const EdgeInsets.symmetric(vertical: 2),
       child: Text(
         name,
         style: TextStyle(

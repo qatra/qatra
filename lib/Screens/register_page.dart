@@ -4,14 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:icandoit/Screens/login_page.dart';
 import 'package:location/location.dart' as lo;
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
-
 import '../repositories/firebase_repository.dart';
 import '../helpers/utils_helper.dart';
-import '../user_model.dart';
-import '../widgets/governorate_selector.dart';
-import '../widgets/fasila_selector.dart';
+import 'package:icandoit/user_model.dart';
+import 'package:icandoit/widgets/fasila_selector.dart';
 import '../utils/phone_formatter.dart';
-import '../utils/constants.dart';
+import '../widgets/governorate_selector.dart';
 import 'main_screen.dart';
 
 final FirebaseRepository _firebaseRepo = FirebaseRepository.instance;
@@ -101,7 +99,7 @@ class RegisterPageState extends State<RegisterPage> {
                                 });
                               },
                               decoration: InputDecoration(
-                                  labelText: 'الاسم',
+                                  hintText: 'الاسم',
                                   labelStyle: TextStyle(
                                     fontFamily: 'Tajawal',
                                   ),
@@ -143,7 +141,7 @@ class RegisterPageState extends State<RegisterPage> {
                                   });
                                 },
                                 decoration: InputDecoration(
-                                    labelText: 'البريد الالكتروني',
+                                    hintText: 'البريد الالكتروني',
                                     labelStyle: TextStyle(
                                       fontFamily: 'Tajawal',
                                     ),
@@ -178,7 +176,7 @@ class RegisterPageState extends State<RegisterPage> {
                                   });
                                 },
                                 decoration: InputDecoration(
-                                    labelText: 'رقم التليفون',
+                                    hintText: 'رقم التليفون',
                                     labelStyle: TextStyle(
                                       fontFamily: 'Tajawal',
                                     ),
@@ -192,7 +190,6 @@ class RegisterPageState extends State<RegisterPage> {
                               padding: const EdgeInsets.only(top: 17),
                               child: FasilaSelector(
                                 selectedFasila: _currentFasilaSelected,
-                                fasilaList: bloodTypes,
                                 onFasilaSelected: (value) {
                                   _onDropDownItemSelected(value);
                                 },
@@ -244,7 +241,7 @@ class RegisterPageState extends State<RegisterPage> {
                                   });
                                 },
                                 decoration: InputDecoration(
-                                  labelText: 'المنطقة',
+                                  hintText: 'المنطقة',
                                   labelStyle: const TextStyle(
                                     fontFamily: 'Tajawal',
                                   ),
@@ -358,32 +355,28 @@ class RegisterPageState extends State<RegisterPage> {
           firebaseUser = _firebaseRepo.currentUser;
         }
 
-        if (firebaseUser != null) {
-          var now = DateTime.now();
-          _user = User(
-              uid: firebaseUser.uid,
-              email: firebaseUser.email,
-              displayName: name,
-              phone: phoneNumber,
-              fasila: _currentFasilaSelected,
-              address: address,
-              governorate: governorate,
-              date: now,
-              dateOfDonation: "----");
+        var now = DateTime.now();
+        _user = User(
+            uid: firebaseUser!.uid,
+            email: firebaseUser.email,
+            displayName: name,
+            phone: phoneNumber,
+            fasila: _currentFasilaSelected,
+            address: address,
+            governorate: governorate,
+            date: now,
+            dateOfDonation: "----");
 
-          await _firebaseRepo.createUserProfile(_user!);
+        await _firebaseRepo.createUserProfile(_user!);
 
-          setState(() {
-            showSpinner = false;
-          });
-          Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(
-                  builder: (BuildContext context) => const MainScreen()),
-              (Route<dynamic> route) => false);
-        } else {
-          showNotification("حدث خطأ في استرداد بيانات المستخدم", context);
-        }
+        setState(() {
+          showSpinner = false;
+        });
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+                builder: (BuildContext context) => const MainScreen()),
+            (Route<dynamic> route) => false);
       } catch (e) {
         setState(() {
           showSpinner = false;

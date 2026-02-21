@@ -113,6 +113,25 @@ class DonorProfileScreenState extends State<DonorProfileScreen> {
                   widget.user.governorate!,
                   widget.docId!,
                 );
+
+                // Sync with user profile if deleting self
+                final appCubit = context.read<AppCubit>();
+                final appState = appCubit.state;
+                if (appState is AppAuthenticated &&
+                    appState.firebaseUser.email == widget.user.email) {
+                  await _firebaseRepo.removeUserBank(
+                      appState.firebaseUser.uid, widget.user.governorate!);
+
+                  final currentUserProfile = appState.userProfile;
+                  if (currentUserProfile != null) {
+                    final updatedBanks = List<String>.from(
+                        currentUserProfile.registeredBanks ?? []);
+                    updatedBanks.remove(widget.user.governorate!);
+                    appCubit.updateProfile(currentUserProfile.copyWith(
+                        registeredBanks: updatedBanks));
+                  }
+                }
+
                 if (context.mounted) {
                   context
                       .read<DonorCubit>()

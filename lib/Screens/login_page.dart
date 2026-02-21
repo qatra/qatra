@@ -37,7 +37,7 @@ class LoginPageState extends State<LoginPage> {
     if (kIsWeb) {
       await _googleSignIn.initialize(
           clientId:
-              "858369127304-ilnltpcrh2be95p5a692ch4iecql42p9.apps.googleusercontent.com");
+              "858369127304-gum9t7adrbd0vug21csb8irk9t35qep6.apps.googleusercontent.com");
     } else {
       await _googleSignIn.initialize();
     }
@@ -102,7 +102,6 @@ class LoginPageState extends State<LoginPage> {
 
   bool showSpinner = false;
   final _loginFormKey = GlobalKey<FormState>();
-  final GlobalKey<ScaffoldState> _scafold = GlobalKey<ScaffoldState>();
 
   final FirebaseRepository _firebaseRepo = FirebaseRepository.instance;
 
@@ -124,109 +123,90 @@ class LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        key: _scafold,
-        backgroundColor: Colors.white,
-        body: ModalProgressHUD(
-          inAsyncCall: showSpinner,
-          child: Center(
-            child: ListView(
-                shrinkWrap: true,
-                padding: EdgeInsets.all(23.0),
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: ModalProgressHUD(
+        inAsyncCall: showSpinner,
+        child: Center(
+          child: SingleChildScrollView(
+            child: Form(
+              key: _loginFormKey,
+              child: Column(
                 children: <Widget>[
-                  SizedBox(
-                    height: 28,
-                  ),
                   Container(
-                    padding: EdgeInsets.only(
-                        top: 5.0, right: 20.0, left: 20.0, bottom: 30),
-                    child: Column(
-                      children: <Widget>[
-                        Form(
-                          key: _loginFormKey,
-                          child: Column(
-                            children: <Widget>[
-                              Container(
-                                padding: EdgeInsets.only(bottom: 20.00),
-                                child: Image.asset(
-                                  "assets/fainallogo.png",
-                                  height: 140,
-                                  width: 150,
-                                  fit: BoxFit.fill,
-                                ),
-                              ),
-                              SizedBox(
-                                height: 20,
-                              ),
-                              Container(
-                                padding: EdgeInsets.only(top: 20, bottom: 20),
-                                child: Text(
-                                  "تسجيل الدخول أو إنشاء حساب باستخدام جوجل",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontFamily: 'Tajawal',
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.red[900],
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.only(top: 10),
-                                child: kIsWeb
-                                    ? Center(child: renderGoogleSignInButton())
-                                    : SizedBox(
-                                        width: 300,
-                                        height: 45,
-                                        child: ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                              backgroundColor: Colors.blue,
-                                              shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          20))),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: <Widget>[
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                    top: 5),
-                                                child: Text(
-                                                  'Sign in with Google',
-                                                  style: TextStyle(
-                                                    fontFamily: 'Tajawal',
-                                                    fontSize: 20,
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                width: 14,
-                                              ),
-                                              Image.asset(
-                                                "assets/google.png",
-                                                height: 20,
-                                                width: 20,
-                                              )
-                                            ],
-                                          ),
-                                          onPressed: () async {
-                                            _signIn();
-                                          },
-                                        ),
-                                      ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                    padding: EdgeInsets.only(bottom: 20.00),
+                    child: Image.asset(
+                      "assets/fainallogo.png",
+                      height: 140,
+                      width: 150,
+                      fit: BoxFit.fill,
                     ),
                   ),
-                ]),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Container(
+                    padding: EdgeInsets.only(top: 20, bottom: 20),
+                    child: Text(
+                      "تسجيل الدخول أو إنشاء حساب باستخدام جوجل",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: 'Tajawal',
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red[900],
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.only(top: 10),
+                    child: kIsWeb
+                        ? Center(child: renderGoogleSignInButton())
+                        : SizedBox(
+                            width: 300,
+                            height: 45,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.blue,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20))),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 5),
+                                    child: Text(
+                                      'Sign in with Google',
+                                      style: TextStyle(
+                                        fontFamily: 'Tajawal',
+                                        fontSize: 20,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 14,
+                                  ),
+                                  Image.asset(
+                                    "assets/google.png",
+                                    height: 20,
+                                    width: 20,
+                                  )
+                                ],
+                              ),
+                              onPressed: () async {
+                                _signIn();
+                              },
+                            ),
+                          ),
+                  ),
+                  SizedBox(
+                    height: 30,
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ),

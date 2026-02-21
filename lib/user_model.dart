@@ -6,7 +6,7 @@ class User {
   String? fasila;
   String? address;
   String? governorate;
-  String? governrateBank;
+  List<String>? registeredBanks;
   String? dateOfDonation;
   String? imageUrl;
   dynamic date;
@@ -19,7 +19,7 @@ class User {
       this.fasila,
       this.address,
       this.governorate,
-      this.governrateBank,
+      this.registeredBanks,
       this.imageUrl,
       this.dateOfDonation,
       this.date});
@@ -32,7 +32,9 @@ class User {
         fasila: map['fasila'],
         address: map['address'],
         governorate: map['governorate'],
-        governrateBank: map['governrateBank'],
+        registeredBanks: map['registeredBanks'] != null
+            ? List<String>.from(map['registeredBanks'])
+            : null,
         imageUrl: map['imageUrl'],
         dateOfDonation: map['dateOfDonation'],
         date: map['date'],
@@ -46,7 +48,7 @@ class User {
         'fasila': fasila,
         'address': address,
         'governorate': governorate,
-        'governrateBank': governrateBank,
+        'registeredBanks': registeredBanks,
         'imageUrl': imageUrl,
         'dateOfDonation': dateOfDonation,
         'date': date,
@@ -60,7 +62,7 @@ class User {
     String? fasila,
     String? address,
     String? governorate,
-    String? governrateBank,
+    List<String>? registeredBanks,
     String? imageUrl,
     String? dateOfDonation,
     dynamic date,
@@ -73,7 +75,7 @@ class User {
       fasila: fasila ?? this.fasila,
       address: address ?? this.address,
       governorate: governorate ?? this.governorate,
-      governrateBank: governrateBank ?? this.governrateBank,
+      registeredBanks: registeredBanks ?? this.registeredBanks,
       imageUrl: imageUrl ?? this.imageUrl,
       dateOfDonation: dateOfDonation ?? this.dateOfDonation,
       date: date ?? this.date,

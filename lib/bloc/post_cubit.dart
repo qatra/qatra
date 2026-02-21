@@ -21,7 +21,7 @@ class PostState {
         isLoading: false,
         posts: [],
         hasMore: true,
-        bloodType: ' - عرض كل الطلبات -  ',
+        bloodType: ' - عرض كل الطلبات - ',
       );
 
   PostState copyWith({

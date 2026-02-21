@@ -13,7 +13,8 @@ class DonorCard extends StatefulWidget {
       this.phone,
       this.email,
       this.dateOfDonation,
-      this.docId});
+      this.docId,
+      this.isCurrentUser = false});
 
   final String? fasila;
   final String? address;
@@ -23,6 +24,7 @@ class DonorCard extends StatefulWidget {
   final String? email;
   final String? dateOfDonation;
   final String? docId;
+  final bool isCurrentUser;
 
   @override
   DonorCardState createState() => DonorCardState();
@@ -61,47 +63,45 @@ class DonorCardState extends State<DonorCard> {
   Widget build(BuildContext context) {
     updateInternData();
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Card(
-        elevation: 5,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        color: null,
-        child: ListTile(
-          leading: Text(
-            widget.fasila ?? "",
-            textDirection: TextDirection.ltr,
-            style: TextStyle(
-                color: Colors.red[900],
-                fontWeight: FontWeight.bold,
-                fontSize: 20),
-          ),
-          onTap: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => DonorProfileScreen(
-                          user: _user!,
-                          docId: widget.docId,
-                        )));
-          },
-          title: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Text(
-                  _buildAddressDisplay(),
-                  style: TextStyle(fontFamily: 'Tajawal', fontSize: 18),
-                ),
-                Text(
-                  widget.displayName ?? "",
-                  style: TextStyle(
-                      fontFamily: 'Tajawal',
-                      color: Colors.grey[700],
-                      fontSize: 15),
-                ),
-              ],
-            ),
+    return Card(
+      elevation: 5,
+      margin: const EdgeInsets.only(top: 15, right: 20, left: 20),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      color: widget.isCurrentUser ? Colors.red[50] : Colors.white,
+      child: ListTile(
+        leading: Text(
+          widget.fasila ?? "",
+          textDirection: TextDirection.ltr,
+          style: TextStyle(
+              color: Colors.red[900],
+              fontWeight: FontWeight.bold,
+              fontSize: 20),
+        ),
+        onTap: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => DonorProfileScreen(
+                        user: _user!,
+                        docId: widget.docId,
+                      )));
+        },
+        title: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text(
+                _buildAddressDisplay(),
+                style: TextStyle(fontFamily: 'Tajawal', fontSize: 18),
+              ),
+              Text(
+                widget.displayName ?? "",
+                style: TextStyle(
+                    fontFamily: 'Tajawal',
+                    color: Colors.grey[700],
+                    fontSize: 15),
+              ),
+            ],
           ),
         ),
       ),

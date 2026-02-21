@@ -2,8 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
 import '../repositories/firebase_repository.dart';
-import '../user_model.dart';
-import '../utils/constants.dart';
+import 'package:icandoit/user_model.dart';
+import 'package:icandoit/widgets/fasila_selector.dart';
 import '../utils/phone_formatter.dart';
 import '../widgets/governorate_selector.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -120,6 +120,7 @@ class MyProfilePageState extends State<MyProfilePage> {
                     padding: const EdgeInsets.symmetric(
                         vertical: 10, horizontal: 20),
                     child: Card(
+                      elevation: 10,
                       child: Padding(
                         padding: const EdgeInsets.all(15),
                         child: Column(
@@ -135,7 +136,7 @@ class MyProfilePageState extends State<MyProfilePage> {
                               icon: Icons.bloodtype,
                               title: "فصيلة الدم :",
                               value: fasila,
-                              onEdit: () => _showFasilaPicker(context, fasila),
+                              onEdit: () => _showFasilaPicker(context),
                             ),
                             Divider(),
                             _buildProfileTile(
@@ -171,6 +172,12 @@ class MyProfilePageState extends State<MyProfilePage> {
                               title: "البريد الالكتروني :",
                               value: user?.email ?? "---",
                             ),
+                            if (user?.registeredBanks != null &&
+                                user!.registeredBanks!.isNotEmpty) ...[
+                              const Divider(),
+                              _buildRegisteredBanksHeader(),
+                              _buildRegisteredBanksList(user.registeredBanks!),
+                            ],
                           ],
                         ),
                       ),
@@ -219,76 +226,57 @@ class MyProfilePageState extends State<MyProfilePage> {
     );
   }
 
-  void _showFasilaPicker(BuildContext context, String currentFasila) {
-    showModalBottomSheet(
+  void _showFasilaPicker(BuildContext context) {
+    final currentUser = _getCurrentUser();
+    final String? currentFasila = currentUser?.fasila;
+    bool isLoading = false;
+
+    showDialog(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
-      ),
       builder: (context) {
-        return SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(height: 20),
-              Text(
-                "فصيلة الدم",
+        return StatefulBuilder(builder: (context, setDialogState) {
+          return AlertDialog(
+            backgroundColor: Colors.white,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+            title: const Center(
+              child: Text(
+                "تعديل فصيلة الدم",
                 style: TextStyle(
-                  fontFamily: 'Tajawal',
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.red[900],
-                ),
+                    fontFamily: 'Tajawal', fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 15),
-              GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                padding: const EdgeInsets.only(left: 20, right: 20, bottom: 30),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  childAspectRatio: 2.0,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                FasilaSelector(
+                  selectedFasila: currentFasila,
+                  onFasilaSelected: (fasila) async {
+                    if (isLoading) return;
+                    setDialogState(() => isLoading = true);
+                    _newFasila = fasila;
+                    try {
+                      await upFasila();
+                      final updated = currentUser?.copyWith(fasila: fasila);
+                      if (updated != null) _updateUserLocally(updated);
+                      if (context.mounted) {
+                        Navigator.pop(context);
+                        showNotification('تم تحديث البيانات بنجاح', context);
+                      }
+                    } catch (_) {
+                      setDialogState(() => isLoading = false);
+                    }
+                  },
                 ),
-                itemCount: bloodTypes.length,
-                itemBuilder: (context, index) {
-                  final fasila = bloodTypes[index];
-                  final isSelected = fasila == currentFasila;
-                  return ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _newFasila = fasila;
-                      });
-                      upFasila();
-                      Navigator.pop(context);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          isSelected ? Colors.red[900] : Colors.white,
-                      foregroundColor: isSelected ? Colors.white : Colors.black,
-                      side: BorderSide(color: Colors.red[900]!, width: 1),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      elevation: isSelected ? 4 : 0,
-                    ),
-                    child: Text(
-                      fasila,
-                      style: const TextStyle(
-                        fontFamily: 'Tajawal',
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
-        );
+                if (isLoading)
+                  const Padding(
+                    padding: EdgeInsets.only(top: 15),
+                    child: CircularProgressIndicator(),
+                  ),
+              ],
+            ),
+          );
+        });
       },
     );
   }
@@ -383,7 +371,7 @@ class MyProfilePageState extends State<MyProfilePage> {
                       _newName = text;
                     },
                     decoration: InputDecoration(
-                      labelText: "الاسم",
+                      hintText: "الاسم",
                       labelStyle: TextStyle(
                         fontFamily: 'Tajawal',
                       ),
@@ -401,11 +389,22 @@ class MyProfilePageState extends State<MyProfilePage> {
     auth.User? firebaseUser = _firebaseRepo.currentUser;
     if (firebaseUser == null) return;
 
+    final userData = await _firebaseRepo.getUserProfile(firebaseUser.uid);
+    if (userData != null) {
+      final banks = userData.registeredBanks;
+      if (banks != null) {
+        for (final bank in banks) {
+          await _firebaseRepo.updateDonorInBank(
+              firebaseUser.uid, bank, {'displayName': _newName});
+        }
+      }
+    }
+
     await _firebaseRepo
         .updateUserProfile(firebaseUser.uid, {'displayName': _newName});
   }
 
-  upFasila() async {
+  Future<void> upFasila() async {
     final currentUser = _getCurrentUser();
     try {
       await uploadFasila();
@@ -420,6 +419,18 @@ class MyProfilePageState extends State<MyProfilePage> {
   uploadFasila() async {
     auth.User? firebaseUser = _firebaseRepo.currentUser;
     if (firebaseUser == null) return;
+
+    final userData = await _firebaseRepo.getUserProfile(firebaseUser.uid);
+    if (userData != null) {
+      final banks = userData.registeredBanks;
+      if (banks != null) {
+        for (final bank in banks) {
+          await _firebaseRepo.updateDonorInBank(
+              firebaseUser.uid, bank, {'fasila': _newFasila});
+        }
+      }
+    }
+
     await _firebaseRepo
         .updateUserProfile(firebaseUser.uid, {'fasila': _newFasila});
   }
@@ -515,7 +526,7 @@ class MyProfilePageState extends State<MyProfilePage> {
                       _newPhone = text;
                     },
                     decoration: InputDecoration(
-                      labelText: "رقم الموبايل",
+                      hintText: "رقم الموبايل",
                       labelStyle: TextStyle(
                         fontFamily: 'Tajawal',
                       ),
@@ -536,10 +547,12 @@ class MyProfilePageState extends State<MyProfilePage> {
     final userData = await _firebaseRepo.getUserProfile(firebaseUser.uid);
 
     if (userData != null) {
-      final governerate = userData.toMap()["governrateBank"];
-      if (governerate != null) {
-        await _firebaseRepo.updateUserPhoneInBank(
-            firebaseUser.uid, governerate, _newPhone ?? '');
+      final banks = userData.registeredBanks;
+      if (banks != null) {
+        for (final bank in banks) {
+          await _firebaseRepo.updateDonorInBank(
+              firebaseUser.uid, bank, {'phone': _newPhone ?? ''});
+        }
       }
     }
 
@@ -659,7 +672,7 @@ class MyProfilePageState extends State<MyProfilePage> {
                           _newAddress = text;
                         },
                         decoration: InputDecoration(
-                          labelText: "المنطقة",
+                          hintText: "المنطقة",
                           labelStyle: const TextStyle(
                             fontFamily: 'Tajawal',
                           ),
@@ -684,6 +697,16 @@ class MyProfilePageState extends State<MyProfilePage> {
     if (_newGovernorate != null) updateData['governorate'] = _newGovernorate;
 
     if (updateData.isNotEmpty) {
+      final userData = await _firebaseRepo.getUserProfile(firebaseUser.uid);
+      if (userData != null) {
+        final banks = userData.registeredBanks;
+        if (banks != null) {
+          for (final bank in banks) {
+            await _firebaseRepo.updateDonorInBank(
+                firebaseUser.uid, bank, updateData);
+          }
+        }
+      }
       await _firebaseRepo.updateUserProfile(firebaseUser.uid, updateData);
     }
   }
@@ -813,21 +836,115 @@ class MyProfilePageState extends State<MyProfilePage> {
     final userData = await _firebaseRepo.getUserProfile(firebaseUser.uid);
 
     if (userData != null) {
-      final map = userData.toMap();
-      final governerate = map["governrateBank"];
-      final blazmaBank = map["blazmaBank"];
+      final banks = userData.registeredBanks;
 
-      if (governerate != null) {
-        await _firebaseRepo.updateUserDateOfDonationInBank(
-            firebaseUser.uid, governerate, myFormat.format(selectedDate));
-      }
-      if (blazmaBank != null) {
-        await _firebaseRepo.updateUserDateOfDonationInBlazmaBank(
-            firebaseUser.uid, blazmaBank, myFormat.format(selectedDate));
+      if (banks != null) {
+        for (final bank in banks) {
+          await _firebaseRepo.updateDonorInBank(firebaseUser.uid, bank,
+              {'dateOfDonation': myFormat.format(selectedDate)});
+        }
       }
     }
 
     await _firebaseRepo.updateUserProfile(
         firebaseUser.uid, {'dateOfDonation': myFormat.format(selectedDate)});
+  }
+
+  Widget _buildRegisteredBanksHeader() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Icon(Icons.account_balance, color: Colors.red[900], size: 20),
+          const SizedBox(width: 10),
+          const Text(
+            "المحافظات المشترك في بنكها :",
+            style: TextStyle(
+                fontFamily: 'Tajawal', color: Colors.black, fontSize: 15),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRegisteredBanksList(List<String> banks) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: banks.map((bank) {
+        bool isDeleting = false;
+        return StatefulBuilder(builder: (context, setChipState) {
+          return Chip(
+            backgroundColor: Colors.red[50],
+            label: Text(
+              bank,
+              style: TextStyle(
+                  fontFamily: 'Tajawal',
+                  color: Colors.red[900],
+                  fontWeight: FontWeight.bold),
+            ),
+            deleteIcon: isDeleting
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.red,
+                    ),
+                  )
+                : const Icon(Icons.cancel, size: 18, color: Colors.red),
+            onDeleted: isDeleting
+                ? null
+                : () async {
+                    final confirm = await showDialog<bool>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text("تأكيد الحذف",
+                            textAlign: TextAlign.right,
+                            style: TextStyle(fontFamily: 'Tajawal')),
+                        content: Text(
+                            "هل انت متأكد من حذف تسجيلك في بنك $bank؟",
+                            textAlign: TextAlign.right,
+                            style: const TextStyle(fontFamily: 'Tajawal')),
+                        actions: [
+                          TextButton(
+                              onPressed: () => Navigator.pop(context, false),
+                              child: const Text("تراجع")),
+                          TextButton(
+                              onPressed: () => Navigator.pop(context, true),
+                              child: const Text("حذف",
+                                  style: TextStyle(color: Colors.red))),
+                        ],
+                      ),
+                    );
+
+                    if (confirm == true) {
+                      setChipState(() => isDeleting = true);
+                      await _deleteBankRegistration(bank);
+                    }
+                  },
+          );
+        });
+      }).toList(),
+    );
+  }
+
+  Future<void> _deleteBankRegistration(String governrate) async {
+    final user = _getCurrentUser();
+    if (user == null || user.uid == null) return;
+
+    try {
+      await _firebaseRepo.deleteDonorFromBank(governrate, user.uid!);
+      await _firebaseRepo.removeUserBank(user.uid!, governrate);
+
+      final updatedBanks = List<String>.from(user.registeredBanks ?? []);
+      updatedBanks.remove(governrate);
+      _updateUserLocally(user.copyWith(registeredBanks: updatedBanks));
+
+      _showSnackBar("تم حذف التسجيل بنجاح");
+    } catch (e) {
+      debugPrint("Error deleting bank registration: $e");
+      _showSnackBar("حدث خطأ أثناء حذف التسجيل", isError: true);
+    }
   }
 }

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:icandoit/utils/phone_formatter.dart';
 
 import '../user_model.dart';
 import '../helpers/utils_helper.dart';
+import '../widgets/fasila_selector.dart';
 
 import 'package:universal_io/io.dart';
 import 'package:flutter/foundation.dart';
@@ -47,18 +49,7 @@ class AddDonerToBankState extends State<AddDonerToBank> {
   String? address;
   final _formKey = GlobalKey<FormState>();
   bool isLoading = false;
-  var _currentFasilaSelected = 'حدد الفصيلة';
-  final _fasila = [
-    'حدد الفصيلة',
-    'AB+',
-    "AB-",
-    "A+",
-    "A-",
-    "B+",
-    "B-",
-    "O+",
-    "O-"
-  ];
+  String? _currentFasilaSelected;
 
   void _onDropDownItemSelected(String newValueSelected) {
     setState(() {
@@ -100,7 +91,7 @@ class AddDonerToBankState extends State<AddDonerToBank> {
           .doc(now.toString())
           .set(_user!.toMap());
 
-      Navigator.pop(context);
+      Navigator.pop(context, true);
 
       showNotification("تم اضافة متبرع بنجاح",
           context); // Pass context instead of widget._scafold
@@ -153,45 +144,17 @@ class AddDonerToBankState extends State<AddDonerToBank> {
                 child: ListView(
                   padding: EdgeInsets.all(15),
                   children: <Widget>[
-                    Container(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: DropdownButtonFormField<String>(
-                        validator: (value) => value == "حدد الفصيلة"
-                            ? 'برجاء اختيار الفصيلة'
-                            : null,
-                        elevation: 10,
-                        isDense: true,
-                        decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(20.0)),
-                            prefixIcon: Icon(
-                              Icons.local_hospital,
-                              size: 22,
-                            )),
-                        items: _fasila.map((String dropDownStringItem) {
-                          return DropdownMenuItem<String>(
-                            value: dropDownStringItem,
-                            child: Center(
-                              child: Text(
-                                dropDownStringItem,
-                                textDirection: TextDirection.ltr,
-                                style: TextStyle(
-                                  fontFamily: 'Tajawal',
-                                ),
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (String? newValueSelected) {
-                          if (newValueSelected != null) {
-                            _onDropDownItemSelected(newValueSelected);
-                          }
-                        },
-                        initialValue: _currentFasilaSelected,
-                      ),
+                    FasilaSelector(
+                      selectedFasila: _currentFasilaSelected,
+                      onFasilaSelected: (value) {
+                        _onDropDownItemSelected(value);
+                      },
+                      validator: (value) =>
+                          value == null ? 'برجاء اختيار الفصيلة' : null,
+                      hintText: 'فصيلة الدم',
                     ),
                     SizedBox(
-                      height: 4,
+                      height: 10,
                     ),
                     TextFormField(
                       validator: (text) {
@@ -214,9 +177,11 @@ class AddDonerToBankState extends State<AddDonerToBank> {
                         });
                       },
                       decoration: InputDecoration(
-                          labelText: 'الاسم',
-                          labelStyle: TextStyle(
+                          hintText: 'الاسم',
+                          hintStyle: TextStyle(
                             fontFamily: 'Tajawal',
+                            fontSize: 15,
+                            color: Colors.grey,
                           ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(20.0),
@@ -244,6 +209,7 @@ class AddDonerToBankState extends State<AddDonerToBank> {
                         },
                         textAlign: TextAlign.center,
                         keyboardType: TextInputType.number,
+                        inputFormatters: [EnglishNumeralsFormatter()],
                         controller: null,
                         onChanged: (text) {
                           setState(() {
@@ -251,9 +217,11 @@ class AddDonerToBankState extends State<AddDonerToBank> {
                           });
                         },
                         decoration: InputDecoration(
-                            labelText: 'رقم التليفون',
-                            labelStyle: TextStyle(
+                            hintText: 'رقم التليفون',
+                            hintStyle: TextStyle(
                               fontFamily: 'Tajawal',
+                              fontSize: 15,
+                              color: Colors.grey,
                             ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20.0),
@@ -271,9 +239,11 @@ class AddDonerToBankState extends State<AddDonerToBank> {
                         enabled: false,
                         textAlign: TextAlign.center,
                         decoration: InputDecoration(
-                          labelText: 'المحافظة',
-                          labelStyle: TextStyle(
+                          hintText: 'المحافظة',
+                          hintStyle: TextStyle(
                             fontFamily: 'Tajawal',
+                            fontSize: 15,
+                            color: Colors.grey,
                           ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(20.0),
@@ -313,9 +283,11 @@ class AddDonerToBankState extends State<AddDonerToBank> {
                           },
                           decoration: InputDecoration(
                             prefixIcon: Icon(Icons.add_location),
-                            labelText: 'المدينة',
-                            labelStyle: TextStyle(
+                            hintText: 'المدينة',
+                            hintStyle: TextStyle(
                               fontFamily: 'Tajawal',
+                              fontSize: 15,
+                              color: Colors.grey,
                             ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20.0),
@@ -372,7 +344,7 @@ class AddDonerToBankState extends State<AddDonerToBank> {
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                         fontFamily: 'Tajawal',
-                        fontSize: 17),
+                        fontSize: 18),
                   ),
                 ),
               ),

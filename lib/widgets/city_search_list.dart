@@ -32,40 +32,33 @@ class _GovernrateSearchListState extends State<GovernrateSearchList> {
         Padding(
           padding: const EdgeInsets.only(
             top: 18,
-            right: 16.0,
-            left: 16,
+            right: 18,
+            left: 18,
           ),
-          child: TextFormField(
-            controller: _searchController,
-            onChanged: _filterCities,
-            textAlign: TextAlign.right,
-            decoration: InputDecoration(
-              labelText: 'ابحث عن المحافظة',
-              labelStyle: const TextStyle(fontFamily: 'Tajawal'),
-              prefixIcon: const Icon(Icons.search),
-              suffixIcon: _searchController.text.isNotEmpty
-                  ? Padding(
-                      padding: const EdgeInsetsDirectional.only(end: 5),
-                      child: IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          _searchController.clear();
-                          _filterCities('');
-                        },
-                      ),
-                    )
-                  : null,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(25.0),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(25.0),
-                borderSide:
-                    BorderSide(color: Colors.red[900]!.withValues(alpha: 0.3)),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(25.0),
-                borderSide: BorderSide(color: Colors.red[900]!),
+          child: SizedBox(
+            height: 42,
+            child: TextFormField(
+              controller: _searchController,
+              onChanged: _filterCities,
+              textAlign: TextAlign.right,
+              decoration: InputDecoration(
+                hintText: 'ابحث عن المحافظة',
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: _searchController.text.isNotEmpty
+                    ? Padding(
+                        padding: const EdgeInsetsDirectional.only(end: 5),
+                        child: IconButton(
+                          icon: const Icon(Icons.clear),
+                          onPressed: () {
+                            _searchController.clear();
+                            _filterCities('');
+                          },
+                        ),
+                      )
+                    : null,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(25.0),
+                ),
               ),
             ),
           ),
@@ -78,15 +71,18 @@ class _GovernrateSearchListState extends State<GovernrateSearchList> {
                     style: TextStyle(fontFamily: 'Tajawal', fontSize: 18),
                   ),
                 )
-              : ListView.builder(
-                  padding: const EdgeInsets.only(top: 10, bottom: 30),
+              : ListView.separated(
+                  padding: const EdgeInsets.only(
+                      top: 15, bottom: 15, right: 18, left: 18),
                   itemCount: _filteredCities.length,
+                  separatorBuilder: (context, index) => const SizedBox(
+                    height: 15,
+                  ),
                   itemBuilder: (context, index) {
                     final city = _filteredCities[index];
                     return Card(
                       elevation: 2,
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 8),
+                      margin: EdgeInsets.zero,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15),
                       ),

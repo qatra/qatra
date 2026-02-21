@@ -40,7 +40,73 @@ class MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       home: SplashScreen(),
       title: 'قطرة',
-      theme: ThemeData(primarySwatch: Colors.blue),
+      theme: ThemeData(
+        primarySwatch: Colors.red,
+        colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.red),
+        textTheme: TextTheme(
+          bodyLarge: TextStyle(
+              fontFamily: 'Tajawal', color: Colors.black, fontSize: 14),
+
+          // bodyMedium: TextStyle(
+          //     fontFamily: 'Tajawal', color: Colors.black, fontSize: 16),
+        ),
+        dropdownMenuTheme: DropdownMenuThemeData(
+          inputDecorationTheme: InputDecorationTheme(
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(20),
+              borderSide: const BorderSide(color: Colors.black, width: 1.3),
+            ),
+            labelStyle:
+                const TextStyle(color: Colors.black, fontFamily: 'Tajawal'),
+            hintStyle:
+                const TextStyle(color: Colors.black, fontFamily: 'Tajawal'),
+            floatingLabelStyle:
+                const TextStyle(color: Colors.black, fontFamily: 'Tajawal'),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(20),
+              borderSide: BorderSide(color: Colors.grey[400]!),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(20),
+              borderSide: const BorderSide(color: Colors.red, width: 1.3),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(20),
+              borderSide: const BorderSide(color: Colors.red, width: 1.3),
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+          ),
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+            borderSide: const BorderSide(color: Colors.black, width: 1.3),
+          ),
+          labelStyle:
+              const TextStyle(color: Colors.black, fontFamily: 'Tajawal'),
+          hintStyle:
+              const TextStyle(color: Colors.black, fontFamily: 'Tajawal'),
+          floatingLabelStyle:
+              const TextStyle(color: Colors.black, fontFamily: 'Tajawal'),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+            borderSide: BorderSide(color: Colors.grey[400]!),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+            borderSide: const BorderSide(color: Colors.red, width: 1.3),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+            borderSide: const BorderSide(color: Colors.red, width: 1.3),
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+        ),
+      ),
       localizationsDelegates: [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,

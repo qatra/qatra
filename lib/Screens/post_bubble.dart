@@ -64,21 +64,21 @@ class PostBubbleState extends State<PostBubble> {
     return Colors.green[200];
   }
 
-  updatePostStateEnd() async {
+  Future<void> updatePostStateEnd() async {
     await _firebaseRepo.updatePostStatus(widget.dateThatSignsThePost!, false);
     if (mounted) {
       context.read<PostCubit>().fetchPosts(refresh: true);
     }
   }
 
-  updatePostStateContinue() async {
+  Future<void> updatePostStateContinue() async {
     await _firebaseRepo.updatePostStatus(widget.dateThatSignsThePost!, true);
     if (mounted) {
       context.read<PostCubit>().fetchPosts(refresh: true);
     }
   }
 
-  deletePost() async {
+  Future<void> deletePost() async {
     await _firebaseRepo.deleteDonationRequest(widget.dateThatSignsThePost!);
     if (mounted) {
       context.read<PostCubit>().fetchPosts(refresh: true);
@@ -118,7 +118,6 @@ class PostBubbleState extends State<PostBubble> {
                       borderRadius: BorderRadius.circular(25),
                       color: changeColor()),
                   width: double.infinity,
-                  margin: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
                   padding: EdgeInsets.symmetric(vertical: 8, horizontal: 13),
                   child: SingleChildScrollView(
                     child: Column(
@@ -491,139 +490,190 @@ class PostBubbleState extends State<PostBubble> {
   }
 
   editTlabState(BuildContext context) {
+    bool isContinueLoading = false;
+    bool isEndLoading = false;
     return showDialog(
         context: context,
         builder: (context) {
-          return AlertDialog(
-            backgroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(30.0))),
-            title: Center(
-              child: Text(
-                "تعديل حالة طلب التبرع",
-                style: TextStyle(
-                  fontFamily: 'Tajawal',
-                  color: Colors.red[900],
-                  fontSize: 20,
+          return StatefulBuilder(builder: (context, setDialogState) {
+            return AlertDialog(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(30.0))),
+              title: Center(
+                child: Text(
+                  "تعديل حالة طلب التبرع",
+                  style: TextStyle(
+                    fontFamily: 'Tajawal',
+                    color: Colors.red[900],
+                    fontSize: 20,
+                  ),
                 ),
               ),
-            ),
-            elevation: 10,
-            content: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.yellow[900],
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20)),
-                  ),
-                  child: Text(
-                    'مستمر',
-                    style: TextStyle(
-                      fontFamily: 'Tajawal',
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+              elevation: 10,
+              content: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.yellow[900],
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
                     ),
+                    onPressed: (isContinueLoading || isEndLoading)
+                        ? null
+                        : () async {
+                            setDialogState(() => isContinueLoading = true);
+                            await updatePostStateContinue();
+                            if (context.mounted) {
+                              Navigator.pop(context);
+                            }
+                          },
+                    child: isContinueLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Text(
+                            'مستمر',
+                            style: TextStyle(
+                              fontFamily: 'Tajawal',
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                   ),
-                  onPressed: () async {
-                    updatePostStateContinue();
-                    Navigator.pop(context);
-                  },
-                ),
-                SizedBox(
-                  width: 12,
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20)),
+                  SizedBox(
+                    width: 12,
                   ),
-                  child: Text(
-                    'انتهي',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Tajawal',
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
                     ),
+                    onPressed: (isContinueLoading || isEndLoading)
+                        ? null
+                        : () async {
+                            setDialogState(() => isEndLoading = true);
+                            await updatePostStateEnd();
+                            if (context.mounted) {
+                              Navigator.pop(context);
+                            }
+                          },
+                    child: isEndLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Text(
+                            'انتهي',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Tajawal',
+                            ),
+                          ),
                   ),
-                  onPressed: () async {
-                    updatePostStateEnd();
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            ),
-          );
+                ],
+              ),
+            );
+          });
         });
   }
 
   deleteTlab(BuildContext context) {
+    bool isDeleteLoading = false;
     return showDialog(
         context: context,
         builder: (context) {
-          return AlertDialog(
-            backgroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(30.0))),
-            title: Center(
-              child: Text(
-                "مسح طلب التبرع",
-                style: TextStyle(
-                  fontFamily: 'Tajawal',
-                  color: Colors.red[900],
-                  fontSize: 20,
+          return StatefulBuilder(builder: (context, setDialogState) {
+            return AlertDialog(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(30.0))),
+              title: Center(
+                child: Text(
+                  "مسح طلب التبرع",
+                  style: TextStyle(
+                    fontFamily: 'Tajawal',
+                    color: Colors.red[900],
+                    fontSize: 20,
+                  ),
                 ),
               ),
-            ),
-            elevation: 10,
-            content: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20)),
-                  ),
-                  child: Text(
-                    'تراجع',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Tajawal',
+              elevation: 10,
+              content: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
+                    ),
+                    onPressed: isDeleteLoading
+                        ? null
+                        : () {
+                            Navigator.pop(context);
+                          },
+                    child: Text(
+                      'تراجع',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Tajawal',
+                      ),
                     ),
                   ),
-                  onPressed: () async {
-                    Navigator.pop(context);
-                  },
-                ),
-                SizedBox(
-                  width: 12,
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.yellow[900],
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20)),
+                  SizedBox(
+                    width: 12,
                   ),
-                  child: Text(
-                    'مسح',
-                    style: TextStyle(
-                      fontFamily: 'Tajawal',
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.yellow[900],
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
                     ),
+                    onPressed: isDeleteLoading
+                        ? null
+                        : () async {
+                            setDialogState(() => isDeleteLoading = true);
+                            await deletePost();
+                            if (context.mounted) {
+                              Navigator.pop(context);
+                            }
+                          },
+                    child: isDeleteLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Text(
+                            'مسح',
+                            style: TextStyle(
+                              fontFamily: 'Tajawal',
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                   ),
-                  onPressed: () async {
-                    deletePost();
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            ),
-          );
+                ],
+              ),
+            );
+          });
         });
   }
 }

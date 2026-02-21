@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:icandoit/Screens/post_bubble.dart';
+import 'package:icandoit/widgets/fasila_selector.dart';
 
 import '../bloc/app_bloc.dart';
 import '../bloc/app_state.dart';
@@ -21,19 +22,6 @@ class DonationOrdersState extends State<DonationOrders> {
   final ScrollController _scrollController = ScrollController();
 
   DonationOrdersState();
-
-  final _fasila = [
-    ' - عرض كل الطلبات -  ',
-    'AB+',
-    "AB-",
-    "A+",
-    "A-",
-    "B+",
-    "B-",
-    "O+",
-    "O-",
-    'اي فصيلة',
-  ];
 
   void _onDropDownItemSelected(String newValueSelected) {
     context.read<PostCubit>().setFilter(newValueSelected);
@@ -75,41 +63,25 @@ class DonationOrdersState extends State<DonationOrders> {
               children: <Widget>[
                 Container(
                   color: Colors.white,
-                  padding: const EdgeInsets.only(top: 18, right: 20, left: 20),
-                  child: DropdownButtonFormField<String>(
-                    isDense: true,
-                    decoration: InputDecoration(
-                        isDense: true,
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20.0)),
-                        prefixIcon: Icon(
-                          Icons.local_hospital,
-                          color: Colors.red[900],
-                          size: 24,
-                        )),
-                    validator: (value) =>
-                        value == "حدد فصيلتك" ? 'برجاء اختيار الفصيلة' : null,
-                    items: _fasila.map((String dropDownStringItem) {
-                      return DropdownMenuItem<String>(
-                        value: dropDownStringItem,
-                        child: Center(
-                            child: Text(
-                          dropDownStringItem,
-                          textDirection: TextDirection.ltr,
-                          style: TextStyle(
-                            color: Colors.red[900],
-                            fontSize: 18,
-                            fontFamily: 'Tajawal',
-                          ),
-                        )),
-                      );
-                    }).toList(),
-                    onChanged: (String? newValueSelected) {
-                      if (newValueSelected != null) {
-                        _onDropDownItemSelected(newValueSelected);
-                      }
+                  padding: const EdgeInsets.only(top: 18, right: 18, left: 18),
+                  child: FasilaSelector(
+                    selectedFasila: context.watch<PostCubit>().state.bloodType,
+                    onFasilaSelected: (value) {
+                      _onDropDownItemSelected(value);
                     },
-                    initialValue: context.watch<PostCubit>().state.bloodType,
+                    hintText: ' - عرض كل الطلبات - ',
+                    customFasilaList: const [
+                      ' - عرض كل الطلبات - ',
+                      'AB+',
+                      "AB-",
+                      "A+",
+                      "A-",
+                      "B+",
+                      "B-",
+                      "O+",
+                      "O-",
+                      "اي فصيلة"
+                    ],
                   ),
                 ),
                 Expanded(
@@ -141,12 +113,15 @@ class DonationOrdersState extends State<DonationOrders> {
                       }
 
                       final posts = state.posts;
-                      return ListView.builder(
+                      return ListView.separated(
                         controller: _scrollController,
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 4, vertical: 15),
+                            horizontal: 18, vertical: 15),
                         itemCount:
                             state.hasMore ? posts.length + 1 : posts.length,
+                        separatorBuilder: (_, __) => SizedBox(
+                          height: 15,
+                        ),
                         itemBuilder: (context, index) {
                           if (index >= posts.length) {
                             return Center(
@@ -188,11 +163,14 @@ class DonationOrdersState extends State<DonationOrders> {
               height: 80,
               width: 70,
               child: InkWell(
-                onTap: () {
-                  Navigator.push(
+                onTap: () async {
+                  final result = await Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => DonationRequestScreen()));
+                          builder: (context) => const DonationRequestScreen()));
+                  if (result == true && context.mounted) {
+                    context.read<PostCubit>().fetchPosts(refresh: true);
+                  }
                 },
                 child: Stack(
                   children: [

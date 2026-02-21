@@ -41,36 +41,20 @@ class _MainScreenState extends State<MainScreen>
           backgroundColor: Colors.white,
           elevation: 2,
           centerTitle: true,
-          leading: Padding(
-            padding: const EdgeInsets.only(right: 20, top: 0),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(100),
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => const AboutTheApp(),
-                );
-              },
-              child: Image.asset(
-                'assets/fainallogo.png',
-                height: 50,
-              ),
+          toolbarHeight: 45,
+          title: InkWell(
+            borderRadius: BorderRadius.circular(100),
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) => const AboutTheApp(),
+              );
+            },
+            child: Image.asset(
+              'assets/fainallogo.png',
+              height: 35,
             ),
           ),
-          actions: [
-            IconButton(
-              icon: Icon(Icons.info_outline, color: Colors.red[900]),
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => const AboutTheApp(),
-                );
-              },
-            ),
-            const SizedBox(
-              width: 20,
-            )
-          ],
           bottom: TabBar(
             controller: _tabController,
             isScrollable: false,

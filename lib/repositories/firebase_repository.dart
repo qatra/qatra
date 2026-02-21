@@ -2,8 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:universal_io/io.dart';
+
 import '../user_model.dart';
-import '../message_model.dart';
 
 class FirebaseRepository {
   static final FirebaseRepository instance = FirebaseRepository._();
@@ -70,22 +70,6 @@ class FirebaseRepository {
     return await snapshot.ref.getDownloadURL();
   }
 
-  // --- Messages / Chat ---
-
-  Stream<QuerySnapshot> getMessagesStream() {
-    return _firestore
-        .collection('messages')
-        .orderBy('date', descending: true)
-        .snapshots();
-  }
-
-  Future<void> sendMessage(MessageModel message) async {
-    await _firestore
-        .collection('messages')
-        .doc(message.now.toString())
-        .set(message.toMap());
-  }
-
   // --- Donation Orders / Posts ---
 
   Future<QuerySnapshot> getPosts(
@@ -94,9 +78,7 @@ class FirebaseRepository {
       String? bloodType}) async {
     var query = _firestore.collection('post').orderBy('date', descending: true);
 
-    if (bloodType != null &&
-        bloodType != ' - عرض كل الطلبات -  ' &&
-        bloodType != 'اي فصيلة') {
+    if (bloodType != null && bloodType != ' - عرض كل الطلبات - ') {
       query = query.where('fasila', isEqualTo: bloodType);
     }
 
@@ -125,19 +107,26 @@ class FirebaseRepository {
 
   // --- Blood Bank / Donors ---
 
-  Future<QuerySnapshot> getDonors(String city,
+  Future<QuerySnapshot> getDonors(String governrate,
       {DocumentSnapshot? lastDocument,
       int limit = 10,
-      String? bloodType}) async {
-    var query = _firestore
-        .collection('bank')
-        .doc(city)
-        .collection('doners')
-        .orderBy('date', descending: true);
+      String? bloodType,
+      String? searchAddress}) async {
+    Query<Map<String, dynamic>> query =
+        _firestore.collection('bank').doc(governrate).collection('doners');
 
-    if (bloodType != null &&
-        bloodType != ' - عرض كل الفصائل -  ' &&
-        bloodType != 'اي فصيلة') {
+    if (searchAddress != null && searchAddress.isNotEmpty) {
+      // Prefix search using range query
+      // Order must be by address when using range filter on it
+      query = query
+          .where('address', isGreaterThanOrEqualTo: searchAddress)
+          .where('address', isLessThanOrEqualTo: '$searchAddress\uf8ff')
+          .orderBy('address');
+    } else {
+      query = query.orderBy('date', descending: true);
+    }
+
+    if (bloodType != null && bloodType != ' - عرض كل الفصائل - ') {
       query = query.where('fasila', isEqualTo: bloodType);
     }
 
@@ -148,50 +137,35 @@ class FirebaseRepository {
     return await query.limit(limit).get();
   }
 
-  Future<void> addDonorToBank(String city, User user) async {
+  Future<void> addDonorToBank(String governrate, User user) async {
     await _firestore
         .collection('bank')
-        .doc(city)
+        .doc(governrate)
         .collection('doners')
         .doc(user.uid)
         .set(user.toMap());
   }
 
-  Future<void> updateUserPhoneInBank(
-      String uid, String city, String phone) async {
+  Future<void> updateDonorInBank(
+      String uid, String governrate, Map<String, dynamic> data) async {
     await _firestore
         .collection('bank')
-        .doc(city)
+        .doc(governrate)
         .collection('doners')
         .doc(uid)
-        .update({'phone': phone});
+        .update(data);
   }
 
-  Future<void> updateUserDateOfDonationInBank(
-      String uid, String city, String date) async {
-    await _firestore
-        .collection('bank')
-        .doc(city)
-        .collection('doners')
-        .doc(uid)
-        .update({'dateOfDonation': date});
+  Future<void> updateUserBank(String uid, String governrate) async {
+    await _firestore.collection('users').doc(uid).update({
+      'registeredBanks': FieldValue.arrayUnion([governrate])
+    });
   }
 
-  Future<void> updateUserDateOfDonationInBlazmaBank(
-      String uid, String city, String date) async {
-    await _firestore
-        .collection('blazmaBank')
-        .doc(city)
-        .collection('doners')
-        .doc(uid)
-        .update({'dateOfDonation': date});
-  }
-
-  Future<void> updateUserBank(String uid, String city) async {
-    await _firestore
-        .collection('users')
-        .doc(uid)
-        .update({'governrateBank': city});
+  Future<void> removeUserBank(String uid, String governrate) async {
+    await _firestore.collection('users').doc(uid).update({
+      'registeredBanks': FieldValue.arrayRemove([governrate])
+    });
   }
 
   Future<User?> getUserByEmail(String email) async {
@@ -206,10 +180,10 @@ class FirebaseRepository {
     return null;
   }
 
-  Future<void> deleteDonorFromBank(String city, String docId) async {
+  Future<void> deleteDonorFromBank(String governrate, String docId) async {
     await _firestore
         .collection('bank')
-        .doc(city)
+        .doc(governrate)
         .collection('doners')
         .doc(docId)
         .delete();

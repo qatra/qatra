@@ -23,10 +23,10 @@ class GovernorateSelector extends StatelessWidget {
       validator: validator,
       textAlign: TextAlign.center,
       decoration: InputDecoration(
-        labelText: 'المحافظة',
-        labelStyle: const TextStyle(
-          fontFamily: 'Tajawal',
-        ),
+        // labelText: 'المحافظة',
+        // labelStyle: const TextStyle(
+        //   fontFamily: 'Tajawal',
+        // ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20.0),
         ),
@@ -34,6 +34,10 @@ class GovernorateSelector extends StatelessWidget {
             ? Icon(Icons.location_city, color: Colors.red[900])
             : null,
         hintText: selectedGovernorate ?? 'اختر المحافظة',
+        hintStyle: const TextStyle(
+          color: Colors.grey,
+          fontSize: 15.0,
+        ),
       ),
       controller: TextEditingController(text: selectedGovernorate),
     );

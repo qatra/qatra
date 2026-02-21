@@ -1,17 +1,15 @@
 import 'package:flutter/foundation.dart';
-
-import '../helpers/utils_helper.dart';
 import 'package:flutter/material.dart';
-
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:location/location.dart' as lo;
+
+import '../bloc/app_bloc.dart';
+import '../bloc/app_state.dart';
+import '../helpers/utils_helper.dart';
 import '../repositories/firebase_repository.dart';
-import '../utils/constants.dart';
 import '../utils/phone_formatter.dart';
 import '../widgets/fasila_selector.dart';
 import '../widgets/governorate_selector.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import '../bloc/app_bloc.dart';
-import '../bloc/app_state.dart';
 
 class DonationRequestScreen extends StatefulWidget {
   const DonationRequestScreen({super.key});
@@ -87,254 +85,249 @@ class DonationRequestScreenState extends State<DonationRequestScreen> {
             ),
           ),
           body: SingleChildScrollView(
-            child: Column(
-              children: <Widget>[
-                SizedBox(
-                  height: 20,
-                ),
-                Container(
-                  padding: const EdgeInsets.only(top: 0, right: 20, left: 20),
-                  child: Form(
-                    key: _formTlabKey,
-                    child: Column(
-                      children: <Widget>[
-                        FasilaSelector(
-                          selectedFasila: fasila,
-                          fasilaList: bloodTypes,
-                          onFasilaSelected: (value) {
-                            _onDropDownItemSelected(value);
-                          },
-                          validator: (val) {
-                            if (val == null || val.isEmpty) {
-                              return "حدد الفصيلة";
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 15),
-                        TextFormField(
-                          validator: (text) {
-                            if (text == null || text.isEmpty) {
-                              return "ادخل اسم الحالة";
-                            }
-                            return null;
-                          },
-                          textAlign: TextAlign.center,
-                          controller: textFieldController,
-                          onChanged: (text) {
-                            setState(() {
-                              name = text;
-                            });
-                          },
-                          decoration: InputDecoration(
-                            labelText: 'الاسم',
-                            prefixIcon:
-                                Icon(Icons.person, color: Colors.red[900]),
-                            labelStyle: const TextStyle(
-                              fontFamily: 'Tajawal',
-                            ),
-                            hintStyle: const TextStyle(
-                              color: Colors.grey,
-                              fontSize: 16.0,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(20.0),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                        TextFormField(
-                          validator: (text) {
-                            if (text == null || text.isEmpty) {
-                              akias = "---";
-                            }
-                            return null;
-                          },
-                          textAlign: TextAlign.center,
-                          keyboardType: TextInputType.number,
-                          controller: _akias,
-                          onChanged: (text) {
-                            setState(() {
-                              akias = text;
-                            });
-                          },
-                          decoration: InputDecoration(
-                            labelText: 'عدد الأكياس',
-                            prefixIcon:
-                                Icon(Icons.bloodtype, color: Colors.red[900]),
-                            labelStyle: const TextStyle(
-                              fontFamily: 'Tajawal',
-                            ),
-                            hintStyle: const TextStyle(
-                              color: Colors.grey,
-                              fontSize: 16.0,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(20.0),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                        GovernorateSelector(
-                          selectedGovernorate: government,
-                          onGovernorateSelected: (value) {
-                            setState(() {
-                              government = value;
-                              _governmentController.text = value;
-                            });
-                          },
-                          validator: (value) {
-                            if (value == null ||
-                                value.isEmpty ||
-                                value.trim() == "") {
-                              return "ادخل اسم المحافظة";
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 15),
-                        TextFormField(
-                          validator: (text) {
-                            if (text == null || text.isEmpty) {
-                              return "ادخل اسم المدينة";
-                            }
-                            if (text.trim() == "") {
-                              return "ادخل اسم المدينة";
-                            }
-                            return null;
-                          },
-                          textAlign: TextAlign.center,
-                          controller: _madinaController,
-                          onChanged: (text) {
-                            setState(() {
-                              city = text;
-                            });
-                          },
-                          decoration: InputDecoration(
-                            labelText: 'المدينة',
-                            prefixIcon: Icon(Icons.location_city,
-                                color: Colors.red[900]),
-                            labelStyle: const TextStyle(
-                              fontFamily: 'Tajawal',
-                            ),
-                            hintStyle: const TextStyle(
-                              color: Colors.grey,
-                              fontSize: 16.0,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(20.0),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                        TextFormField(
-                          validator: (text) {
-                            if (text == null || text.isEmpty) {
-                              return "ادخل اسم المستشفي";
-                            }
-                            return null;
-                          },
-                          textAlign: TextAlign.center,
-                          controller: null,
-                          onChanged: (text) {
-                            setState(() {
-                              hospital = text;
-                            });
-                          },
-                          decoration: InputDecoration(
-                            labelText: 'اسم المستشفي',
-                            prefixIcon: Icon(Icons.local_hospital,
-                                color: Colors.red[900]),
-                            labelStyle: const TextStyle(
-                              fontFamily: 'Tajawal',
-                            ),
-                            hintStyle: const TextStyle(
-                              color: Colors.grey,
-                              fontSize: 16.0,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(20.0),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                        TextFormField(
-                          initialValue: phone,
-                          validator: (text) {
-                            if (text == null || text.isEmpty) {
-                              return "ادخل رقم تليفون المرافق";
-                            }
-                            if (text.length != 11) {
-                              return "هذا الرقم غير صحيح";
-                            }
-                            return null;
-                          },
-                          keyboardType: const TextInputType.numberWithOptions(),
-                          inputFormatters: [EnglishNumeralsFormatter()],
-                          textAlign: TextAlign.center,
-                          onChanged: (text) {
-                            setState(() {
-                              phone = text;
-                            });
-                          },
-                          decoration: InputDecoration(
-                            labelText: 'رقم المرافق',
-                            prefixIcon:
-                                Icon(Icons.phone, color: Colors.red[900]),
-                            labelStyle: const TextStyle(
-                              fontFamily: 'Tajawal',
-                            ),
-                            hintStyle: const TextStyle(
-                              color: Colors.grey,
-                              fontSize: 16.0,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(20.0),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                        TextFormField(
-                          validator: (text) {
-                            if (text == null || text.isEmpty) {
-                              note = "---";
-                            }
-                            return null;
-                          },
-                          textAlign: TextAlign.center,
-                          keyboardType: TextInputType.multiline,
-                          minLines: 3,
-                          maxLines: null,
-                          controller: null,
-                          onChanged: (text) {
-                            setState(() {
-                              note = text;
-                            });
-                          },
-                          decoration: InputDecoration(
-                            labelText: 'ملاحظات',
-                            prefixIcon:
-                                Icon(Icons.note, color: Colors.red[900]),
-                            labelStyle: const TextStyle(
-                              fontFamily: 'Tajawal',
-                            ),
-                            hintStyle: const TextStyle(
-                              color: Colors.grey,
-                              fontSize: 16.0,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(20.0),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 25,
-                        ),
-                      ],
+            padding: const EdgeInsets.only(top: 20, right: 18, left: 18),
+            child: Form(
+              key: _formTlabKey,
+              child: Column(
+                children: <Widget>[
+                  FasilaSelector(
+                    selectedFasila: fasila,
+                    customFasilaList: [
+                      'AB+',
+                      "AB-",
+                      "A+",
+                      "A-",
+                      "B+",
+                      "B-",
+                      "O+",
+                      "O-",
+                      "اي فصيلة"
+                    ],
+                    onFasilaSelected: (value) {
+                      _onDropDownItemSelected(value);
+                    },
+                    hintText: 'فصيلة الدم',
+                    validator: (val) {
+                      if (val == null || val.isEmpty) {
+                        return "حدد الفصيلة";
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 15),
+                  TextFormField(
+                    validator: (text) {
+                      if (text == null || text.isEmpty) {
+                        return "ادخل اسم الحالة";
+                      }
+                      return null;
+                    },
+                    textAlign: TextAlign.center,
+                    controller: textFieldController,
+                    onChanged: (text) {
+                      setState(() {
+                        name = text;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      hintText: 'الاسم',
+                      prefixIcon: Icon(Icons.person, color: Colors.red[900]),
+                      labelStyle: const TextStyle(
+                          fontFamily: 'Tajawal', color: Colors.black),
+                      hintStyle: const TextStyle(
+                        color: Colors.grey,
+                        fontSize: 15.0,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 15),
+                  GovernorateSelector(
+                    selectedGovernorate: government,
+                    onGovernorateSelected: (value) {
+                      setState(() {
+                        government = value;
+                        _governmentController.text = value;
+                      });
+                    },
+                    validator: (value) {
+                      if (value == null ||
+                          value.isEmpty ||
+                          value.trim() == "") {
+                        return "ادخل اسم المحافظة";
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 15),
+                  TextFormField(
+                    validator: (text) {
+                      if (text == null || text.isEmpty) {
+                        return "ادخل اسم المدينة";
+                      }
+                      if (text.trim() == "") {
+                        return "ادخل اسم المدينة";
+                      }
+                      return null;
+                    },
+                    textAlign: TextAlign.center,
+                    controller: _madinaController,
+                    onChanged: (text) {
+                      setState(() {
+                        city = text;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      hintText: 'المدينة',
+                      prefixIcon:
+                          Icon(Icons.location_city, color: Colors.red[900]),
+                      labelStyle: const TextStyle(
+                        fontFamily: 'Tajawal',
+                      ),
+                      hintStyle: const TextStyle(
+                        color: Colors.grey,
+                        fontSize: 15.0,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  TextFormField(
+                    validator: (text) {
+                      if (text == null || text.isEmpty) {
+                        return "ادخل اسم المستشفي";
+                      }
+                      return null;
+                    },
+                    textAlign: TextAlign.center,
+                    controller: null,
+                    onChanged: (text) {
+                      setState(() {
+                        hospital = text;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      hintText: 'اسم المستشفي',
+                      prefixIcon:
+                          Icon(Icons.local_hospital, color: Colors.red[900]),
+                      labelStyle: const TextStyle(
+                        fontFamily: 'Tajawal',
+                      ),
+                      hintStyle: const TextStyle(
+                        color: Colors.grey,
+                        fontSize: 15.0,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  TextFormField(
+                    initialValue: phone,
+                    validator: (text) {
+                      if (text == null || text.isEmpty) {
+                        return "ادخل رقم تليفون المرافق";
+                      }
+                      if (text.length != 11) {
+                        return "هذا الرقم غير صحيح";
+                      }
+                      return null;
+                    },
+                    keyboardType: const TextInputType.numberWithOptions(),
+                    inputFormatters: [EnglishNumeralsFormatter()],
+                    textAlign: TextAlign.center,
+                    onChanged: (text) {
+                      setState(() {
+                        phone = text;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      hintText: 'رقم المرافق',
+                      prefixIcon: Icon(Icons.phone, color: Colors.red[900]),
+                      labelStyle: const TextStyle(
+                        fontFamily: 'Tajawal',
+                      ),
+                      hintStyle: const TextStyle(
+                        color: Colors.grey,
+                        fontSize: 15.0,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  TextFormField(
+                    validator: (text) {
+                      if (text == null || text.isEmpty) {
+                        akias = "---";
+                      }
+                      return null;
+                    },
+                    textAlign: TextAlign.center,
+                    keyboardType: TextInputType.number,
+                    controller: _akias,
+                    onChanged: (text) {
+                      setState(() {
+                        akias = text;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      hintText: 'عدد الأكياس',
+                      prefixIcon: Icon(Icons.bloodtype, color: Colors.red[900]),
+                      labelStyle: const TextStyle(
+                        fontFamily: 'Tajawal',
+                      ),
+                      hintStyle: const TextStyle(
+                        color: Colors.grey,
+                        fontSize: 15.0,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  TextFormField(
+                    validator: (text) {
+                      if (text == null || text.isEmpty) {
+                        note = "---";
+                      }
+                      return null;
+                    },
+                    textAlign: TextAlign.center,
+                    keyboardType: TextInputType.multiline,
+                    controller: null,
+                    onChanged: (text) {
+                      setState(() {
+                        note = text;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      hintText: 'ملاحظات',
+                      prefixIcon: Icon(Icons.note, color: Colors.red[900]),
+                      labelStyle: const TextStyle(
+                        fontFamily: 'Tajawal',
+                      ),
+                      hintStyle: const TextStyle(
+                        color: Colors.grey,
+                        fontSize: 15.0,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 25,
+                  ),
+                ],
+              ),
             ),
           ),
           bottomNavigationBar: Container(
@@ -357,7 +350,7 @@ class DonationRequestScreenState extends State<DonationRequestScreen> {
                 ),
               ],
             ),
-            padding: EdgeInsets.only(right: 22, left: 22, top: 16, bottom: 30),
+            padding: EdgeInsets.only(right: 18, left: 18, top: 16, bottom: 30),
             child: _isLoading
                 ? Image.asset(
                     "assets/loading.gif",
@@ -380,7 +373,7 @@ class DonationRequestScreenState extends State<DonationRequestScreen> {
                             fontFamily: 'Tajawal',
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
-                            fontSize: 17),
+                            fontSize: 18),
                       ),
                     ),
                   ),
@@ -471,7 +464,7 @@ class DonationRequestScreenState extends State<DonationRequestScreen> {
 
     showNotification("تم اضافة طلب التبرع بنجاح", context);
     if (context.mounted) {
-      Navigator.pop(context);
+      Navigator.pop(context, true);
     }
   }
 }

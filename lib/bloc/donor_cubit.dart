@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../repositories/firebase_repository.dart';
 
@@ -9,6 +10,7 @@ class DonorState {
   final String? error;
   final String? bloodType;
   final String? currentCity;
+  final String searchQuery;
 
   DonorState({
     required this.isLoading,
@@ -17,13 +19,15 @@ class DonorState {
     this.error,
     this.bloodType,
     this.currentCity,
+    this.searchQuery = "",
   });
 
   factory DonorState.initial() => DonorState(
         isLoading: false,
         donors: [],
         hasMore: true,
-        bloodType: ' - عرض كل الفصائل -  ',
+        bloodType: ' - عرض كل الفصائل - ',
+        searchQuery: "",
       );
 
   DonorState copyWith({
@@ -33,6 +37,7 @@ class DonorState {
     String? error,
     String? bloodType,
     String? currentCity,
+    String? searchQuery,
   }) {
     return DonorState(
       isLoading: isLoading ?? this.isLoading,
@@ -41,6 +46,7 @@ class DonorState {
       error: error,
       bloodType: bloodType ?? this.bloodType,
       currentCity: currentCity ?? this.currentCity,
+      searchQuery: searchQuery ?? this.searchQuery,
     );
   }
 }
@@ -72,6 +78,7 @@ class DonorCubit extends Cubit<DonorState> {
         city,
         lastDocument: lastDoc,
         bloodType: state.bloodType,
+        searchAddress: state.searchQuery,
       );
 
       final newDonors = querySnapshot.docs;
@@ -84,6 +91,7 @@ class DonorCubit extends Cubit<DonorState> {
         hasMore: newDonors.length == 10,
       ));
     } catch (e) {
+      debugPrint(e.toString());
       emit(state.copyWith(isLoading: false, error: e.toString()));
     }
   }
@@ -92,6 +100,13 @@ class DonorCubit extends Cubit<DonorState> {
     if (state.bloodType == bloodType && state.currentCity == city) return;
     emit(state.copyWith(
         bloodType: bloodType, donors: [], hasMore: true, currentCity: city));
+    fetchDonors(city, refresh: true);
+  }
+
+  void setSearchQuery(String query, String city) {
+    if (state.searchQuery == query && state.currentCity == city) return;
+    emit(state.copyWith(
+        searchQuery: query, donors: [], hasMore: true, currentCity: city));
     fetchDonors(city, refresh: true);
   }
 }
