@@ -308,7 +308,7 @@ class GovernrateBankState extends State<GovernrateBank> {
                 ? Padding(
                     padding: const EdgeInsetsDirectional.only(end: 5),
                     child: IconButton(
-                      icon: const Icon(Icons.clear),
+                      icon: const Icon(Icons.clear, size: 24),
                       onPressed: () {
                         _searchController.clear();
                         if (_searchDebounce?.isActive ?? false) {

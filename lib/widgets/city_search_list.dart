@@ -50,7 +50,7 @@ class _GovernrateSearchListState extends State<GovernrateSearchList> {
                   ? Padding(
                       padding: const EdgeInsetsDirectional.only(end: 5),
                       child: IconButton(
-                        icon: const Icon(Icons.clear),
+                        icon: const Icon(Icons.clear, size: 24),
                         onPressed: () {
                           _searchController.clear();
                           _filterCities('');
