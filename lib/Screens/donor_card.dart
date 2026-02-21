@@ -92,10 +92,12 @@ class DonorCardState extends State<DonorCard> {
             children: <Widget>[
               Text(
                 widget.address ?? '',
+                textAlign: TextAlign.center,
                 style: TextStyle(fontFamily: 'Tajawal', fontSize: 18),
               ),
               Text(
                 widget.displayName ?? "",
+                textAlign: TextAlign.center,
                 style: TextStyle(
                     fontFamily: 'Tajawal',
                     color: Colors.grey[700],
