@@ -100,8 +100,10 @@ class RegisterPageState extends State<RegisterPage> {
                               },
                               decoration: InputDecoration(
                                   hintText: 'الاسم',
-                                  labelStyle: TextStyle(
+                                  hintStyle: TextStyle(
                                     fontFamily: 'Tajawal',
+                                    fontSize: 15,
+                                    color: Colors.black54,
                                   ),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(20.0),
@@ -142,8 +144,10 @@ class RegisterPageState extends State<RegisterPage> {
                                 },
                                 decoration: InputDecoration(
                                     hintText: 'البريد الالكتروني',
-                                    labelStyle: TextStyle(
+                                    hintStyle: TextStyle(
                                       fontFamily: 'Tajawal',
+                                      fontSize: 15,
+                                      color: Colors.black54,
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(20.0),
@@ -177,8 +181,10 @@ class RegisterPageState extends State<RegisterPage> {
                                 },
                                 decoration: InputDecoration(
                                     hintText: 'رقم التليفون',
-                                    labelStyle: TextStyle(
+                                    hintStyle: TextStyle(
                                       fontFamily: 'Tajawal',
+                                      fontSize: 15,
+                                      color: Colors.black54,
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(20.0),
@@ -190,12 +196,13 @@ class RegisterPageState extends State<RegisterPage> {
                               padding: const EdgeInsets.only(top: 17),
                               child: FasilaSelector(
                                 selectedFasila: _currentFasilaSelected,
+                                hintText: "اختر فصيلة دمك",
                                 onFasilaSelected: (value) {
                                   _onDropDownItemSelected(value);
                                 },
                                 validator: (val) {
                                   if (val == null || val.isEmpty) {
-                                    return "حدد فصييلة دمك";
+                                    return "حدد فصيلة دمك";
                                   }
                                   return null;
                                 },
@@ -205,6 +212,7 @@ class RegisterPageState extends State<RegisterPage> {
                               padding: const EdgeInsets.only(top: 17),
                               child: GovernorateSelector(
                                 selectedGovernorate: governorate,
+                                iconColor: Colors.black,
                                 onGovernorateSelected: (value) {
                                   setState(() {
                                     governorate = value;
@@ -242,43 +250,85 @@ class RegisterPageState extends State<RegisterPage> {
                                 },
                                 decoration: InputDecoration(
                                   hintText: 'المنطقة',
-                                  labelStyle: const TextStyle(
+                                  hintStyle: TextStyle(
                                     fontFamily: 'Tajawal',
+                                    fontSize: 15,
+                                    color: Colors.black54,
                                   ),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(20.0),
                                   ),
+                                  prefixIcon: Icon(Icons.location_city),
                                 ),
                               ),
                             ),
                             Container(
                               padding: EdgeInsets.only(top: 13),
-                              child: SizedBox(
-                                width: 300,
-                                height: 37,
-                                child: ElevatedButton(
-                                  onPressed: () async {
-                                    _formKey.currentState!.validate()
-                                        ? creatUser()
-                                        : debugPrint("not valid");
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(20)),
-                                      backgroundColor: Colors.red[900]!),
-                                  child: Text(
-                                    'إنشاء حساب',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: 'Tajawal',
+                              child: Column(
+                                children: [
+                                  SizedBox(
+                                    width: 300,
+                                    height: 37,
+                                    child: ElevatedButton(
+                                      onPressed: () async {
+                                        _formKey.currentState!.validate()
+                                            ? creatUser()
+                                            : debugPrint("not valid");
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(20)),
+                                          backgroundColor: Colors.red[900]!),
+                                      child: Text(
+                                        'إنشاء حساب',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'Tajawal',
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
+                                  const SizedBox(height: 15),
+                                  SizedBox(
+                                    width: 300,
+                                    height: 37,
+                                    child: ElevatedButton(
+                                      onPressed: () async {
+                                        // Fast registration: strictly email check if not from Google
+                                        if (widget.emailFromGoogle == null) {
+                                          if (email == null ||
+                                              email!.isEmpty ||
+                                              !email!.contains("@") ||
+                                              !email!.contains(".")) {
+                                            showNotification(
+                                                "برجاء كتابة بريد الكتروني صحيح للتسجيل السريع",
+                                                context);
+                                            return;
+                                          }
+                                        }
+                                        creatUser(isFast: true);
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(20)),
+                                          backgroundColor: Colors.grey[800]),
+                                      child: Text(
+                                        'تسجيل سريع',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'Tajawal',
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            SizedBox(height: 10),
+                            SizedBox(height: 15),
                             TextButton(
                               child: Text(
                                 'لديك حساب ؟ سجل دخولك من هنا .',
@@ -336,7 +386,7 @@ class RegisterPageState extends State<RegisterPage> {
     }
   }
 
-  creatUser() async {
+  creatUser({bool isFast = false}) async {
     setState(() {
       showSpinner = true;
     });
@@ -359,11 +409,11 @@ class RegisterPageState extends State<RegisterPage> {
         _user = User(
             uid: firebaseUser!.uid,
             email: firebaseUser.email,
-            displayName: name,
-            phone: phoneNumber,
-            fasila: _currentFasilaSelected,
-            address: address,
-            governorate: governorate,
+            displayName: isFast ? "----" : name,
+            phone: isFast ? "----" : phoneNumber,
+            fasila: isFast ? "----" : _currentFasilaSelected,
+            address: isFast ? "----" : address,
+            governorate: isFast ? "----" : governorate,
             date: now,
             dateOfDonation: "----");
 

@@ -11,6 +11,7 @@ import '../bloc/app_bloc.dart';
 import '../bloc/app_state.dart';
 import '../user_model.dart';
 import 'add_doner_to_bank.dart';
+import 'my_profile_page.dart';
 import '../repositories/firebase_repository.dart';
 
 final FirebaseRepository _firebaseRepo = FirebaseRepository.instance;
@@ -59,6 +60,21 @@ class GovernrateBankState extends State<GovernrateBank> {
     }
   }
 
+  bool _isProfileComplete(User? user) {
+    if (user == null) return false;
+    // Check for "----" or null/empty
+    bool isInvalid(String? value) =>
+        value == null || value.isEmpty || value == "----";
+
+    if (isInvalid(user.displayName)) return false;
+    if (isInvalid(user.phone)) return false;
+    if (isInvalid(user.fasila)) return false;
+    if (isInvalid(user.governorate)) return false;
+    if (isInvalid(user.address)) return false;
+
+    return true;
+  }
+
   Future<void> addMyAccToBank() async {
     try {
       auth.User? firebaseUser = _firebaseRepo.currentUser;
@@ -90,7 +106,9 @@ class GovernrateBankState extends State<GovernrateBank> {
   Future<void> makeUserObject() async {
     final state = context.read<AppCubit>().state;
     if (state is AppAuthenticated && state.userProfile != null) {
-      _user = state.userProfile;
+      final currentUser = state.userProfile;
+
+      _user = currentUser;
       var now = DateTime.now();
       if (_user != null) {
         _user!.date = now;
@@ -329,7 +347,19 @@ class GovernrateBankState extends State<GovernrateBank> {
               if (!isUserInBank)
                 ElevatedButton(
                   onPressed: () {
-                    creatAlertDialog(context, widget.governrate);
+                    final currentUser = (state as AppAuthenticated).userProfile;
+                    if (!_isProfileComplete(currentUser)) {
+                      showNotification("يجب عليك إكمال بياناتك أولاً", context);
+                      if (context.mounted) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const MyProfilePage()),
+                        );
+                      }
+                    } else {
+                      creatAlertDialog(context, widget.governrate);
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(
