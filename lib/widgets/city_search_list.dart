@@ -35,30 +35,31 @@ class _GovernrateSearchListState extends State<GovernrateSearchList> {
             right: 18,
             left: 18,
           ),
-          child: SizedBox(
-            height: 42,
-            child: TextFormField(
-              controller: _searchController,
-              onChanged: _filterCities,
-              textAlign: TextAlign.right,
-              decoration: InputDecoration(
-                hintText: 'ابحث عن المحافظة',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: _searchController.text.isNotEmpty
-                    ? Padding(
-                        padding: const EdgeInsetsDirectional.only(end: 5),
-                        child: IconButton(
-                          icon: const Icon(Icons.clear),
-                          onPressed: () {
-                            _searchController.clear();
-                            _filterCities('');
-                          },
-                        ),
-                      )
-                    : null,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(25.0),
-                ),
+          child: TextFormField(
+            controller: _searchController,
+            onChanged: _filterCities,
+            textAlign: TextAlign.right,
+            decoration: InputDecoration(
+              hintText: 'ابحث عن المحافظة',
+              isDense: true,
+              prefixIcon: const Icon(
+                Icons.search,
+                size: 24,
+              ),
+              suffixIcon: _searchController.text.isNotEmpty
+                  ? Padding(
+                      padding: const EdgeInsetsDirectional.only(end: 5),
+                      child: IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          _searchController.clear();
+                          _filterCities('');
+                        },
+                      ),
+                    )
+                  : null,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(25.0),
               ),
             ),
           ),
