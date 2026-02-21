@@ -59,6 +59,9 @@ class DonorProfileScreenState extends State<DonorProfileScreen> {
           body: SafeArea(
             child: ListView(
               children: <Widget>[
+                SizedBox(
+                  height: 15,
+                ),
                 Stack(
                   children: <Widget>[
                     Padding(

@@ -53,7 +53,7 @@ class FasilaSelector extends StatelessWidget {
           size: 24,
         ),
         labelStyle: TextStyle(fontFamily: "Tajawal", color: Colors.black),
-        contentPadding: const EdgeInsets.symmetric(vertical: 13.5),
+        contentPadding: const EdgeInsets.symmetric(vertical: 10),
       ),
       validator: validator,
       items: listToDisplay.map((String dropDownStringItem) {

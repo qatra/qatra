@@ -88,7 +88,7 @@ class MyProfilePageState extends State<MyProfilePage> {
                     child: Text(isOptional ? '(اختياري)' : ''),
                   ),
                 IconButton(
-                  icon: const Icon(Icons.edit, color: Colors.blue),
+                  icon: const Icon(Icons.edit, color: Colors.blueGrey),
                   onPressed: onEdit,
                 ),
               ],

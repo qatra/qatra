@@ -283,7 +283,7 @@ class GovernrateBankState extends State<GovernrateBank> {
         horizontal: 20,
       ),
       child: SizedBox(
-        height: 42,
+        // height: 42,
         child: TextField(
           controller: _searchController,
           onChanged: (value) {
@@ -298,6 +298,7 @@ class GovernrateBankState extends State<GovernrateBank> {
             });
           },
           decoration: InputDecoration(
+            isDense: true,
             hintText: "ابحث بالعنوان",
             prefixIcon: Icon(
               Icons.search,
@@ -345,30 +346,31 @@ class GovernrateBankState extends State<GovernrateBank> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               if (!isUserInBank)
-                ElevatedButton(
-                  onPressed: () {
-                    final currentUser = (state as AppAuthenticated).userProfile;
-                    if (!_isProfileComplete(currentUser)) {
-                      showNotification("يجب عليك إكمال بياناتك أولاً", context);
-                      if (context.mounted) {
-                        Navigator.popUntil(context, (route) => route.isFirst);
-                        MainScreen.changeTabNotifier.value =
-                            2; // MyProfilePage is at index 2
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      final currentUser =
+                          (state as AppAuthenticated).userProfile;
+                      if (!_isProfileComplete(currentUser)) {
+                        showNotification(
+                            "يجب عليك إكمال بياناتك أولاً", context);
+                        if (context.mounted) {
+                          Navigator.popUntil(context, (route) => route.isFirst);
+                          MainScreen.changeTabNotifier.value =
+                              2; // MyProfilePage is at index 2
+                        }
+                      } else {
+                        creatAlertDialog(context, widget.governrate);
                       }
-                    } else {
-                      creatAlertDialog(context, widget.governrate);
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20)),
-                    backgroundColor: Colors.red,
-                  ),
-                  child: const SizedBox(
-                    width: 135,
+                    },
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
+                      backgroundColor: Colors.red,
+                    ),
                     child: Center(
                       child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 6),
+                        padding: EdgeInsets.symmetric(vertical: 4),
                         child: Text(
                           'اضف حسابك\nالي بنك الدم',
                           textAlign: TextAlign.center,
@@ -384,31 +386,30 @@ class GovernrateBankState extends State<GovernrateBank> {
                   ),
                 ),
               if (!isUserInBank) const SizedBox(width: 10),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  AddDonerToBank(widget.governrate)))
-                      .then((result) {
-                    if (result == true && context.mounted) {
-                      context
-                          .read<DonorCubit>()
-                          .fetchDonors(widget.governrate, refresh: true);
-                    }
-                  });
-                },
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20)),
-                  backgroundColor: Colors.green,
-                ),
-                child: const SizedBox(
-                  width: 135,
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    AddDonerToBank(widget.governrate)))
+                        .then((result) {
+                      if (result == true && context.mounted) {
+                        context
+                            .read<DonorCubit>()
+                            .fetchDonors(widget.governrate, refresh: true);
+                      }
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20)),
+                    backgroundColor: Colors.green,
+                  ),
                   child: Center(
                     child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 6),
+                      padding: EdgeInsets.symmetric(vertical: 4),
                       child: Text(
                         'أضف متبرع\nالي بنك الدم',
                         textAlign: TextAlign.center,
