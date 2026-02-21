@@ -234,7 +234,7 @@ class UserInfoState extends State<UserInfo> {
                       style: TextStyle(
                         fontFamily: 'Tajawal',
                       )),
-                  subtitle: Text(_buildFullAddress(widget.user),
+                  subtitle: Text(widget.user.address ?? "-",
                       style: TextStyle(
                           fontFamily: 'Tajawal',
                           color: Colors.red[900],
@@ -247,7 +247,7 @@ class UserInfoState extends State<UserInfo> {
                       style: TextStyle(
                         fontFamily: 'Tajawal',
                       )),
-                  subtitle: Text(widget.user.email ?? "-",
+                  subtitle: Text(widget.user.email,
                       style: TextStyle(
                           color: Colors.red[900],
                           fontWeight: FontWeight.bold,
@@ -270,17 +270,5 @@ class UserInfoState extends State<UserInfo> {
         ),
       ),
     );
-  }
-
-  String _buildFullAddress(User user) {
-    final gov = user.governorate;
-    final addr = user.address;
-    if (gov != null && gov.isNotEmpty) {
-      if (addr != null && addr.isNotEmpty) {
-        return '$gov - $addr';
-      }
-      return gov;
-    }
-    return addr ?? "-";
   }
 }
