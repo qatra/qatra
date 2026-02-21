@@ -118,6 +118,7 @@ class PostBubbleState extends State<PostBubble> {
                 padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                 child: SingleChildScrollView(
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -138,132 +139,109 @@ class PostBubbleState extends State<PostBubble> {
                       SizedBox(
                         height: 5,
                       ),
-                      Row(
-                        children: <Widget>[
-                          Icon(
-                            Icons.location_on,
-                            color: Colors.red[700],
-                            size: 20,
-                          ),
-                          SizedBox(
-                            width: 5,
-                          ),
-                          Flexible(
-                            child: Padding(
-                              padding:
-                                  const EdgeInsetsDirectional.only(end: 30),
-                              child: Text(
-                                  "${widget.government} -- ${widget.city}",
-                                  style: TextStyle(
-                                      fontFamily: 'Tajawal',
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.red[500],
-                                      fontSize: 16,
-                                      letterSpacing: .3)),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 3,
-                      ),
-                      Row(
-                        children: <Widget>[
-                          Icon(
-                            Icons.local_hospital,
-                            color: Colors.red[700],
-                            size: 20,
-                          ),
-                          SizedBox(
-                            width: 5,
-                          ),
-                          Flexible(
-                            child: Row(
-                              children: <Widget>[
-                                Flexible(
-                                  child: RichText(
-                                    text: TextSpan(children: <TextSpan>[
-                                      TextSpan(
-                                        text: 'اسم المستشفي :',
-                                        style: TextStyle(
-                                            fontFamily: 'Tajawal',
-                                            color: Colors.grey[800],
-                                            fontSize: 14,
-                                            letterSpacing: .3),
-                                      ),
-                                    ]),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 2,
-                                ),
-                                Flexible(
-                                  child: Padding(
-                                    padding: const EdgeInsetsDirectional.only(
-                                        end: 30),
-                                    child: RichText(
-                                      text: TextSpan(
-                                        text: '${widget.hospital}',
-                                        style: TextStyle(
-                                            fontFamily: 'Tajawal',
-                                            color: Colors.red[500],
-                                            fontSize: 16,
-                                            letterSpacing: .3),
-                                      ),
-                                    ),
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 3,
-                      ),
-                      Row(
-                        children: <Widget>[
-                          Icon(
-                            Icons.account_circle,
-                            color: Colors.red[700],
-                            size: 20,
-                          ),
-                          SizedBox(
-                            width: 5,
-                          ),
-                          Flexible(
-                            child: Padding(
-                              padding:
-                                  const EdgeInsetsDirectional.only(end: 30),
-                              child: RichText(
-                                text: TextSpan(children: <TextSpan>[
-                                  TextSpan(
-                                    text: 'اسم الحالة :',
-                                    style: TextStyle(
-                                        fontFamily: 'Tajawal',
-                                        color: Colors.grey[800],
-                                        fontSize: 16,
-                                        letterSpacing: .3),
-                                  ),
-                                  TextSpan(
-                                    text: ' ${widget.name}',
-                                    style: TextStyle(
-                                        fontFamily: 'Tajawal',
-                                        color: Colors.red[500],
-                                        fontSize: 16,
-                                        letterSpacing: .3),
-                                  ),
-                                ]),
+                      Padding(
+                        padding: const EdgeInsetsDirectional.only(end: 30),
+                        child: RichText(
+                          text: TextSpan(children: [
+                            WidgetSpan(
+                              child: Icon(
+                                Icons.location_on,
+                                color: Colors.red[700],
+                                size: 20,
                               ),
                             ),
-                          )
-                        ],
+                            TextSpan(
+                              text: ' ',
+                            ),
+                            TextSpan(
+                              text: "${widget.government} -- ${widget.city}",
+                              style: TextStyle(
+                                  fontFamily: 'Tajawal',
+                                  color: Colors.red[500],
+                                  fontSize: 16,
+                                  letterSpacing: .3),
+                            ),
+                          ]),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 3,
+                      ),
+                      Padding(
+                        padding: const EdgeInsetsDirectional.only(end: 30),
+                        child: RichText(
+                          textDirection: TextDirection.rtl,
+                          text: TextSpan(children: [
+                            WidgetSpan(
+                              child: Icon(
+                                Icons.local_hospital,
+                                color: Colors.red[700],
+                                size: 20,
+                              ),
+                            ),
+                            TextSpan(
+                              text: ' ',
+                            ),
+                            TextSpan(
+                              text: 'اسم المستشفي :',
+                              style: TextStyle(
+                                  fontFamily: 'Tajawal',
+                                  color: Colors.grey[800],
+                                  fontSize: 14,
+                                  letterSpacing: .3),
+                            ),
+                            TextSpan(
+                              text: ' ${widget.hospital}',
+                              style: TextStyle(
+                                  fontFamily: 'Tajawal',
+                                  color: Colors.red[500],
+                                  fontSize: 16,
+                                  letterSpacing: .3),
+                            )
+                          ]),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 3,
+                      ),
+                      Padding(
+                        padding: const EdgeInsetsDirectional.only(end: 30),
+                        child: RichText(
+                          text: TextSpan(children: [
+                            WidgetSpan(
+                              child: Icon(
+                                Icons.account_circle,
+                                color: Colors.red[700],
+                                size: 20,
+                              ),
+                            ),
+                            TextSpan(
+                              text: ' ',
+                            ),
+                            TextSpan(
+                              text: 'اسم الحالة :',
+                              style: TextStyle(
+                                  fontFamily: 'Tajawal',
+                                  color: Colors.grey[800],
+                                  fontSize: 16,
+                                  letterSpacing: .3),
+                            ),
+                            TextSpan(
+                              text: ' ${widget.name}',
+                              style: TextStyle(
+                                  fontFamily: 'Tajawal',
+                                  color: Colors.red[500],
+                                  fontSize: 16,
+                                  letterSpacing: .3),
+                            ),
+                          ]),
+                        ),
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: <Widget>[
                           Container(
-                            padding: EdgeInsets.only(top: 1),
+                            padding: EdgeInsets.only(top: 5),
                             child: Text(
                               changeDateFormat(),
                               style: TextStyle(fontSize: 14),
@@ -436,15 +414,17 @@ class PostBubbleState extends State<PostBubble> {
                                 )),
                           ],
                         ),
-                      AnimatedRotation(
-                        turns: isExpanded ? 0.5 : 0.0,
-                        // 0.5 turn = 180 degrees
-                        duration: const Duration(milliseconds: 300),
+                      Center(
+                        child: AnimatedRotation(
+                          turns: isExpanded ? 0.5 : 0.0,
+                          // 0.5 turn = 180 degrees
+                          duration: const Duration(milliseconds: 300),
 
-                        curve: Curves.easeInOut,
-                        child: const Icon(
-                          Icons.keyboard_arrow_down,
-                          size: 24,
+                          curve: Curves.easeInOut,
+                          child: const Icon(
+                            Icons.keyboard_arrow_down,
+                            size: 24,
+                          ),
                         ),
                       )
                     ],
