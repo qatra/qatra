@@ -49,6 +49,12 @@ class RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
 
   @override
+  void initState() {
+    super.initState();
+    _emailController.text = widget.emailFromGoogle;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: TextDirection.rtl,
@@ -61,276 +67,260 @@ class RegisterPageState extends State<RegisterPage> {
               key: _formKey,
               child: ListView(
                 shrinkWrap: true,
-                padding: EdgeInsets.all(15.0),
+                padding: EdgeInsets.all(18.0),
                 children: <Widget>[
+                  TextFormField(
+                    validator: (text) {
+                      if (text == null || text.isEmpty) {
+                        return "برجاء كتابة الاسم";
+                      }
+                      if (text.length > 40) {
+                        return "الاسم طويل جدا";
+                      }
+                      if (text.trim() == "") {
+                        return "لا يجب ان يكون الاسم كله مسافات";
+                      }
+                      if (text.length < 2) {
+                        return "الاسم قصير جدا";
+                      }
+                      return null;
+                    },
+                    textAlign: TextAlign.center,
+                    controller: _nameController,
+                    onChanged: (text) {
+                      setState(() {
+                        name = text;
+                      });
+                    },
+                    decoration: InputDecoration(
+                        hintText: 'الاسم',
+                        hintStyle: TextStyle(
+                          fontFamily: 'Tajawal',
+                          fontSize: 15,
+                          color: Colors.black54,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                        prefixIcon: Icon(Icons.account_circle)),
+                  ),
                   Container(
-                    padding: EdgeInsets.only(
-                        top: 5.0, right: 20.0, left: 20.0, bottom: 10),
+                    padding: EdgeInsets.only(top: 17),
+                    child: TextFormField(
+                      readOnly: true,
+                      // enabled: widget.emailFromGoogle == null,
+                      validator: (text) {
+                        if (text == null || text.isEmpty) {
+                          return "برجاء كتابة البريد الالكتروني";
+                        }
+                        if (text.length > 50) {
+                          return "البريد الالكتروني طويل جدا";
+                        }
+                        if (text.contains(" ")) {
+                          return "لا يجب ان توجد مسافات في البريد الالكتروني";
+                        }
+                        if (!text.contains("@") || !text.contains(".")) {
+                          return "البريد الالكتروني غير صحيح";
+                        }
+                        if (text.length < 2) {
+                          return "البريد الالكتروني قصير جدا";
+                        }
+                        return null;
+                      },
+                      keyboardType: TextInputType.emailAddress,
+                      textAlign: TextAlign.center,
+                      controller: _emailController,
+                      // onChanged: (text) {
+                      //   setState(() {
+                      //     email = text;
+                      //   });
+                      // },
+                      decoration: InputDecoration(
+                          hintText: 'البريد الالكتروني',
+                          hintStyle: TextStyle(
+                            fontFamily: 'Tajawal',
+                            fontSize: 15,
+                            color: Colors.black54,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                          ),
+                          prefixIcon: Icon(Icons.email)),
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.only(top: 17),
+                    child: TextFormField(
+                      validator: (text) {
+                        if (text == null) return null;
+                        if (text.contains(" ")) {
+                          return "لا يجب ان توجد مسافات في رقم التليفون";
+                        }
+                        if (text.isEmpty) {
+                          return "برجاء كتابة رقم التليفون";
+                        }
+                        if (text.length != 11) {
+                          return "رقم التليفون غير صحيح";
+                        }
+                        return null;
+                      },
+                      textAlign: TextAlign.center,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [EnglishNumeralsFormatter()],
+                      onChanged: (text) {
+                        setState(() {
+                          phoneNumber = text;
+                        });
+                      },
+                      decoration: InputDecoration(
+                          hintText: 'رقم التليفون',
+                          hintStyle: TextStyle(
+                            fontFamily: 'Tajawal',
+                            fontSize: 15,
+                            color: Colors.black54,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                          ),
+                          prefixIcon: Icon(Icons.phone_android)),
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.only(top: 17),
+                    child: FasilaSelector(
+                      selectedFasila: _currentFasilaSelected,
+                      hintText: "اختر فصيلة دمك",
+                      onFasilaSelected: (value) {
+                        _onDropDownItemSelected(value);
+                      },
+                      validator: (val) {
+                        if (val == null || val.isEmpty) {
+                          return "حدد فصيلة دمك";
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.only(top: 17),
+                    child: GovernorateSelector(
+                      selectedGovernorate: governorate,
+                      iconColor: Colors.black,
+                      onGovernorateSelected: (value) {
+                        setState(() {
+                          governorate = value;
+                        });
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "برجاء اختيار المحافظة";
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.only(top: 17),
+                    child: TextFormField(
+                      controller: _addressController,
+                      validator: (text) {
+                        if (text == null || text.isEmpty) {
+                          return "برجاء كتابة المنطقة";
+                        }
+                        if (text.length > 60) {
+                          return "العنوان طويل جدا";
+                        }
+                        if (text.length < 2) {
+                          return "العنوان قصير جدا";
+                        }
+                        return null;
+                      },
+                      textAlign: TextAlign.center,
+                      onChanged: (text) {
+                        setState(() {
+                          address = text;
+                        });
+                      },
+                      decoration: InputDecoration(
+                        hintText: 'المنطقة',
+                        hintStyle: TextStyle(
+                          fontFamily: 'Tajawal',
+                          fontSize: 15,
+                          color: Colors.black54,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                        prefixIcon: Icon(Icons.location_city),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.only(top: 13),
                     child: Column(
-                      children: <Widget>[
-                        Column(
-                          children: <Widget>[
-                            TextFormField(
-                              validator: (text) {
-                                if (text == null || text.isEmpty) {
-                                  return "برجاء كتابة الاسم";
-                                }
-                                if (text.length > 40) {
-                                  return "الاسم طويل جدا";
-                                }
-                                if (text.trim() == "") {
-                                  return "لا يجب ان يكون الاسم كله مسافات";
-                                }
-                                if (text.length < 2) {
-                                  return "الاسم قصير جدا";
-                                }
-                                return null;
-                              },
-                              textAlign: TextAlign.center,
-                              controller: _nameController,
-                              onChanged: (text) {
-                                setState(() {
-                                  name = text;
-                                });
-                              },
-                              decoration: InputDecoration(
-                                  hintText: 'الاسم',
-                                  hintStyle: TextStyle(
-                                    fontFamily: 'Tajawal',
-                                    fontSize: 15,
-                                    color: Colors.black54,
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(20.0),
-                                  ),
-                                  prefixIcon: Icon(Icons.account_circle)),
-                            ),
-                            Container(
-                              padding: EdgeInsets.only(top: 17),
-                              child: TextFormField(
-                                readOnly: true,
-                                // enabled: widget.emailFromGoogle == null,
-                                validator: (text) {
-                                  if (text == null || text.isEmpty) {
-                                    return "برجاء كتابة البريد الالكتروني";
-                                  }
-                                  if (text.length > 50) {
-                                    return "البريد الالكتروني طويل جدا";
-                                  }
-                                  if (text.contains(" ")) {
-                                    return "لا يجب ان توجد مسافات في البريد الالكتروني";
-                                  }
-                                  if (!text.contains("@") ||
-                                      !text.contains(".")) {
-                                    return "البريد الالكتروني غير صحيح";
-                                  }
-                                  if (text.length < 2) {
-                                    return "البريد الالكتروني قصير جدا";
-                                  }
-                                  return null;
-                                },
-                                keyboardType: TextInputType.emailAddress,
-                                textAlign: TextAlign.center,
-                                controller: _emailController,
-                                // onChanged: (text) {
-                                //   setState(() {
-                                //     email = text;
-                                //   });
-                                // },
-                                decoration: InputDecoration(
-                                    hintText: 'البريد الالكتروني',
-                                    hintStyle: TextStyle(
-                                      fontFamily: 'Tajawal',
-                                      fontSize: 15,
-                                      color: Colors.black54,
-                                    ),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(20.0),
-                                    ),
-                                    prefixIcon: Icon(Icons.email)),
+                      children: [
+                        SizedBox(
+                          width: 300,
+                          height: 37,
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              _formKey.currentState!.validate()
+                                  ? creatUser()
+                                  : debugPrint("not valid");
+                            },
+                            style: ElevatedButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20)),
+                                backgroundColor: Colors.red[900]!),
+                            child: Text(
+                              'إنشاء حساب',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Tajawal',
                               ),
                             ),
-                            Container(
-                              padding: EdgeInsets.only(top: 17),
-                              child: TextFormField(
-                                validator: (text) {
-                                  if (text == null) return null;
-                                  if (text.contains(" ")) {
-                                    return "لا يجب ان توجد مسافات في رقم التليفون";
-                                  }
-                                  if (text.isEmpty) {
-                                    return "برجاء كتابة رقم التليفون";
-                                  }
-                                  if (text.length != 11) {
-                                    return "رقم التليفون غير صحيح";
-                                  }
-                                  return null;
-                                },
-                                textAlign: TextAlign.center,
-                                keyboardType: TextInputType.number,
-                                inputFormatters: [EnglishNumeralsFormatter()],
-                                onChanged: (text) {
-                                  setState(() {
-                                    phoneNumber = text;
-                                  });
-                                },
-                                decoration: InputDecoration(
-                                    hintText: 'رقم التليفون',
-                                    hintStyle: TextStyle(
-                                      fontFamily: 'Tajawal',
-                                      fontSize: 15,
-                                      color: Colors.black54,
-                                    ),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(20.0),
-                                    ),
-                                    prefixIcon: Icon(Icons.phone_android)),
+                          ),
+                        ),
+                        const SizedBox(height: 15),
+                        SizedBox(
+                          width: 300,
+                          height: 37,
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              creatUser(isFast: true);
+                            },
+                            style: ElevatedButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20)),
+                                backgroundColor: Colors.grey[800]),
+                            child: Text(
+                              'تسجيل سريع',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Tajawal',
                               ),
                             ),
-                            Container(
-                              padding: const EdgeInsets.only(top: 17),
-                              child: FasilaSelector(
-                                selectedFasila: _currentFasilaSelected,
-                                hintText: "اختر فصيلة دمك",
-                                onFasilaSelected: (value) {
-                                  _onDropDownItemSelected(value);
-                                },
-                                validator: (val) {
-                                  if (val == null || val.isEmpty) {
-                                    return "حدد فصيلة دمك";
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.only(top: 17),
-                              child: GovernorateSelector(
-                                selectedGovernorate: governorate,
-                                iconColor: Colors.black,
-                                onGovernorateSelected: (value) {
-                                  setState(() {
-                                    governorate = value;
-                                  });
-                                },
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return "برجاء اختيار المحافظة";
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.only(top: 17),
-                              child: TextFormField(
-                                controller: _addressController,
-                                validator: (text) {
-                                  if (text == null || text.isEmpty) {
-                                    return "برجاء كتابة المنطقة";
-                                  }
-                                  if (text.length > 60) {
-                                    return "العنوان طويل جدا";
-                                  }
-                                  if (text.length < 2) {
-                                    return "العنوان قصير جدا";
-                                  }
-                                  return null;
-                                },
-                                textAlign: TextAlign.center,
-                                onChanged: (text) {
-                                  setState(() {
-                                    address = text;
-                                  });
-                                },
-                                decoration: InputDecoration(
-                                  hintText: 'المنطقة',
-                                  hintStyle: TextStyle(
-                                    fontFamily: 'Tajawal',
-                                    fontSize: 15,
-                                    color: Colors.black54,
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(20.0),
-                                  ),
-                                  prefixIcon: Icon(Icons.location_city),
-                                ),
-                              ),
-                            ),
-                            Container(
-                              padding: EdgeInsets.only(top: 13),
-                              child: Column(
-                                children: [
-                                  SizedBox(
-                                    width: 300,
-                                    height: 37,
-                                    child: ElevatedButton(
-                                      onPressed: () async {
-                                        _formKey.currentState!.validate()
-                                            ? creatUser()
-                                            : debugPrint("not valid");
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                          shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(20)),
-                                          backgroundColor: Colors.red[900]!),
-                                      child: Text(
-                                        'إنشاء حساب',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontFamily: 'Tajawal',
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 15),
-                                  SizedBox(
-                                    width: 300,
-                                    height: 37,
-                                    child: ElevatedButton(
-                                      onPressed: () async {
-                                        creatUser(isFast: true);
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                          shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(20)),
-                                          backgroundColor: Colors.grey[800]),
-                                      child: Text(
-                                        'تسجيل سريع',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontFamily: 'Tajawal',
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(height: 15),
-                            TextButton(
-                              child: Text(
-                                'لديك حساب ؟ سجل دخولك من هنا .',
-                                style: TextStyle(
-                                  fontFamily: 'Tajawal',
-                                ),
-                              ),
-                              onPressed: () {
-                                Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            const LoginPage()));
-                              },
-                            ),
-                          ],
+                          ),
                         ),
                       ],
                     ),
+                  ),
+                  SizedBox(height: 15),
+                  TextButton(
+                    child: Text(
+                      'لديك حساب ؟ سجل دخولك من هنا .',
+                      style: TextStyle(
+                        fontFamily: 'Tajawal',
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const LoginPage()));
+                    },
                   ),
                 ],
               ),
@@ -377,6 +367,11 @@ class RegisterPageState extends State<RegisterPage> {
     try {
       try {
         var now = DateTime.now();
+        List<String>? initialBanks =
+            (!isFast && governorate != null && governorate!.isNotEmpty)
+                ? [governorate!]
+                : null;
+
         _user = User(
             uid: widget.uidFromGoogle,
             email: widget.emailFromGoogle,
@@ -385,10 +380,15 @@ class RegisterPageState extends State<RegisterPage> {
             fasila: isFast ? null : _currentFasilaSelected,
             address: isFast ? null : address,
             governorate: isFast ? null : governorate,
+            registeredBanks: initialBanks,
             date: now,
             dateOfDonation: null);
 
         await _firebaseRepo.createUserProfile(_user!);
+
+        if (initialBanks != null && initialBanks.isNotEmpty) {
+          await _firebaseRepo.addDonorToBank(governorate!, _user!);
+        }
 
         context.read<AppCubit>().updateProfile(_user!);
 

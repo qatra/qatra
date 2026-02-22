@@ -89,15 +89,20 @@ class _GovernrateSearchListState extends State<GovernrateSearchList> {
                       ),
                       child: ListTile(
                         dense: true,
+                        minVerticalPadding: 0,
+                        minTileHeight: 40,
                         onTap: () => widget.onGovernrateTap(city),
                         contentPadding: EdgeInsets.zero,
                         title: Center(
-                          child: Text(
-                            city,
-                            style: const TextStyle(
-                              fontFamily: 'Tajawal',
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 3),
+                            child: Text(
+                              city,
+                              style: const TextStyle(
+                                fontFamily: 'Tajawal',
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                              ),
                             ),
                           ),
                         ),

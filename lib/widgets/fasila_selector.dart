@@ -28,7 +28,6 @@ class FasilaSelector extends StatelessWidget {
           (selectedFasila != null && listToDisplay.contains(selectedFasila))
               ? selectedFasila
               : null,
-      isDense: true,
       isExpanded: true,
       hint: hintText != null
           ? Center(
@@ -43,7 +42,6 @@ class FasilaSelector extends StatelessWidget {
             )
           : null,
       decoration: InputDecoration(
-        isDense: true,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20.0),
         ),

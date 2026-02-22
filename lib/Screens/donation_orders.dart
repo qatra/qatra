@@ -179,10 +179,13 @@ class DonationOrdersState extends State<DonationOrders> {
                       width: 70,
                     ),
                     Center(
-                      child: Icon(
-                        Icons.add,
-                        color: Colors.white,
-                        size: 30,
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 3),
+                        child: Icon(
+                          Icons.add,
+                          color: Colors.white,
+                          size: 30,
+                        ),
                       ),
                     )
                   ],

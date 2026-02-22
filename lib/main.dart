@@ -45,7 +45,7 @@ class MyAppState extends State<MyApp> {
         colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.red),
         textTheme: TextTheme(
           bodyLarge: TextStyle(
-              fontFamily: 'Tajawal', color: Colors.black, fontSize: 14),
+              fontFamily: 'Tajawal', color: Colors.black, fontSize: 15),
 
           // bodyMedium: TextStyle(
           //     fontFamily: 'Tajawal', color: Colors.black, fontSize: 16),

@@ -241,7 +241,8 @@ class AddDonerToBankState extends State<AddDonerToBank> {
                       padding: EdgeInsets.only(top: 10),
                       child: TextFormField(
                         initialValue: widget.governrate,
-                        enabled: false,
+                        // enabled: false,
+                        readOnly: true,
                         textAlign: TextAlign.center,
                         decoration: InputDecoration(
                           hintText: 'المحافظة',
